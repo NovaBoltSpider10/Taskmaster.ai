@@ -12,4 +12,8 @@ mongoose
     .then(() => console.log("Connected to MongoDB"))
     .catch((err) => console.log("MongoDB connection error: ", err));
 
+<<<<<<< HEAD
 console.log("hello world and also whats up");
+=======
+console.log("whats up");
+>>>>>>> 07d0fb8 (hi)
