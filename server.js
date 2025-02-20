@@ -13,7 +13,11 @@ mongoose
     .catch((err) => console.log("MongoDB connection error: ", err));
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 console.log("hello world and also whats up");
 =======
 console.log("whats up");
 >>>>>>> 07d0fb8 (hi)
+=======
+console.log("hello world and also whats up");
+>>>>>>> 964b3f1 (1)
