@@ -19,14 +19,6 @@ const config = {
     issuerBaseURL: process.env.ISSUER_URL
 };
 
-// const config = {
-//     authRequired: false,
-//     auth0Logout: true,
-//     secret: 'Ie6l-e0OfY3VyWMnW0Py1xncsNMcnvizs6zWLczypLpdvvb597qZJnQiUSqVXkWh',
-//     baseURL: `http://localhost:${port}`,
-//     clientID: 'nYgF27Va2mg1dJjoejpaLnA0blsxYVja',
-//     issuerBaseURL: 'https://dev-3mwnn06ty4frt075.us.auth0.com'
-// };
 
 app.use(auth(config));
 
