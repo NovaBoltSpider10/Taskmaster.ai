@@ -1,7 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const jwtCheck = require('./controllers/jwtCheck.js');
-const User = require('./models/User');
+const User = require('./models/userModel');
 require("dotenv").config();
 
 const port = 3000;
