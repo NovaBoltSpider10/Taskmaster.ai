@@ -10,7 +10,9 @@ const classSchema = new mongoose.Schema({
     contactInfo: String,
     textbooks: [String],
     location: String,
-    resources: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Resource' }]
+    resources: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Resource' }],
+    tasks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Tasks' }],
+
 });
 
 module.exports = mongoose.model('Class', classSchema);
