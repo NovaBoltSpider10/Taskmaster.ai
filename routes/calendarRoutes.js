@@ -6,8 +6,7 @@ const {
     getCalendarById,
     updateCalendar,
     deleteCalendar
-
-} = require('../controllers/CalendarController');
+} = require('../controllers/calendarController');
 
 const router = express.Router();
 

@@ -1,7 +1,7 @@
 const Task = require('../models/taskModel');
 
 //Get all tasks
-const getAllTasks = async(req, res) => {
+const getAllTask = async(req, res) => {
     try {
         const tasks = await Task.find();
         res.status(200).json(tasks);
@@ -13,7 +13,7 @@ const getAllTasks = async(req, res) => {
 
 
 //Get task
-const getTask = async(req, res) => {
+const getTaskById = async(req, res) => {
     try {
         const task = await Task.findById(req.params.id);
         if (!user)
@@ -79,10 +79,50 @@ const deleteTask = async(req, res) => {
     }
 };
 
+//Get task by class ID
+const getTaskByClassId = async(req, res) => {
+    try {
+        const tasks = await Task.findById({classId: req.params.classId});
+        
+        if (!tasks)
+        {
+            return res.status(404).json({ message: "No tasks found for this class" });
+        }
+
+        res.status(200).json(tasks);
+
+    } catch (error) {
+        res.status(500).json({message: error.message});
+    }
+};
+
+ //Create task by ID
+const createTaskByClassId = async(req, res) => {
+    try {
+        const {title, description, dueDate, status, priority} = req.body;
+        const {classId} = req.params;
+
+        if(!classId)
+        {
+            return res.status(404).json({message: "Class ID is required"});
+        }
+
+        const newTask = new Task({title, description, dueDate, status, priority, classId});
+
+        const savedTask = await newTask.save();
+        res.status(201).json(savedTask);
+
+    } catch (error) {
+        res.status(500).json({message: error.message});
+    }
+};
+
 module.exports = {
-    getAllTasks,
-    getTask,
+    getAllTask,
+    getTaskById,
     createTask,
     updateTask,
-    deleteTask
+    deleteTask,
+    getTaskByClassId,
+    createTaskByClassId
 };

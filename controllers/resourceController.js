@@ -12,8 +12,8 @@ const getAllResources = async(req, res) => {
 };
 
 
-//Get resource
-const getResource = async(req, res) => {
+//Get resource by Id
+const getResourceById = async(req, res) => {
     try {
         const resource = await Resource.findById(req.params.id);
         if (!resource)
@@ -79,10 +79,57 @@ const deleteResource = async(req, res) => {
     }
 };
 
+//Get resource by class ID
+const getResourcesByClassId = async(req, res) => {
+    try {
+        const resource = await Resource.findById({classId: req.params.classId});
+
+        if (!resource)
+        {
+            return res.status(404).json({ message: "Resources not found not found for this class" });
+        }
+
+        res.status(200).json(resource);
+
+
+    } catch (error) {
+        res.status(500).json({message: error.message});
+    }
+}
+
+//Create resource by class ID
+const createResourceByClassId = async(req, res) => {
+    try {
+        const {url, website} = req.body;
+        const updatedResource = await Task.findByIdAndUpdate(req.params.id, {url, website}, {new: true});
+        const {classId} = req.params;
+
+        if (!classId)
+        {
+            return res.status(404).json({ message: "Class ID not found" });
+        }
+        
+        const newResource = new Resource({url, website, classId});
+        const savedResource = await newResource.save();
+        res.status(201).json(savedResource);
+
+        res.status(200).json(updatedResource);
+
+    } catch (error) {
+        res.status(500).json({message: error.message});
+    }
+
+
+
+
+};
+
 module.exports = {
     getAllResources,
-    getResource,
+    getResourceById,
     createResource,
     updateResource,
-    deleteResource
+    deleteResource,
+    getResourcesByClassId,
+    createResourceByClassId
 };
