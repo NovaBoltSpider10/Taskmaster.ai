@@ -14,7 +14,7 @@ const {
 const router = express.Router();
 
 // GET all resources
-router.get('/', getAllResource);
+router.get('/', getAllResources);
 
 // GET a single resource by ID
 router.get('/:id', getResourceById);
