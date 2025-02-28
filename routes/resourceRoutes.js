@@ -2,7 +2,7 @@ const express = require('express');
 
 const {
     createResource,
-    getAllResource,
+    getAllResources,
     getResourceById,
     updateResource,
     deleteResource,

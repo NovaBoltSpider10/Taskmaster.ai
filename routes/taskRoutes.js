@@ -9,7 +9,7 @@ const {
     getTaskByClassId,
     createTaskByClassId
 
-} = require('../controllers/TaskController');
+} = require('../controllers/taskController');
 
 const router = express.Router();
 
