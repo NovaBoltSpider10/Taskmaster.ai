@@ -6,4 +6,4 @@ const resourceSchema = mongoose.Schema({
     class: { type: mongoose.Schema.Types.ObjectId, ref: 'Class' }
 });
 
-module.exports = mongoose.model('Calendar', resourceSchema);
+module.exports = mongoose.model('Resource', resourceSchema);
