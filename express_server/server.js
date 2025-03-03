@@ -1,25 +1,32 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const { auth, requiresAuth } = require('express-openid-connect');
-const config = require('./controllers/authController.js');
+var bodyParser = require('body-parser');
+
+const authController = require('./controllers/authController.js');
 const User = require("./models/userModel.js");
 require("dotenv").config();
 
 const PORT = process.env.PORT || 3000;
 const app = express();
- 
+
 mongoose
     .connect(process.env.DB_URL)
     .then(() => console.log("Connected to MongoDB"))
     .catch((err) => console.log("MongoDB connection error: ", err));
 
-app.use(auth(config));
+app.use(auth(authController.config));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
 
 app.get('/', (req, res) => {
     res.send(req.oidc.isAuthenticated() ? 'Logged in' : 'Logged out');
 });
 
 app.get('/callback', requiresAuth(), (req, res) => {
+    res.redirect('/profile');
     // let username = JSON.stringify(req.oidc.user.nickname, null, 2);
     // let firstName = JSON.stringify(req.oidc.user.given_name , null, 2);
     // let lastName = JSON.stringify(req.oidc.user.family_name, null, 2);
@@ -27,8 +34,9 @@ app.get('/callback', requiresAuth(), (req, res) => {
     // const newUser = new User({username: username, fistName: firstName, lastName: lastName, email: email});
 });
 
-app.get('/profile', requiresAuth(), (req, res) => {
-    res.send(JSON.stringify(req.oidc.user, null, 2));
+app.get('/profile', requiresAuth(), async (req, res) => {
+    var profile_info = await authController.getUserData(req.oidc.user.sub);
+    res.send(profile_info);
 });
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
