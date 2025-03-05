@@ -21,22 +21,55 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 
-app.get('/', (req, res) => {
-    res.send(req.oidc.isAuthenticated() ? 'Logged in' : 'Logged out');
+app.get('/', async (req, res) => {
+    if (!req.oidc.isAuthenticated())
+    {
+        res.send('Logged out <br> <a href="/login">Login</a>');
+        return;
+    }
+
+    const existingUser = await User.findOne({sub: req.oidc.user.sub});  
+
+    if (!existingUser)
+    {
+        res.redirect('/setup');
+        return;
+    }
+
+    res.send(
+        `Logged in <br> 
+        <a href="/logout">Logout</a> <br> 
+        <a href="/profile">profile</a> <br>
+        `
+    );
 });
 
-app.get('/callback', requiresAuth(), (req, res) => {
-    res.redirect('/profile');
-    // let username = JSON.stringify(req.oidc.user.nickname, null, 2);
-    // let firstName = JSON.stringify(req.oidc.user.given_name , null, 2);
-    // let lastName = JSON.stringify(req.oidc.user.family_name, null, 2);
-    // let email = JSON.stringify(req.oidc.user.email, null, 2);
-    // const newUser = new User({username: username, fistName: firstName, lastName: lastName, email: email});
+app.get('/setup', requiresAuth(), (req, res) => {
+    res.sendFile('public/setup.html', {root: __dirname});
 });
 
-app.get('/profile', requiresAuth(), async (req, res) => {
-    var profile_info = await authController.getUserData(req.oidc.user.sub);
-    res.send(profile_info);
+app.post('/setup', requiresAuth(), async (req, res) => {
+    const newUser = new User({
+        sub: req.oidc.user.sub,
+        username: req.body.username,
+        firstName: req.body.fname,
+        lastName: req.body.lname,
+        email: req.oidc.user.email,
+        pfp: req.oidc.user.picture,
+    });
+
+    newUser.save()
+        .catch((err) => {
+            console.log(err);
+            res.sendFile('public/setup_error.html', {root: __dirname});
+            return;
+        });
+
+    res.redirect('/');
+});
+
+app.get('/profile', requiresAuth(), (req, res) => {
+    res.send(req.oidc.user);
 });
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

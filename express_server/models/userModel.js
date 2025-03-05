@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
+    sub: { type: String, required: true, unique: true },
     username: { type: String, required: true, unique: true },
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
@@ -8,7 +9,6 @@ const userSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     pfp: String,
 
-    phoneNumber: String,
     classes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Class' }],
     calendar: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Calendar' }],
     gpa: Number,
