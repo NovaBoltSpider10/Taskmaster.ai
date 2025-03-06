@@ -68,8 +68,9 @@ app.post('/setup', requiresAuth(), async (req, res) => {
     res.redirect('/');
 });
 
-app.get('/profile', requiresAuth(), (req, res) => {
-    res.send(req.oidc.user);
+app.get('/profile', requiresAuth(), async (req, res) => {
+    const existingUser = await User.findOne({sub: req.oidc.user.sub});  
+    res.send(existingUser);
 });
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
