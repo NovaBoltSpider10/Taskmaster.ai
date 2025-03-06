@@ -4,6 +4,7 @@ const { auth, requiresAuth } = require('express-openid-connect');
 var bodyParser = require('body-parser');
 
 const authController = require('./controllers/authController.js');
+const userController = require('./controllers/userController.js');
 const User = require("./models/userModel.js");
 require("dotenv").config();
 
@@ -22,55 +23,24 @@ app.use(bodyParser.urlencoded({
 }));
 
 app.get('/', async (req, res) => {
-    if (!req.oidc.isAuthenticated())
-    {
-        res.send('Logged out <br> <a href="/login">Login</a>');
+    if (!authController.validateAuth(req, res)) {
         return;
     }
-
-    const existingUser = await User.findOne({sub: req.oidc.user.sub});  
-
-    if (!existingUser)
-    {
-        res.redirect('/setup');
-        return;
-    }
-
-    res.send(
-        `Logged in <br> 
-        <a href="/logout">Logout</a> <br> 
-        <a href="/profile">profile</a> <br>
-        `
-    );
 });
 
 app.get('/setup', requiresAuth(), (req, res) => {
-    res.sendFile('public/setup.html', {root: __dirname});
+    res.sendFile('public/setup.html', { root: __dirname });
 });
 
 app.post('/setup', requiresAuth(), async (req, res) => {
-    const newUser = new User({
-        sub: req.oidc.user.sub,
-        username: req.body.username,
-        firstName: req.body.fname,
-        lastName: req.body.lname,
-        email: req.oidc.user.email,
-        pfp: req.oidc.user.picture,
-    });
-
-    newUser.save()
-        .catch((err) => {
-            console.log(err);
-            res.sendFile('public/setup_error.html', {root: __dirname});
-            return;
-        });
-
-    res.redirect('/');
+    if (!userController.setupUser(req, res)) {
+        return;
+    }
 });
 
 app.get('/profile', requiresAuth(), async (req, res) => {
-    const existingUser = await User.findOne({sub: req.oidc.user.sub});  
-    res.send(existingUser);
+    const existingUser = await User.findOne({ sub: req.oidc.user.sub });
+    res.send(JSON.stringify(existingUser));
 });
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
