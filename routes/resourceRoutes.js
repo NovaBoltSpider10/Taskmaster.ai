@@ -1,6 +1,6 @@
-const express = require('express');
+import express from 'express';
 
-const {
+import {
     createResource,
     getAllResources,
     getResourceById,
@@ -8,8 +8,7 @@ const {
     deleteResource,
     getResourcesByClassId,
     createResourceByClassId
-
-} = require('../controllers/ResourceController');
+} from '../controllers/ResourceController.js';
 
 const router = express.Router();
 
@@ -37,4 +36,4 @@ router.post('/:id', createResourceByClassId);
 
 
 
-module.exports = router;
+export default router;

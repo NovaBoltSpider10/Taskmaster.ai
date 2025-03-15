@@ -1,13 +1,12 @@
-const express = require('express');
+import express from 'express';
 
-const {
+import {
     createClass,
     getAllClasses,
     getClassById,
     updateClass,
     deleteClass
-
-} = require('../controllers/classController');
+} from '../controllers/classController.js'; 
 
 const router = express.Router();
 
@@ -26,4 +25,4 @@ router.delete('/:id', deleteClass);
 // UPDATE a class by ID
 router.patch('/:id', updateClass);
 
-module.exports = router;
+export default router;

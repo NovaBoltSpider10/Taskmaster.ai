@@ -1,15 +1,15 @@
-const express = require('express');
+import express from 'express';
 
-const {
+import {
     createTask,
     getAllTask,
     getTaskById,
     updateTask,
     deleteTask,
     getTaskByClassId,
-    createTaskByClassId
-
-} = require('../controllers/taskController');
+    createTaskByClassId,
+    parseSyllabus
+} from '../controllers/taskController.js';
 
 const router = express.Router();
 
@@ -31,8 +31,10 @@ router.patch('/:id', updateTask);
 //Get all tasks by class
 router.get('/:id', getTaskByClassId);
 
+router.post('/syllabus', parseSyllabus)
+
 //Create task by class id
 router.post('/:id', createTaskByClassId);
 
 
-module.exports = router;
+export default router;

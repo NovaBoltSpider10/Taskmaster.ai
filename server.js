@@ -1,13 +1,14 @@
-const express = require("express");
-const mongoose = require("mongoose");
-// const jwtCheck = require('./controllers/jwtCheck.js');
-require("dotenv").config();
+import express from "express";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
 
-//Routes files
-const taskRoutes = require('./routes/taskRoutes');
-const resourcesRoutes = require('./routes/resourceRoutes');
-const calendarRoutes = require('./routes/calendarRoutes')
-const classRoutes = require('./routes/classRoutes')
+// Routes files
+import taskRoutes from './routes/taskRoutes.js';
+import resourcesRoutes from './routes/resourceRoutes.js';
+import calendarRoutes from './routes/calendarRoutes.js';
+import classRoutes from './routes/classRoutes.js';
+
+dotenv.config();
 
 
 const port = 3000;
@@ -33,3 +34,4 @@ app.get('/authorized', function (req, res) {
 app.listen(port, () => {
     console.log(`App listening on port ${port}`)
 });
+

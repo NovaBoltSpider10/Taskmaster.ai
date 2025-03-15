@@ -1,4 +1,4 @@
-const Resource = require('../models/resourceModel');
+import Resource from '../models/resourceModel.js';
 
 //Get all resources
 const getAllResources = async(req, res) => {
@@ -129,7 +129,7 @@ const createResourceByClassId = async(req, res) => {
 
 };
 
-module.exports = {
+export {
     getAllResources,
     getResourceById,
     createResource,

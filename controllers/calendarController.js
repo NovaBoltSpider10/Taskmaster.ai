@@ -1,4 +1,4 @@
-const Calendar = require('../models/calendarModel');
+import Calendar from '../models/calendarModel.js';
 
 //Get all calendars
 const getAllCalendar = async(req, res) => {
@@ -75,7 +75,7 @@ const deleteCalendar = async(req, res) => {
     }
 };
 
-module.exports = {
+export {
     createCalendar,
     getAllCalendar,
     getCalendarById,

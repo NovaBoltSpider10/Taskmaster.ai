@@ -1,4 +1,4 @@
-const Class = require('../models/classModel');
+import Class from '../models/classModel.js';
 
 //Get all classes
 const getAllClasses = async(req, res) => {
@@ -75,7 +75,7 @@ const deleteClass = async(req, res) => {
     }
 };
 
-module.exports = {
+export {
     createClass,
     getAllClasses,
     getClassById,
