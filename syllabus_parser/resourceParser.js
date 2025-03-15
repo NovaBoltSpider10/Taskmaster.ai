@@ -1,8 +1,10 @@
+import dotenv from "dotenv";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import * as fs from "fs/promises";
 import Resource from '../models/resourceModel.js';
-import mongoose from "mongoose";
-const genAI = new GoogleGenerativeAI("AIzaSyCe-eeJM-dXKO1vmlg9qc35h_Zv6XtRdAg");
+dotenv.config();
+
+const genAI = new GoogleGenerativeAI(process.env.Google_GenAI_URL);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 
