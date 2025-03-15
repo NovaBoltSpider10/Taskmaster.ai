@@ -1,10 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import * as fs from "fs/promises";
 import Task from '../models/taskModel.js';
-import mongoose from 'mongoose';
-import dotenv from 'dotenv';
-
-dotenv.config();
 
 const genAI = new GoogleGenerativeAI("AIzaSyCe-eeJM-dXKO1vmlg9qc35h_Zv6XtRdAg");
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
@@ -53,7 +49,7 @@ async function extractSyllabusDataTasks(syllabusText) {
 }
 
 async function saveTasksToDatabase(tasks) {
-  console.log("Start of mongose code");
+  console.log("Start of task mongose code");
   if (!tasks || !Array.isArray(tasks)) {
     console.error("Invalid tasks array provided.");
     return;
@@ -64,7 +60,7 @@ async function saveTasksToDatabase(tasks) {
       const newTask = new Task(tasksData);
       await newTask.save();
     } 
-    console.log(`Task "${tasks.title}" saved to database.`);
+    console.log(`Task "${Task.title}" saved to database.`);
 
   } catch(error) {
       console.error("Error saving task to database: ", error);
@@ -84,20 +80,9 @@ async function parseAndSaveSyllabus(syllabusFilePath) {
       return;
   }
 
-  // mongoose
-  //     .connect(process.env.DB_URL)
-  //     .then(() => console.log("Connected to MongoDB"))
-  //     .catch((err) => console.log("MongoDB connection error: ", err));
   await saveTasksToDatabase(tasks);
-  // await mongoose.disconnect();
   console.log("Syllabus parsed and tasks saved successfully.");
   
 }
-
-
-
-
-//- Class { professor: String, timing: String, dueDates: [Date], examDates: [Date], topics: [String], gradingPolicy: String, contactInfo: String, textbooks: [String], location: String }
-//- Resources { URLs: [String] }
 
 export {extractSyllabusDataTasks, readSyllabus, saveTasksToDatabase, parseAndSaveSyllabus};

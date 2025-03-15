@@ -1,4 +1,5 @@
 import Resource from '../models/resourceModel.js';
+import { parseAndSaveSyllabus } from '../syllabus_parser/resourceParser.js';
 
 //Get all resources
 const getAllResources = async(req, res) => {
@@ -123,10 +124,22 @@ const createResourceByClassId = async(req, res) => {
     } catch (error) {
         res.status(500).json({message: error.message});
     }
+};
 
-
-
-
+//Create task by Syllabus
+const parseSyllabus = async (req, res) => {
+    console.log("Called resourseParser controller");
+    try {
+        const { syllabusFilePath } = req.body;
+        if (!syllabusFilePath) {
+            return res.status(400).json({ message: "Syllabus file path is required." });
+        }
+        await parseAndSaveSyllabus(syllabusFilePath);
+        res.status(200).json({ message: "Syllabus parsed and resources saved successfully." });
+    } catch (error) {
+        console.error("Error parsing syllabus:", error);
+        res.status(500).json({ message: "An error occurred while parsing the syllabus.", error: error.message });
+    }
 };
 
 export {
@@ -136,5 +149,6 @@ export {
     updateResource,
     deleteResource,
     getResourcesByClassId,
-    createResourceByClassId
+    createResourceByClassId,
+    parseSyllabus
 };

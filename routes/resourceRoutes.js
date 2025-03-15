@@ -7,7 +7,8 @@ import {
     updateResource,
     deleteResource,
     getResourcesByClassId,
-    createResourceByClassId
+    createResourceByClassId,
+    parseSyllabus
 } from '../controllers/ResourceController.js';
 
 const router = express.Router();
@@ -29,6 +30,9 @@ router.patch('/:id', updateResource);
 
 // Get all resources for a certain class
 router.get('/:id', getResourcesByClassId);
+
+//Get all tasks by syllabus path
+router.post('/syllabus', parseSyllabus)
 
 // Create resource by class ID
 router.post('/:id', createResourceByClassId);
