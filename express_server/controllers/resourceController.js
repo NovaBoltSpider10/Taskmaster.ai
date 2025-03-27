@@ -1,9 +1,10 @@
-const Resource = require('../models/resourceModel');
+import Resource, { find, findById } from '../models/resourceModel';
+import { parseAndSaveSyllabus } from '../syllabus_parser/resourceParser.js';
 
 //Get all resources
 const getAllResources = async(req, res) => {
     try {
-        const resources = await Resource.find();
+        const resources = await find();
         res.status(200).json(resources);
 
     } catch (error) {
@@ -15,7 +16,7 @@ const getAllResources = async(req, res) => {
 //Get resource by Id
 const getResourceById = async(req, res) => {
     try {
-        const resource = await Resource.findById(req.params.id);
+        const resource = await findById(req.params.id);
         if (!resource)
         {
             return res.status(404).json({ message: "Resource not found" });
@@ -82,7 +83,7 @@ const deleteResource = async(req, res) => {
 //Get resource by class ID
 const getResourcesByClassId = async(req, res) => {
     try {
-        const resource = await Resource.findById({classId: req.params.classId});
+        const resource = await findById({classId: req.params.classId});
 
         if (!resource)
         {
@@ -119,17 +120,31 @@ const createResourceByClassId = async(req, res) => {
         res.status(500).json({message: error.message});
     }
 
-
-
-
 };
 
-module.exports = {
+//Create task by Syllabus
+const parseSyllabus = async (req, res) => {
+    console.log("Called resourseParser controller");
+    try {
+        const { syllabusFilePath } = req.body;
+        if (!syllabusFilePath) {
+            return res.status(400).json({ message: "Syllabus file path is required." });
+        }
+        await parseAndSaveSyllabus(syllabusFilePath);
+        res.status(200).json({ message: "Syllabus parsed and resources saved successfully." });
+    } catch (error) {
+        console.error("Error parsing syllabus:", error);
+        res.status(500).json({ message: "An error occurred while parsing the syllabus.", error: error.message });
+    }
+};
+
+export default {
     getAllResources,
     getResourceById,
     createResource,
     updateResource,
     deleteResource,
     getResourcesByClassId,
-    createResourceByClassId
+    createResourceByClassId,
+    parseSyllabus
 };

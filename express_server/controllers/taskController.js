@@ -1,9 +1,9 @@
-const Task = require('../models/taskModel');
-
+import Task, { find, findById, findByIdAndUpdate, findByIdAndDelete } from '../models/taskModel';
+import { parseAndSaveSyllabus } from '../syllabus_parser/taskParser.js';
 //Get all tasks
 const getAllTask = async(req, res) => {
     try {
-        const tasks = await Task.find();
+        const tasks = await find();
         res.status(200).json(tasks);
 
     } catch (error) {
@@ -15,7 +15,7 @@ const getAllTask = async(req, res) => {
 //Get task
 const getTaskById = async(req, res) => {
     try {
-        const task = await Task.findById(req.params.id);
+        const task = await findById(req.params.id);
         if (!user)
         {
             return res.status(404).json({ message: "Task not found" });
@@ -49,7 +49,7 @@ const createTask = async(req, res) => {
 const updateTask = async(req, res) => {
     try {
         const {title, description, dueDate, status, priority} = req.body;
-        const updatedTask = await Task.findByIdAndUpdate(req.params.id, {title, description, dueDate, status, priority}, {new: true});
+        const updatedTask = await findByIdAndUpdate(req.params.id, {title, description, dueDate, status, priority}, {new: true});
 
         if (!updatedTask)
         {
@@ -67,7 +67,7 @@ const updateTask = async(req, res) => {
 //Delete task
 const deleteTask = async(req, res) => {
     try {
-        const deletedTask = await Task.findByIdAndDelete(req.params.id);
+        const deletedTask = await findByIdAndDelete(req.params.id);
         if (!deletedTask)
         {
             return res.status(404).json({message: "Task mot found"});
@@ -82,7 +82,7 @@ const deleteTask = async(req, res) => {
 //Get task by class ID
 const getTaskByClassId = async(req, res) => {
     try {
-        const tasks = await Task.findById({classId: req.params.classId});
+        const tasks = await findById({classId: req.params.classId});
         
         if (!tasks)
         {
@@ -117,12 +117,29 @@ const createTaskByClassId = async(req, res) => {
     }
 };
 
-module.exports = {
+//Create task by Syllabus
+const parseSyllabus = async (req, res) => {
+    console.log("Called controller");
+    try {
+        const { syllabusFilePath } = req.body;
+        if (!syllabusFilePath) {
+            return res.status(400).json({ message: "Syllabus file path is required." });
+        }
+        await parseAndSaveSyllabus(syllabusFilePath);
+        res.status(200).json({ message: "Syllabus parsed and tasks saved successfully." });
+    } catch (error) {
+        console.error("Error parsing syllabus:", error);
+        res.status(500).json({ message: "An error occurred while parsing the syllabus.", error: error.message });
+    }
+};
+
+export default {
     getAllTask,
     getTaskById,
     createTask,
     updateTask,
     deleteTask,
     getTaskByClassId,
-    createTaskByClassId
+    createTaskByClassId,
+    parseSyllabus
 };

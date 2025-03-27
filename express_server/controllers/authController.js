@@ -1,4 +1,4 @@
-const User = require("../models/userModel.js");
+import { findOne } from "../models/userModel.js";
 require("dotenv").config();
 
 const config = {
@@ -16,7 +16,7 @@ const validateAuth = async (req, res) => {
         return false;
     }
 
-    const existingUser = await User.findOne({ sub: req.oidc.user.sub });
+    const existingUser = await findOne({ sub: req.oidc.user.sub });
 
     if (!existingUser) {
         res.redirect('/setup');
@@ -31,7 +31,7 @@ const validateAuth = async (req, res) => {
     );
 };
 
-module.exports = {
-    config: config,
-    validateAuth: validateAuth,
-};
+export default {
+    validateAuth, 
+    config
+}

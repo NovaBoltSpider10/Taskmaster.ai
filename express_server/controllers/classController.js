@@ -1,9 +1,10 @@
-const Class = require('../models/classModel');
+import Class, { find, findById, findByIdAndDelete } from '../models/classModel';
+import { parseAndSaveSyllabus } from '../syllabus_parser/classParser.js';
 
 //Get all classes
 const getAllClasses = async(req, res) => {
     try {
-        const classes = await Class.find();
+        const classes = await find();
         res.status(200).json(tasks);
 
     } catch (error) {
@@ -14,7 +15,7 @@ const getAllClasses = async(req, res) => {
 //Get class by ID
 const getClassById = async(req, res) => {
     try {
-        const classes = await Class.findById(req.params.id);
+        const classes = await findById(req.params.id);
         if (!classes)
         {
             return res.status(404).json({ message: "Class not found" });
@@ -63,7 +64,7 @@ const updateClass = async(req, res) => {
 //Delete class
 const deleteClass = async(req, res) => {
     try {
-        const deletedClass = await Class.findByIdAndDelete(req.params.id);
+        const deletedClass = await findByIdAndDelete(req.params.id);
         if (!deletedClass)
         {
             return res.status(404).json({message: "Class not found"});
@@ -75,10 +76,27 @@ const deleteClass = async(req, res) => {
     }
 };
 
-module.exports = {
+//POST from syllabus
+const parseSyllabus = async (req, res) => {
+    console.log("Called controller");
+    try {
+        const { syllabusFilePath } = req.body;
+        if (!syllabusFilePath) {
+            return res.status(400).json({ message: "Syllabus file path is required." });
+        }
+        await parseAndSaveSyllabus(syllabusFilePath);
+        res.status(200).json({ message: "Syllabus parsed and class saved successfully." });
+    } catch (error) {
+        console.error("Error parsing syllabus:", error);
+        res.status(500).json({ message: "An error occurred while parsing the syllabus.", error: error.message });
+    }
+};
+
+export default {
     createClass,
     getAllClasses,
     getClassById,
     updateClass,
-    deleteClass
+    deleteClass,
+    parseSyllabus
 };

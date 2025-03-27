@@ -6,6 +6,13 @@ var bodyParser = require('body-parser');
 const authController = require('./controllers/authController.js');
 const userController = require('./controllers/userController.js');
 const User = require("./models/userModel.js");
+
+// Routes files
+import taskRoutes from './routes/taskRoutes.js';
+import resourcesRoutes from './routes/resourceRoutes.js';
+import calendarRoutes from './routes/calendarRoutes.js';
+import classRoutes from './routes/classRoutes.js';
+
 require("dotenv").config();
 
 const PORT = process.env.PORT || 3000;
@@ -22,6 +29,14 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 
+
+app.use(express.json());
+app.use('/tasks', taskRoutes); //Works: POST tested only
+app.use('/resources', resourcesRoutes); //Works: POST tested only
+app.use('/class', classRoutes); //Works: POST tested only
+app.use('/calendar', calendarRoutes); //Works: POST tested only
+
+// Controller/routes code for auth
 app.get('/', async (req, res) => {
     if (!authController.validateAuth(req, res)) {
         return;
