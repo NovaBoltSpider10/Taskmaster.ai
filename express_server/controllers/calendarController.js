@@ -1,9 +1,9 @@
-import Calendar, { find, findById, findByIdAndUpdate, findByIdAndDelete } from '../models/calendarModel';
+import Calendar from '../models/calendarModel.js';
 
 //Get all calendars
 const getAllCalendar = async(req, res) => {
     try {
-        const calendars = await find();
+        const calendars = await Calendar.find();
         res.status(200).json(calendars);
 
     } catch (error) {
@@ -14,7 +14,7 @@ const getAllCalendar = async(req, res) => {
 //Get calendar by ID
 const getCalendarById = async(req, res) => {
     try {
-        const calendars = await findById(req.params.id);
+        const calendars = await Calendar.findById(req.params.id);
         if (!calendars)
         {
             return res.status(404).json({ message: "Calendar not found" });
@@ -45,7 +45,7 @@ const createCalendar = async(req, res) => {
 const updateCalendar = async(req, res) => {
     try {
         const {classes, task, holidays, outlookEvents} = req.body;
-        const updatedCalendar = await findByIdAndUpdate(req.params.id, {classes, task, holidays, outlookEvents}, {new: true});
+        const updatedCalendar = await Calendar.findByIdAndUpdate(req.params.id, {classes, task, holidays, outlookEvents}, {new: true});
 
         if (!updatedCalendar)
         {
@@ -63,7 +63,7 @@ const updateCalendar = async(req, res) => {
 //Delete calendar
 const deleteCalendar = async(req, res) => {
     try {
-        const deletedCalendar = await findByIdAndDelete(req.params.id);
+        const deletedCalendar = await Calendar.findByIdAndDelete(req.params.id);
         if (!deletedCalendar)
         {
             return res.status(404).json({message: "Calendar not found"});
@@ -75,7 +75,7 @@ const deleteCalendar = async(req, res) => {
     }
 };
 
-export default {
+export {
     createCalendar,
     getAllCalendar,
     getCalendarById,

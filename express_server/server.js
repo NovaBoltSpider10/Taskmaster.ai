@@ -1,11 +1,13 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const { auth, requiresAuth } = require('express-openid-connect');
-var bodyParser = require('body-parser');
+import express from "express";
+import mongoose from "mongoose";
+import pkg from 'express-openid-connect';
+const { auth, requiresAuth } = pkg;
+import bodyParser from "body-parser";
 
-const authController = require('./controllers/authController.js');
-const userController = require('./controllers/userController.js');
-const User = require("./models/userModel.js");
+import authController from "./controllers/authController.js";
+import {setupUser} from './controllers/userController.js';     
+import User from "./models/userModel.js";
+
 
 // Routes files
 import taskRoutes from './routes/taskRoutes.js';
@@ -13,7 +15,9 @@ import resourcesRoutes from './routes/resourceRoutes.js';
 import calendarRoutes from './routes/calendarRoutes.js';
 import classRoutes from './routes/classRoutes.js';
 
-require("dotenv").config();
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const PORT = process.env.PORT || 3000;
 const app = express();
@@ -48,7 +52,7 @@ app.get('/setup', requiresAuth(), (req, res) => {
 });
 
 app.post('/setup', requiresAuth(), async (req, res) => {
-    if (!userController.setupUser(req, res)) {
+    if (!setupUser(req, res)) {
         return;
     }
 });

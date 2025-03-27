@@ -1,11 +1,12 @@
-import Class, { find, findById, findByIdAndDelete } from '../models/classModel';
+import Class from '../models/classModel.js';
 import { parseAndSaveSyllabus } from '../syllabus_parser/classParser.js';
+
 
 //Get all classes
 const getAllClasses = async(req, res) => {
     try {
-        const classes = await find();
-        res.status(200).json(tasks);
+        const classes = await Class.find();
+        res.status(200).json(classes);
 
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -15,7 +16,7 @@ const getAllClasses = async(req, res) => {
 //Get class by ID
 const getClassById = async(req, res) => {
     try {
-        const classes = await findById(req.params.id);
+        const classes = await Class.findById(req.params.id);
         if (!classes)
         {
             return res.status(404).json({ message: "Class not found" });
@@ -64,7 +65,7 @@ const updateClass = async(req, res) => {
 //Delete class
 const deleteClass = async(req, res) => {
     try {
-        const deletedClass = await findByIdAndDelete(req.params.id);
+        const deletedClass = await Class.findByIdAndDelete(req.params.id);
         if (!deletedClass)
         {
             return res.status(404).json({message: "Class not found"});
@@ -92,7 +93,8 @@ const parseSyllabus = async (req, res) => {
     }
 };
 
-export default {
+
+export {
     createClass,
     getAllClasses,
     getClassById,

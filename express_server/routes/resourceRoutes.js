@@ -1,7 +1,17 @@
-import { Router } from 'express';
-import { createResource, getAllResources, getResourceById, updateResource, deleteResource, getResourcesByClassId, createResourceByClassId, parseSyllabus } from '../controllers/resourceController';
+import express from 'express';
 
-const router = Router();
+import {
+    createResource,
+    getAllResources,
+    getResourceById,
+    updateResource,
+    deleteResource,
+    getResourcesByClassId,
+    createResourceByClassId,
+    parseSyllabus
+} from '../controllers/resourceController.js';
+
+const router = express.Router();
 
 // GET all resources
 router.get('/', getAllResources);
@@ -21,6 +31,7 @@ router.patch('/:id', updateResource);
 // Get all resources for a certain class
 router.get('/:id', getResourcesByClassId);
 
+//Get all tasks by syllabus path
 router.post('/syllabus', parseSyllabus)
 
 // Create resource by class ID

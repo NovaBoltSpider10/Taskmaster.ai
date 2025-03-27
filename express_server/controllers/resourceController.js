@@ -1,10 +1,10 @@
-import Resource, { find, findById } from '../models/resourceModel';
+import Resource from '../models/resourceModel.js';
 import { parseAndSaveSyllabus } from '../syllabus_parser/resourceParser.js';
 
 //Get all resources
 const getAllResources = async(req, res) => {
     try {
-        const resources = await find();
+        const resources = await Resource.find();
         res.status(200).json(resources);
 
     } catch (error) {
@@ -16,7 +16,7 @@ const getAllResources = async(req, res) => {
 //Get resource by Id
 const getResourceById = async(req, res) => {
     try {
-        const resource = await findById(req.params.id);
+        const resource = await Resource.findById(req.params.id);
         if (!resource)
         {
             return res.status(404).json({ message: "Resource not found" });
@@ -34,9 +34,14 @@ const getResourceById = async(req, res) => {
 //Create resource
 const createResource = async(req, res) => {
     try {
-        const {url, website} = req.body;
+        const { urls, websites, class: classId } = req.body;
 
-        const newResource = new Resource({url, website});
+        const newResource = new Resource({
+            urls: urls || [], // Handle potential undefined/null
+            websites: websites || [], // Handle potential undefined/null
+            class: classId,
+        });
+
 
         const savedResource = await newResource.save();
         res.status(201).json(savedResource);
@@ -83,7 +88,7 @@ const deleteResource = async(req, res) => {
 //Get resource by class ID
 const getResourcesByClassId = async(req, res) => {
     try {
-        const resource = await findById({classId: req.params.classId});
+        const resource = await Resource.findById({classId: req.params.classId});
 
         if (!resource)
         {
@@ -119,7 +124,6 @@ const createResourceByClassId = async(req, res) => {
     } catch (error) {
         res.status(500).json({message: error.message});
     }
-
 };
 
 //Create task by Syllabus
@@ -138,7 +142,8 @@ const parseSyllabus = async (req, res) => {
     }
 };
 
-export default {
+
+export {
     getAllResources,
     getResourceById,
     createResource,

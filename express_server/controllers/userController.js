@@ -1,9 +1,9 @@
-import User, { find, findOne, findOneAndUpdate, findOneAndDelete } from '../models/userModel';
+import User from '../models/userModel.js';
 
 //Get all users
 const getAllUsers = async (req, res) => {
     try {
-        const users = await find({});
+        const users = await User.find({});
         res.status(200).json(users);
 
     } catch (error) {
@@ -15,7 +15,7 @@ const getAllUsers = async (req, res) => {
 //Get profile
 const getProfile = async (req, res) => {
     try {
-        const user = await findOne({ sub: req.oidc.user.sub });
+        const user = await User.findOne({ sub: req.oidc.user.sub });
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
@@ -59,7 +59,7 @@ const updateProfile = async (req, res) => {
             email: emaill,
             pfp: pfp,
         };
-        const updatedProfile = await findOneAndUpdate(query, update, { new: true });
+        const updatedProfile = await User.findOneAndUpdate(query, update, { new: true });
 
         if (!updatedProfile) {
             return res.status(404).json({ message: "User not found" });
@@ -74,7 +74,7 @@ const updateProfile = async (req, res) => {
 //Delete user
 const deleteUser = async (req, res) => {
     try {
-        const deleteUser = await findOneAndDelete({ sub: req.oidc.user.sub });
+        const deleteUser = await User.findOneAndDelete({ sub: req.oidc.user.sub });
         if (!deleteUser) {
             return res.status(404).json({ message: "User mot found" });
         }
@@ -86,10 +86,11 @@ const deleteUser = async (req, res) => {
     }
 };
 
-export default {
+
+export {
     getAllUsers,
     getProfile,
     updateProfile,
     deleteUser,
-    setupUser
+    setupUser,
 }
