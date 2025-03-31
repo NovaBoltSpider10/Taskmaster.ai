@@ -59,7 +59,7 @@ app.post('/setup', requiresAuth(), async (req, res) => {
 
 app.get('/profile', requiresAuth(), async (req, res) => {
     const existingUser = await User.findOne({ sub: req.oidc.user.sub });
-    res.send(JSON.stringify(existingUser));
+    res.send(existingUser);
 });
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

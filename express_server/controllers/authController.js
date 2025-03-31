@@ -1,5 +1,7 @@
-const User = require("../models/userModel.js");
-require("dotenv").config();
+import User from "../models/userModel.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const config = {
     authRequired: false,
@@ -31,7 +33,4 @@ const validateAuth = async (req, res) => {
     );
 };
 
-module.exports = {
-    config: config,
-    validateAuth: validateAuth,
-};
+export default {config, validateAuth};
