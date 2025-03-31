@@ -21,9 +21,8 @@ Public space vs private space:
     1 for private
 '''
 
-
-from mongo import client
 import random
+
 
 class User:
     def __init__(self):
@@ -38,22 +37,57 @@ class User:
 
 
 class UserMatchClient:
-    def __init__(self, users) -> None:
+    def __init__(self, users: list[User], min_filter_users=10) -> None:
         self.users: list[User] = users
         self.unmatched_users: list[User] = self._populate_unmatched()
-
+        self.min_filter_users: int = min_filter_users
+        
+        self._stage: int = 0
 
     def _populate_unmatched(self) -> list[User]:
         return list(filter(lambda u: u.group_number == 0, self.users))
 
+    def _expand_time(self, filtered: list[User], user: User) -> list[User]:
+        while len(filtered) <= self.min_filter_users:
+            self._stage += 1
+
+            match self._stage:
+                case 1:
+                    filtered = list(filter(
+                        lambda u: u.preferred_time in range(
+                            user.preferred_time - 1,
+                            user.preferred_time + 1,
+                        ), self.unmatched_users))
+                    break
+
+                case 2:
+                    filtered = list(filter(lambda u: u.preferred_time in range(0, 4), self.unmatched_users))
+                    return filtered
+
+        return filtered
 
     def match(self, user: User) -> bool:
-        filtered: list[User] = list(filter(lambda u: u.preferred_time == user.preferred_time, self.unmatched_users))
-        filtered = list(filter(lambda u: u.in_person == user.in_person, filtered))
+        filtered: list[User] = []
+
+        time_filter = list(filter(lambda u: u.preferred_time == user.preferred_time, self.unmatched_users))
+        location_filter = list(filter(lambda u: u.in_person == user.in_person, time_filter))
 
         if user.in_person:
-            filtered = list(filter(lambda u: u.private_space == user.private_space, filtered))
+            private_filter = list(filter(lambda u: u.private_space == user.private_space, location_filter))
 
+            if len(private_filter) > self.min_filter_users:
+                filtered = location_filter
+
+        if len(filtered) <= self.min_filter_users:
+            filtered = time_filter
+
+        # 0 ->-1, 0, 1  -> 0, 1, 2, 3
+        # 1 -> 0, 1, 2  -> 0, 1, 2, 3
+        # 2 -> 1, 2, 3  -> 0, 1, 2, 3
+        # 3 -> 2, 3, 4  -> 0, 1, 2, 3
+
+        filtered = self._expand_time(filtered, user)
+        
         filtered.sort(key=lambda u: u.personality)
         
         user_index: int = filtered.index(user)

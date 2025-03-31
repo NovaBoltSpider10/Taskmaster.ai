@@ -5,7 +5,7 @@ const config = {
     authRequired: false,
     auth0Logout: true,
     secret: process.env.SECRET,
-    baseURL: 'http://localhost:3000',
+    baseURL: 'http://localhost:5000',
     clientID: process.env.CLIENT_ID,
     issuerBaseURL: `https://${process.env.AUTH0_DOMAIN}`
 };
