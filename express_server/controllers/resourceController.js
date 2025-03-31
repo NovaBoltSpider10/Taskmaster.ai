@@ -33,9 +33,14 @@ const getResourceById = async(req, res) => {
 //Create resource
 const createResource = async(req, res) => {
     try {
-        const {url, website} = req.body;
+        const { urls, websites, class: classId } = req.body;
 
-        const newResource = new Resource({url, website});
+        const newResource = new Resource({
+            urls: urls || [], // Handle potential undefined/null
+            websites: websites || [], // Handle potential undefined/null
+            class: classId,
+        });
+
 
         const savedResource = await newResource.save();
         res.status(201).json(savedResource);
