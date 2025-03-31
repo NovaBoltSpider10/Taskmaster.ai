@@ -1,15 +1,15 @@
-const express = require('express');
+import express from 'express';
 
-const {
+import {
     createResource,
     getAllResources,
     getResourceById,
     updateResource,
     deleteResource,
     getResourcesByClassId,
-    createResourceByClassId
-
-} = require('../controllers/ResourceController');
+    createResourceByClassId,
+    parseSyllabus
+} from '../controllers/resourceController.js';
 
 const router = express.Router();
 
@@ -31,10 +31,13 @@ router.patch('/:id', updateResource);
 // Get all resources for a certain class
 router.get('/:id', getResourcesByClassId);
 
+//Get all tasks by syllabus path
+router.post('/syllabus', parseSyllabus)
+
 // Create resource by class ID
 router.post('/:id', createResourceByClassId);
 
 
 
 
-module.exports = router;
+export default router;

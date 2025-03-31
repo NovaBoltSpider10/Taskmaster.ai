@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const taskSchema = mongoose.Schema({
     deadline: Date,
@@ -11,4 +11,4 @@ const taskSchema = mongoose.Schema({
     class: { type: mongoose.Schema.Types.ObjectId, ref: 'Class'}
 });
 
-module.exports = mongoose.model('Task', taskSchema);
+export default mongoose.model('Task', taskSchema);

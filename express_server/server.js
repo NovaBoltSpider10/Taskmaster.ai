@@ -1,12 +1,23 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const { auth, requiresAuth } = require('express-openid-connect');
-var bodyParser = require('body-parser');
+import express from "express";
+import mongoose from "mongoose";
+import pkg from 'express-openid-connect';
+const { auth, requiresAuth } = pkg;
+import bodyParser from "body-parser";
 
-const authController = require('./controllers/authController.js');
-const userController = require('./controllers/userController.js');
-const User = require("./models/userModel.js");
-require("dotenv").config();
+import authController from "./controllers/authController.js";
+import {setupUser} from './controllers/userController.js';     
+import User from "./models/userModel.js";
+
+
+// Routes files
+import taskRoutes from './routes/taskRoutes.js';
+import resourcesRoutes from './routes/resourceRoutes.js';
+import calendarRoutes from './routes/calendarRoutes.js';
+import classRoutes from './routes/classRoutes.js';
+
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const PORT = process.env.PORT || 5000;
 const app = express();
@@ -22,6 +33,14 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 
+
+app.use(express.json());
+app.use('/tasks', taskRoutes); //Works: POST tested only
+app.use('/resources', resourcesRoutes); //Works: POST tested only
+app.use('/class', classRoutes); //Works: POST tested only
+app.use('/calendar', calendarRoutes); //Works: POST tested only
+
+// Controller/routes code for auth
 app.get('/', async (req, res) => {
     if (!authController.validateAuth(req, res)) {
         return;
@@ -33,7 +52,7 @@ app.get('/setup', requiresAuth(), (req, res) => {
 });
 
 app.post('/setup', requiresAuth(), async (req, res) => {
-    if (!userController.setupUser(req, res)) {
+    if (!setupUser(req, res)) {
         return;
     }
 });
