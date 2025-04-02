@@ -9,11 +9,13 @@ import {setupUser} from './controllers/userController.js';
 import User from "./models/userModel.js";
 
 
+
 // Routes files
 import taskRoutes from './routes/taskRoutes.js';
 import resourcesRoutes from './routes/resourceRoutes.js';
 import calendarRoutes from './routes/calendarRoutes.js';
 import classRoutes from './routes/classRoutes.js';
+import userRoutes from './routes/userRoutes.js'
 
 import dotenv from "dotenv";
 
@@ -33,22 +35,18 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 
-
 app.use(express.json());
+app.use('/user', userRoutes);
 app.use('/tasks', taskRoutes); //Works: POST tested only
 app.use('/resources', resourcesRoutes); //Works: POST tested only
 app.use('/class', classRoutes); //Works: POST tested only
 app.use('/calendar', calendarRoutes); //Works: POST tested only
-
+app.post('/')
 // Controller/routes code for auth
 app.get('/', async (req, res) => {
     if (!authController.validateAuth(req, res)) {
         return;
     }
-});
-
-app.get('/setup', requiresAuth(), (req, res) => {
-    res.sendFile('public/setup.html', { root: __dirname });
 });
 
 app.post('/setup', requiresAuth(), async (req, res) => {
@@ -59,7 +57,7 @@ app.post('/setup', requiresAuth(), async (req, res) => {
 
 app.get('/profile', requiresAuth(), async (req, res) => {
     const existingUser = await User.findOne({ sub: req.oidc.user.sub });
-    res.send(JSON.stringify(existingUser));
+    res.send(existingUser);
 });
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

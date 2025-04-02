@@ -78,18 +78,19 @@ const deleteClass = async(req, res) => {
 };
 
 //POST from syllabus
-const parseSyllabus = async (req, res) => {
-    console.log("Called controller");
+const parseSyllabus = async (req, res, next) => {
+    console.log("Called CLASS CLASS controller");
     try {
         const { syllabusFilePath } = req.body;
         if (!syllabusFilePath) {
             return res.status(400).json({ message: "Syllabus file path is required." });
         }
         await parseAndSaveSyllabus(syllabusFilePath);
-        res.status(200).json({ message: "Syllabus parsed and class saved successfully." });
+        console.log("Syllabus parsed and class saved successfully.");
+        next();
     } catch (error) {
         console.error("Error parsing syllabus:", error);
-        res.status(500).json({ message: "An error occurred while parsing the syllabus.", error: error.message });
+        next(error);
     }
 };
 
