@@ -21,7 +21,6 @@ const validateAuth = async (req, res) => {
     const existingUser = await User.findOne({ sub: req.oidc.user.sub });
 
     if (!existingUser) {
-        res.redirect('/setup');
         return false;
     }
 

@@ -47,10 +47,6 @@ app.get('/', async (req, res) => {
     }
 });
 
-app.get('/setup', requiresAuth(), (req, res) => {
-    res.sendFile('public/setup.html', { root: __dirname });
-});
-
 app.post('/setup', requiresAuth(), async (req, res) => {
     if (!setupUser(req, res)) {
         return;
