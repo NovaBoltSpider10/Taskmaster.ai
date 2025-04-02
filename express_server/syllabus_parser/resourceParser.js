@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import * as fs from "fs/promises";
+import fs from "fs/promises";
 import Resource from '../models/resourceModel.js';
 dotenv.config();
 
@@ -33,7 +33,7 @@ async function extractSyllabusDataTasks(syllabusText) {
   const result = await model.generateContent([ 
     {
       inlineData: {
-        data: Buffer.from(syllabusText).toString("base64"),
+        data: syllabusText.toString("base64"),
         mimeType: "application/pdf"
       }
     }, 
