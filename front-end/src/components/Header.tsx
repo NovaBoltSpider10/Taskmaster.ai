@@ -1,39 +1,29 @@
-import React from "react";
-import "./Header.css";
+import Greeting from "../components/Greeting";
 
-interface HeaderBarProps {
-  title: string;
-  onBack?: () => void;
-  children?: React.ReactNode;
-  greeting: string;
-}
-
-const HeaderBar: React.FC<HeaderBarProps> = ({
-  title,
-  onBack,
-  children,
-  greeting,
-}) => {
+const Header = () => {
   return (
-    <header className="header">
-      <div className="left-section">
-        {onBack && (
-          <button className="back-button" onClick={onBack}>
-            &lt; Back
-          </button>
-        )}
-      </div>
-      <div className="title-section">
-        <h1 className="title">{title}</h1>
-      </div>
-      <div className="middle-section">
-        <div className="message-container">
-          <div className="greeting-message">{greeting}</div>
+    <header className="w-full bg-white shadow-md z-10">
+      <div className="px-4 py-4 flex items-center justify-between h-20 border-b">
+        <h1 className="text-2xl font-bold text-gray-800">TaskMasterAI</h1>
+
+        <div className="animate-fade flex-1 flex justify-center items-center">
+          <Greeting />
         </div>
+
+        <nav className="flex space-x-6">
+          <a href="/" className="text-gray-600 hover:text-gray-900 transition">
+            Home
+          </a>
+          <a
+            href="/login"
+            className="text-gray-600 hover:text-gray-900 transition"
+          >
+            Login
+          </a>
+        </nav>
       </div>
-      <div className="right-section">{children}</div>
     </header>
   );
 };
 
-export default HeaderBar;
+export default Header;
