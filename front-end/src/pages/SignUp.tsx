@@ -1,8 +1,7 @@
-import Header from "../components/Header";
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "./SignUp.css";
-
+//example of a change in a comment
 function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -18,7 +17,6 @@ function SignUp() {
   return (
     <>
       <div className="h-screen flex flex-col">
-        <Header />
         <div className="flex-grow flex items-center justify-center bg-gray-100 px-4 overflow-y-auto py-8">
           <div className="w-[480px] bg-white shadow-md rounded-lg p-8 space-y-6">
             <div className="text-center">
