@@ -14,22 +14,18 @@ const config = {
 
 const validateAuth = async (req, res) => {
     if (!req.oidc.isAuthenticated()) {
-        res.send('Logged out <br> <a href="/login">Login</a>');
+        res.status(401).send(json({message: 'logged out'}));
         return false;
     }
 
     const existingUser = await User.findOne({ sub: req.oidc.user.sub });
 
     if (!existingUser) {
+        res.status(401).json({message: 'databse not configured. call /setup endpoint'});
         return false;
     }
 
-    res.send(
-        `Logged in <br> 
-            <a href="/logout">Logout</a> <br> 
-            <a href="/profile">profile</a> <br>
-            `
-    );
+    res.status(200);
 };
 
 export default {config, validateAuth};

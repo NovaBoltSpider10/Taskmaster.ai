@@ -1,11 +1,10 @@
 import express from "express";
 import mongoose from "mongoose";
-import pkg from 'express-openid-connect';
-const { auth, requiresAuth } = pkg;
+import { auth, requiresAuth } from 'express-openid-connect';
 import bodyParser from "body-parser";
 
 import authController from "./controllers/authController.js";
-import {setupUser} from './controllers/userController.js';     
+import setupUser from './controllers/userController.js';     
 import User from "./models/userModel.js";
 
 

@@ -1,3 +1,4 @@
+import { exists } from 'fs';
 import User from '../models/userModel.js';
 
 //Get all users
@@ -28,6 +29,13 @@ const getProfile = async (req, res) => {
 };
 
 const setupUser = async (req, res) => {
+    const existingUser = await User.findOne({ sub: req.oidc.user.sub });
+    
+    if (!existingUser) {
+        res.status(401).json({message: 'user does not exist'});
+    }
+
+    // Needs username, first name, last name from frontend
     const newUser = new User({
         sub: req.oidc.user.sub,
         username: req.body.username,
@@ -87,7 +95,7 @@ const deleteUser = async (req, res) => {
 };
 
 
-export {
+export default {
     getAllUsers,
     getProfile,
     updateProfile,

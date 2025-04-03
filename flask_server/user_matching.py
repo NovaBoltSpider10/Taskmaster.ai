@@ -22,18 +22,34 @@ Public space vs private space:
 '''
 
 import random
+from pymongo.mongo_client import MongoClient
 
 
 class User:
-    def __init__(self):
+    def __init__(self, sub: str):
+        self.sub = sub
         self.personality: float = 0
         self.preferred_time: int = 0
         self.in_person: bool = False
         self.private_space: bool = False
         self.group_number: int = 0
+        
 
-    def update(self):
-        ...
+    def update(self, client: MongoClient):
+        db = client['test']
+        users = db['users']
+
+        query_filter = {'sub': self.sub}
+        update_operation = {"$set": 
+            {"preferences": {
+                "personality": self.personality,
+                "time": self.preferred_time,
+                "inPerson": self.in_person,
+                "privateSpace": self.private_space,
+            }}
+        }
+
+        users.update_one(query_filter, update_operation)
 
 
 class UserMatchClient:
