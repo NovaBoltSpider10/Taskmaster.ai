@@ -13,6 +13,8 @@ const getAllClasses = async(req, res) => {
     }
 };
 
+//GET classes by userId
+
 //Get class by ID
 const getClassById = async(req, res) => {
     try {
@@ -82,10 +84,11 @@ const parseSyllabus = async (req, res, next) => {
     console.log("Called CLASS CLASS controller");
     try {
         const { syllabusFilePath } = req.body;
+        const { userId } = req.body;
         if (!syllabusFilePath) {
             return res.status(400).json({ message: "Syllabus file path is required." });
         }
-        await parseAndSaveSyllabus(syllabusFilePath);
+        await parseAndSaveSyllabus(syllabusFilePath, userId);
         console.log("Syllabus parsed and class saved successfully.");
         next();
     } catch (error) {

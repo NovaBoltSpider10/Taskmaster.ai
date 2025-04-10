@@ -1,6 +1,4 @@
 import { Router } from "express";
-import { parseSyllabus as parseTaskSyllabus } from "../controllers/taskController.js";
-import { parseSyllabus as parseResourceSyllabus } from "../controllers/resourceController.js";
 import { parseSyllabus as parseClassSyllabus } from "../controllers/classController.js";
 
 import {
@@ -43,8 +41,9 @@ router.post(
     }
 
     req.body.syllabusFilePath = req.file.path;
+    req.body.userId = req.params.userId;
     next();
-  }, parseTaskSyllabus, parseClassSyllabus, parseResourceSyllabus, (req, res) => {
+  }, parseClassSyllabus, (req, res) => {
     return res.status(200).json({message: "Syllabus processes successfully"});
   }
 );

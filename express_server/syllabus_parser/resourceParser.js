@@ -52,11 +52,12 @@ async function extractSyllabusDataTasks(syllabusText) {
   }
 }
 
-async function saveResourceToDatabase(resources) {
+async function saveResourceToDatabase(resources, classId) {
   console.log("Start of resource mongose code");
 
   try {  
     const newResource = new Resource(resources);
+    newResource.class = classId;
     await newResource.save();
      
     console.log(`Resource "${Resource.title}" saved to database.`);
@@ -66,7 +67,7 @@ async function saveResourceToDatabase(resources) {
   }
 }
 
-async function parseAndSaveSyllabus(syllabusFilePath) {
+async function parseAndSaveSyllabus(syllabusFilePath, classId) {
   const syllabusText = await readSyllabus(syllabusFilePath);
   if (!syllabusText) {
       console.error("Failed to read syllabus file.");
@@ -79,7 +80,7 @@ async function parseAndSaveSyllabus(syllabusFilePath) {
       return;
   }
 
-  await saveResourceToDatabase(tasks);
+  await saveResourceToDatabase(tasks, classId);
   console.log("Syllabus parsed and resources saved successfully.");
   
 }
