@@ -1,4 +1,3 @@
-import { exists } from 'fs';
 import User from '../models/userModel.js';
 
 //Get all users
@@ -29,6 +28,7 @@ const getProfile = async (req, res) => {
 };
 
 const setupUser = async (req, res) => {
+    console.log(req, res);
     const existingUser = await User.findOne({ sub: req.oidc.user.sub });
     
     if (!existingUser) {
@@ -95,7 +95,7 @@ const deleteUser = async (req, res) => {
 };
 
 
-export default {
+export {
     getAllUsers,
     getProfile,
     updateProfile,

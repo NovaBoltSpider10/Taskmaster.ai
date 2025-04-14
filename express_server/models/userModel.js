@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import preferencesSchema from './preferences';
+import preferencesSchema from './preferencesModel.js';
 
 const userSchema = new mongoose.Schema({
     sub: { type: String, required: true, unique: true },
