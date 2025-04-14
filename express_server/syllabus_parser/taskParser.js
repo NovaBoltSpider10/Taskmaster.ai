@@ -20,6 +20,8 @@ async function readSyllabus(filePath) {
 
 
 async function extractSyllabusDataTasks(syllabusText) {
+
+  // TODO: Change the prompt to reflect the new task model
   const prompt = `
     Extract the following information which are tasks which could be assignments are test reminders from the syllabus text and put in seperate strinfigied form for each task, use ISO 8601 for data deadlines and set time to midnight unless specified, only include tasks and the points associated with it if there are any. The topic property is the unit name (should not repeat the title name at all) and the title is the name of the task:
 
