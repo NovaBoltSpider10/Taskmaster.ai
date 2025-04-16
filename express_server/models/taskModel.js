@@ -5,7 +5,8 @@ const taskSchema = mongoose.Schema({
     title: String,
     resources: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Resource' }],
     status: { type: String, enum: ['pending', 'completed', 'overdue'], default: 'pending' },
-    
+    points: Number,
+
     taskType: String,
     deadline: Date,
     earnedPoints: Number,

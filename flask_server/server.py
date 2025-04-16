@@ -14,6 +14,8 @@ class MatchRequest(Resource):
         return '', 200
     
     def post(self):
+        print(request.get_json())
+        
         users: list[User] = []
         for i in range(102):
             users.append(User())
