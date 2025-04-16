@@ -3,11 +3,10 @@ import mongoose from "mongoose";
 import pkg from 'express-openid-connect';
 const { auth, requiresAuth } = pkg;
 import bodyParser from "body-parser";
+import cors from "cors";
 
-import authController from "./controllers/authController.js";
-import {setupUser} from './controllers/userController.js';     
-import User from "./models/userModel.js";
-
+import {config, validateAuth} from "./controllers/authController.js";
+import {setupUser} from './controllers/userController.js';
 
 // Routes files
 import taskRoutes from './routes/taskRoutes.js';
@@ -24,12 +23,14 @@ dotenv.config();
 const PORT = process.env.PORT || 3000;
 const app = express();
 
+app.use(cors());
+
 mongoose
     .connect(process.env.DB_URL)
     .then(() => console.log("Connected to MongoDB"))
     .catch((err) => console.log("MongoDB connection error: ", err));
 
-app.use(auth(authController.config));
+app.use(auth(config));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: true
@@ -43,23 +44,15 @@ app.use('/class', classRoutes); //Works: POST tested only
 app.use('/calendar', calendarRoutes); //Works: POST tested only
 app.use('/cards', flashCardRoutes);
 
-app.post('/')
 // Controller/routes code for auth
 app.get('/', async (req, res) => {
-    if (!authController.validateAuth(req, res)) {
+    if (!validateAuth(req, res)) {
+        res.status(200).json({message: 'Logged out'});
         return;
     }
 });
 
-app.post('/setup', requiresAuth(), async (req, res) => {
-    if (!setupUser(req, res)) {
-        return;
-    }
-});
-
-app.get('/profile', requiresAuth(), async (req, res) => {
-    const existingUser = await User.findOne({ sub: req.oidc.user.sub });
-    res.send(existingUser);
-});
+// app.post('/setup', requiresAuth(), async() => { setupUser(req, res); } );
+app.post('/setup', async() => { setupUser(req, res); } );
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

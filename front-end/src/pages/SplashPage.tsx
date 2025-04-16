@@ -8,11 +8,6 @@ function SplashPage() {
   const handleSignup = () => {
     navigate("signup");
   };
-
-
-
-
-
   return (
     <>
       <NavBar />
