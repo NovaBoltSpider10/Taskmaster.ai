@@ -1,6 +1,12 @@
 import { Router } from 'express';
 
-import { createClass, getAllClasses, getClassById, updateClass, deleteClass } from '../controllers/classController.js';
+import { 
+    createClass, 
+    getAllClasses, 
+    getClassById, 
+    updateClass, 
+    deleteClass 
+} from '../controllers/classController.js';
 
 const router = Router();
 
@@ -18,5 +24,7 @@ router.delete('/:id', deleteClass);
 
 // UPDATE a class by ID
 router.patch('/:id', updateClass);
+
+router.post("/:id/api/upload");
 
 export default router;

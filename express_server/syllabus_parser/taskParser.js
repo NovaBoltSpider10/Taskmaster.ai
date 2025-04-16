@@ -1,7 +1,8 @@
 import dotenv from "dotenv";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import * as fs from "fs/promises";
+import fs from "fs/promises";
 import Task from '../models/taskModel.js';
+import {parseAndSaveSyllabus as resourceParser} from "../syllabus_parser/resourceParser.js"
 dotenv.config();
 
 const genAI = new GoogleGenerativeAI(process.env.Google_GenAI_URL);
@@ -33,7 +34,7 @@ async function extractSyllabusDataTasks(syllabusText) {
   const result = await model.generateContent([ 
     {
       inlineData: {
-        data: Buffer.from(syllabusText).toString("base64"),
+        data: syllabusText.toString("base64"),
         mimeType: "application/pdf"
       }
     }, 
@@ -52,7 +53,7 @@ async function extractSyllabusDataTasks(syllabusText) {
   }
 }
 
-async function saveTasksToDatabase(tasks) {
+async function saveTasksToDatabase(tasks, classId) {
   console.log("Start of task mongose code");
   if (!tasks || !Array.isArray(tasks)) {
     console.error("Invalid tasks array provided.");
@@ -62,6 +63,7 @@ async function saveTasksToDatabase(tasks) {
   try {
     for (const tasksData of tasks) {
       const newTask = new Task(tasksData);
+      newTask.class = classId;
       await newTask.save();
     } 
     console.log(`Task "${Task.title}" saved to database.`);
@@ -71,7 +73,7 @@ async function saveTasksToDatabase(tasks) {
   }
 }
 
-async function parseAndSaveSyllabus(syllabusFilePath) {
+async function parseAndSaveSyllabus(syllabusFilePath, classId) {
   const syllabusText = await readSyllabus(syllabusFilePath);
   if (!syllabusText) {
       console.error("Failed to read syllabus file.");
@@ -84,8 +86,9 @@ async function parseAndSaveSyllabus(syllabusFilePath) {
       return;
   }
 
-  await saveTasksToDatabase(tasks);
+  await saveTasksToDatabase(tasks, classId);
   console.log("Syllabus parsed and tasks saved successfully.");
+  resourceParser(syllabusFilePath, classId);
   
 }
 
