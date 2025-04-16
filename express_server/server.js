@@ -9,13 +9,13 @@ import {setupUser} from './controllers/userController.js';
 import User from "./models/userModel.js";
 
 
-
 // Routes files
 import taskRoutes from './routes/taskRoutes.js';
 import resourcesRoutes from './routes/resourceRoutes.js';
 import calendarRoutes from './routes/calendarRoutes.js';
 import classRoutes from './routes/classRoutes.js';
 import userRoutes from './routes/userRoutes.js'
+import flashCardRoutes from './routes/flashCardsRoutes.js'
 
 import dotenv from "dotenv";
 
@@ -41,6 +41,8 @@ app.use('/tasks', taskRoutes); //Works: POST tested only
 app.use('/resources', resourcesRoutes); //Works: POST tested only
 app.use('/class', classRoutes); //Works: POST tested only
 app.use('/calendar', calendarRoutes); //Works: POST tested only
+app.use('/cards', flashCardRoutes);
+
 app.post('/')
 // Controller/routes code for auth
 app.get('/', async (req, res) => {
