@@ -24,7 +24,13 @@ async function extractSyllabusDataTasks(syllabusText) {
   const prompt = `
     Extract the following information which are tasks which could be assignments are test reminders from the syllabus text and put in seperate strinfigied form for each task, use ISO 8601 for data deadlines and set time to midnight unless specified, only include tasks and the points associated with it if there are any. The topic property is the unit name (should not repeat the title name at all) and the title is the name of the task:
 
-    - Tasks { deadline: Date, topic: String, title: String, resources: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Resource' }], status: { type: String, enum: ['pending', 'completed', 'overdue'], default: 'pending' }, points: Number, textbook: String, class: { type: mongoose.Schema.Types.ObjectId, ref: 'Class'}}
+    { 
+      deadline: Date, 
+      topic: String, 
+      title: String, 
+      resources: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Resource' }], 
+      status: { type: String, enum: ['pending', 'completed', 'overdue'], default: 'pending' }, 
+      points: Number, textbook: String, class: { type: mongoose.Schema.Types.ObjectId, ref: 'Class'}}
 
     provide the JSON without any surrounding text for markdown.
   `;

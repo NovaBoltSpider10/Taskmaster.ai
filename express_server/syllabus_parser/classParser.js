@@ -23,7 +23,7 @@ async function extractSyllabusDataTasks(syllabusText) {
   const prompt = `
     Extract the following information which is the class info from syllabus:
 
-    - Classes: {
+    {
         professor: String, 
         timing: String (timing of class),
         examDates: [Date] (dates of all exams, ISO 8601 for data deadlines and set to 11:59 pm),
@@ -32,9 +32,6 @@ async function extractSyllabusDataTasks(syllabusText) {
         contactInfo: String (string of only email),
         textbooks: [String] (string array of the textbooks to buy),
         location: String (String of room location),
-        resources: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Resource' }] (leave blank),
-        tasks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Tasks' }] (leave blank),
-    
     }
     provide the JSON without any surrounding text for markdown.
   `;
@@ -51,7 +48,6 @@ async function extractSyllabusDataTasks(syllabusText) {
   const response = await result.response;
   let text = response.text();
   text = text.replace(/```(?:json)?\n?/g, '');
-  console.log(text);
   
   try {
     return JSON.parse(text);
@@ -67,12 +63,9 @@ async function saveClassesToDatabase(classes, userId) {
 
   try {
     classes.user = userId;
-    console.log(classes.user);
     const newClass = new Class(classes);
     
     await newClass.save();
-
-    console.log(newClass._id);
     const classId = newClass._id;
     
     console.log(`Class "${Class.title}" saved to database.`);

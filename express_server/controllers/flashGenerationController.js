@@ -39,7 +39,7 @@ const updateFlashCards = async(req, res) => {
             return res.status(404).json({ message: "Flash Card not found" });
         }
 
-        res.status(200).json(updatedClass);
+        res.status(200).json(updatedFlashCard);
 
     } catch (error) {
         res.status(500).json({message: error.message});
@@ -64,7 +64,7 @@ const deleteFlashCards = async(req, res) => {
 //POST flash cards
 const generateFlashCards = async(req, res) => {
     try {
-        const id = req.params.id;
+        const id = req.params.classid;
         await flashCardGeneration(id);
         res.status(200).json({message: "Flash cards successfully created"});
 
@@ -73,12 +73,26 @@ const generateFlashCards = async(req, res) => {
     }
 }
 
+const getAllCardsbyClassId = async (req, res) => {
+    console.log("Class id");
+    try {
+        const flashcards = await FlashCards.find({class: req.params.id});
+        if (!flashcards)
+        {
+            return res.status(404).json({ message: "Cards not found by classid" });
+        }
+        res.status(200).json(flashcards);
 
+    } catch (error) {
+        res.status(500).json({message: error.message});
+    }
+}
 
 export {
     getAllFlashCards,
     getFlashCardsById,
     updateFlashCards,
     deleteFlashCards,
-    generateFlashCards
+    generateFlashCards,
+    getAllCardsbyClassId
 };

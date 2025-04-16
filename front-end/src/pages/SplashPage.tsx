@@ -23,7 +23,7 @@ function SplashPage() {
               y: [0, -50, 0],
             }}
             transition={{
-              duration: 20,
+              duration: 4,
               repeat: Infinity,
               ease: "easeInOut",
             }}
@@ -37,7 +37,7 @@ function SplashPage() {
               y: [0, 50, 0],
             }}
             transition={{
-              duration: 25,
+              duration: 4,
               repeat: Infinity,
               ease: "easeInOut",
             }}
@@ -51,7 +51,7 @@ function SplashPage() {
               y: [0, 100, 0],
             }}
             transition={{
-              duration: 30,
+              duration: 6,
               repeat: Infinity,
               ease: "easeInOut",
             }}
@@ -65,7 +65,7 @@ function SplashPage() {
               y: [0, 50, 0],
             }}
             transition={{
-              duration: 20,
+              duration: 3,
               repeat: Infinity,
               ease: "easeInOut",
             }}
@@ -79,7 +79,7 @@ function SplashPage() {
               y: [0, -50, 0],
             }}
             transition={{
-              duration: 25,
+              duration: 7,
               repeat: Infinity,
               ease: "easeInOut",
             }}
@@ -93,7 +93,7 @@ function SplashPage() {
               y: [0, 100, 0],
             }}
             transition={{
-              duration: 30,
+              duration: 5,
               repeat: Infinity,
               ease: "easeInOut",
             }}

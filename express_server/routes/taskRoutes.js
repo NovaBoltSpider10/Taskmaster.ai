@@ -31,7 +31,7 @@ router.patch('/:id', updateTask);
 //Get all tasks by class
 router.get('/:id', getTaskByClassId);
 
-//Get all tasks by syllabus path
+//Get all tasks by syllabus path (Not using in final proj)
 router.post('/syllabus', parseSyllabus);
 
 //Create task by class id
