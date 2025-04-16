@@ -32,6 +32,4 @@ const validateAuth = async (req, res) => {
     );
 };
 
-export default {
-    config, validateAuth
-}
+export default {config, validateAuth};
