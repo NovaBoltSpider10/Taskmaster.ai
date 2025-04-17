@@ -31,7 +31,6 @@ mongoose
     .catch((err) => console.log("MongoDB connection error: ", err));
 
 app.use(auth(config));
-app.use(auth(config));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: true
@@ -48,14 +47,17 @@ app.use('/cards', flashCardRoutes);
 // Controller/routes code for auth
 app.get('/', async (req, res) => {
     if (!validateAuth(req, res)) {
-        res.status(200).json({message: 'Logged out'});
-    if (!validateAuth(req, res)) {
-        res.status(200).json({message: 'Logged out'});
-        return;
-    }
+        // res.status(200).json({message: 'Logged out'});
+        res.send("hi");
+    }   
 });
 
 // app.post('/setup', requiresAuth(), async() => { setupUser(req, res); } );
 app.post('/setup', async() => { setupUser(req, res); } );
+
+app.get('/profile', async(req, res) => {
+    res.send(req.oidc.user.sub);
+    return;
+});
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
