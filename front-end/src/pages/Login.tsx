@@ -1,15 +1,14 @@
-import React from "react";
+import NavBar from "../components/navbar";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
-import "./Login.css";
+import { motion } from "framer-motion";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: any) => {
     e.preventDefault();
     // Add your login logic here
     console.log("Login attempted", { email, password });
@@ -19,8 +18,24 @@ function Login() {
 
   return (
     <>
-      <div className="h-screen flex flex-col">
-        <div className="flex-grow flex items-center justify-center bg-gray-100 px-4 overflow-y-auto py-8">
+      <div className="relative min-h-screen flex flex-col">
+        <NavBar />
+        <motion.div
+          className="absolute inset-0 -z-10 bg-gradient-to-r from-blue-900 via-blue-700 via-indigo-600 via-cyan-500 via-blue-600 to-blue-900"
+          animate={{
+            backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+          }}
+          transition={{
+            duration: 4, // Faster animation
+            repeat: Infinity,
+            repeatType: "loop",
+            ease: "easeInOut", // Smoother transition
+          }}
+          style={{
+            backgroundSize: "400% 400%", // Larger size for more vibrant effect
+          }}
+        ></motion.div>
+        <div className="flex flex-1 items-center justify-center p-6">
           <div className="w-[480px] bg-white shadow-md rounded-lg p-8 space-y-6">
             <div className="text-center">
               <h2 className="text-3xl font-bold text-gray-800">Welcome Back</h2>
@@ -93,6 +108,7 @@ function Login() {
 
               {/* Submit Button */}
               <button
+                onClick={handleSubmit}
                 type="submit"
                 className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
               >
@@ -103,12 +119,12 @@ function Login() {
               <div className="text-center mt-4">
                 <p className="text-sm text-gray-600">
                   Don't have an account?{" "}
-                  <Link
-                    to="/signup"
+                  <a
+                    href="/signup"
                     className="font-medium text-blue-600 hover:text-blue-500"
                   >
                     Sign up
-                  </Link>
+                  </a>
                 </p>
               </div>
             </form>
