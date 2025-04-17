@@ -34,9 +34,9 @@ const getClassById = async(req, res) => {
 //Create class
 const createClass = async(req, res) => {
     try {
-        const {professor, timing, examDates, topics, gradingPolicy, contactInfo, textbooks, location, user} = req.body;
+        const {name, professor, timing, examDates, topics, gradingPolicy, contactInfo, textbooks, location, user} = req.body;
 
-        const newClass = new Class({professor, timing, examDates, topics, gradingPolicy, contactInfo, textbooks, location, user});
+        const newClass = new Class({name, professor, timing, examDates, topics, gradingPolicy, contactInfo, textbooks, location, user});
         const savedClass = await newClass.save();
         res.status(201).json(savedClass);
 
@@ -48,8 +48,8 @@ const createClass = async(req, res) => {
 //Update class
 const updateClass = async(req, res) => {
     try {
-        const {professor, timing, examDates, topics, gradingPolicy, contactInfo, textbooks, location} = req.body;
-        const updatedClass = await Class.findByIdAndUpdate(req.params.id, {professor, timing, examDates, topics, gradingPolicy, contactInfo, textbooks, location}, {new: true});
+        const {name, professor, timing, examDates, topics, gradingPolicy, contactInfo, textbooks, location} = req.body;
+        const updatedClass = await Class.findByIdAndUpdate(req.params.id, {name, professor, timing, examDates, topics, gradingPolicy, contactInfo, textbooks, location}, {new: true});
 
         if (!updatedClass)
         {

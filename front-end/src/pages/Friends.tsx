@@ -1,59 +1,63 @@
-import Sidebar from "../components/sibebar";
-import { motion } from "framer-motion";
-
-function Friends() {
+const Friends = () => {
+    // Mock data for friends
+    const friends = [
+        { name: "Alice Johnson", email: "alice.johnson@example.com", status: "Online" },
+        { name: "Bob Smith", email: "bob.smith@example.com", status: "Offline" },
+        { name: "Charlie Brown", email: "charlie.brown@example.com", status: "Busy" },
+        { name: "Diana Prince", email: "diana.prince@example.com", status: "Online" },
+        { name: "Ethan Hunt", email: "ethan.hunt@example.com", status: "Offline" },
+        { name: "Fiona Gallagher", email: "fiona.gallagher@example.com", status: "Busy" },
+        { name: "George Clooney", email: "george.clooney@example.com", status: "Online" },
+        { name: "Hannah Montana", email: "hannah.montana@example.com", status: "Offline" },
+        { name: "Ian Somerhalder", email: "ian.somerhalder@example.com", status: "Busy" },
+        { name: "Jack Sparrow", email: "jack.sparrow@example.com", status: "Online" },
+        { name: "Karen Gillan", email: "karen.gillan@example.com", status: "Offline" },
+        { name: "Liam Neeson", email: "liam.neeson@example.com", status: "Busy" },
+        { name: "Mia Wallace", email: "mia.wallace@example.com", status: "Online" },
+        { name: "Nathan Drake", email: "nathan.drake@example.com", status: "Offline" },
+        { name: "Olivia Pope", email: "olivia.pope@example.com", status: "Busy" },
+        { name: "Peter Parker", email: "peter.parker@example.com", status: "Online" },
+        { name: "Quinn Fabray", email: "quinn.fabray@example.com", status: "Offline" },
+        { name: "Rachel Green", email: "rachel.green@example.com", status: "Busy" },
+        { name: "Steve Rogers", email: "steve.rogers@example.com", status: "Online" },
+        { name: "Tony Stark", email: "tony.stark@example.com", status: "Offline" },
+      ];
   
-
-
-  const currentTime = () => {
-    let greeting: string = "";
-
-    const now = new Date();
-    const hours = now.getHours();
-
-    if (hours >= 12 && hours < 18) {
-      //Between 12pm to 6pm
-      greeting = "Good Afternoon";
-    } else if (hours >= 18 && hours < 22) {
-      greeting = "Good Evening"; //From 6pm to 12am
-    } else if ((hours >= 22 && hours <= 23) || (hours >= 0 && hours < 5)) {
-      greeting = "Good Morning"; //From 10pm to 5am
-    } else {
-      greeting = "Good Morning"; // From 5am to 12pm
-    }
-    console.log(hours);
-
-    return greeting;
-  };
-
-  return (
-    <div className="relative flex">
-      <Sidebar />
-
-      {/* Animate Gradien. Bg */}
-      <motion.div
-        className="absolute inset-0 -z-10 bg-gradient-to-r from-blue-900 via-blue-700 via-indigo-600 via-cyan-500 via-blue-600 to-blue-900"
-        animate={{
-          backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
-        }}
-        transition={{
-          duration: 4, // Faster animation
-          repeat: Infinity,
-          repeatType: "loop",
-          ease: "easeInOut", // Smoother transition
-        }}
-        style={{
-          backgroundSize: "400% 400%", // Larger size for more vibrant effect
-        }}
-      ></motion.div>
-
-      <div className="flex-1 p-6 min-h-screen">
-        <h1 className="text-3xl font-bold mb-6 text-white">{currentTime()}</h1>
-
-        <h1 className="text-3xl font-bold mb-6 text-white">Friends code</h1>
+    return (
+      <div className="flex w-full h-full">
+        {/* Main content */}
+        <div className="w-3/4 p-6 space-y-6">
+          {/* Friends Section */}
+          <div>
+            <h1 className="text-2xl font-bold mb-4">Friends</h1>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {friends.map((friend, index) => (
+                <div
+                  key={index}
+                  className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition duration-300"
+                >
+                  <h2 className="text-lg font-semibold">{friend.name}</h2>
+                  <p className="text-sm text-gray-600">
+                    <strong>Email:</strong> {friend.email}
+                  </p>
+                  <p
+                    className={`text-sm font-medium ${
+                      friend.status === "Online"
+                        ? "text-green-600"
+                        : friend.status === "Busy"
+                        ? "text-yellow-600"
+                        : "text-gray-600"
+                    }`}
+                  >
+                    <strong>Status:</strong> {friend.status}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  );
-}
-
-export default Friends;
+    );
+  };
+  
+  export default Friends;

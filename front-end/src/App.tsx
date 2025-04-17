@@ -1,25 +1,33 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import PageLayout from "./components/PageLayout";
 import Login from "./pages/Login";
-import SplashPage from "./pages/SplashPage";
+import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
 import Calendar from "./pages/Calendar";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Classes from "./pages/Classes";
 import Friends from "./pages/Friends";
-import Syllabus from "./pages/SyllabusDrop";
-import Profile from "./pages/Profile";
-import Signup from "./pages/Signup";
+import Settings from "./pages/Settings";
+import SplashPage from "./pages/SplashPage";
+import Tasks from "./pages/Tasks";
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<SplashPage />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/calendar" element={<Calendar />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/syllabus" element={<Syllabus />} />
-        <Route path="/friends" element={<Friends />} />
-        <Route path="/signup" element={<Signup />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/" element={<SplashPage/>} />
+
+        {/* Routes using shared layout */}
+        <Route element={<PageLayout />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/calendar" element={<Calendar />} />
+          <Route path="/classes" element={<Classes />} />
+          <Route path="/friends" element={<Friends />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/tasks" element={<Tasks />} />
+
+        </Route>
       </Routes>
     </Router>
   );
