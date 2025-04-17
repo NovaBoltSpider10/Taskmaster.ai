@@ -23,7 +23,7 @@ async function extractSyllabusDataTasks(syllabusText) {
   const prompt = `
     Extract the following information which are resource urls which could be any links are helpful information such as guides in the syllabus:
 
-    - resource {
+    {
         urls: [String] (String array of all the url to websites and other helpful places),
         class: { type: mongoose.Schema.Types.ObjectId, ref: 'Class', required: false (just set to null)}
     }

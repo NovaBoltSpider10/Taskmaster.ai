@@ -33,7 +33,7 @@ router.patch("/:id", updateProfile);
 router.delete("/:id", deleteUser);
 
 router.post(
-  "/:userId/api/upload",
+  "/aisyllabus/:userId/api/upload",
   upload.single("file"),
   async (req, res, next) => {
     if (!req.file) {
