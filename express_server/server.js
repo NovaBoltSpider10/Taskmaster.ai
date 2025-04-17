@@ -47,16 +47,35 @@ app.use('/cards', flashCardRoutes);
 // Controller/routes code for auth
 app.get('/', async (req, res) => {
     if (!validateAuth(req, res)) {
-        // res.status(200).json({message: 'Logged out'});
-        res.send("hi");
+        res.status(200).json({message: 'Logged out'});
+        // res.send("hi");
+        return;
     }   
 });
 
 // app.post('/setup', requiresAuth(), async() => { setupUser(req, res); } );
-app.post('/setup', async() => { setupUser(req, res); } );
+app.post('/setup', async(req, res) => { setupUser(req, res); } );
 
 app.get('/profile', async(req, res) => {
-    res.send(req.oidc.user.sub);
+    // res.send(req.oidc.user.sub);
+    res.send(`
+        <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form action="/setup" method="post">
+        <input type="hidden" name="username" value="hi">
+        <input type="hidden" name="fname" value="fname">
+        <input type="hidden" name="lname" value="lname">
+        <input type="submit" value="submit">
+    </form>
+</body>
+</html>
+        `);
     return;
 });
 

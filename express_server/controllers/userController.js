@@ -28,11 +28,11 @@ const getProfile = async (req, res) => {
 };
 
 const setupUser = async (req, res) => {
-    console.log(req, res);
     const existingUser = await User.findOne({ sub: req.oidc.user.sub });
     
-    if (!existingUser) {
-        res.status(401).json({message: 'user does not exist'});
+    if (existingUser) {
+        res.redirect('/');
+        return;
     }
 
     // Needs username, first name, last name from frontend
@@ -49,9 +49,9 @@ const setupUser = async (req, res) => {
         .catch((err) => {
             console.log(err);
             return false;
-        });
+    });
 
-    res.redirect('/');
+    res.status(200).json({'message': 'created user'});
 };
 
 
