@@ -1,21 +1,25 @@
-const express = require('express');
+import { Router } from 'express';
 
-const {
-    createClass,
-    getAllClasses,
+import { 
+    createClass, 
+    getAllClasses, 
     getClassById,
-    updateClass,
-    deleteClass
+    getAllClassesbyUserid,
+    updateClass, 
+    deleteClass,
+    parseSyllabus 
+} from '../controllers/classController.js';
 
-} = require('../controllers/classController');
-
-const router = express.Router();
+const router = Router();
 
 // GET all classs
 router.get('/', getAllClasses);
 
 // GET a single class by ID
-router.get('/:id', getClassById);
+router.get('/single/:id', getClassById);
+
+// GET all class by userId
+router.get('/user/:userid', getAllClassesbyUserid);
 
 // POST a new class
 router.post('/', createClass);
@@ -23,7 +27,10 @@ router.post('/', createClass);
 // DELETE a class by ID
 router.delete('/:id', deleteClass);
 
+//Get all tasks by syllabus path (Not being used in final)
+router.post('/syllabus', parseSyllabus)
+
 // UPDATE a class by ID
 router.patch('/:id', updateClass);
 
-module.exports = router;
+export default router;

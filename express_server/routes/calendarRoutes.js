@@ -1,14 +1,14 @@
-const express = require('express');
+import { Router } from 'express';
 
-const {
-    createCalendar,
-    getAllCalendar,
-    getCalendarById,
-    updateCalendar,
-    deleteCalendar
-} = require('../controllers/calendarController');
+import { 
+    createCalendar, 
+    getAllCalendar, 
+    getCalendarById, 
+    updateCalendar, 
+    deleteCalendar 
+} from '../controllers/calendarController.js';
 
-const router = express.Router();
+const router = Router();
 
 // GET all tasks
 router.get('/', getAllCalendar);
@@ -25,4 +25,4 @@ router.delete('/:id', deleteCalendar);
 // UPDATE a task by ID
 router.patch('/:id', updateCalendar);
 
-module.exports = router;
+export default router;

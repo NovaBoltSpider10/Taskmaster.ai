@@ -1,15 +1,19 @@
-const Class = require('../models/classModel');
+import Class from '../models/classModel.js';
+import { parseAndSaveSyllabus } from '../syllabus_parser/classParser.js';
+
 
 //Get all classes
 const getAllClasses = async(req, res) => {
     try {
         const classes = await Class.find();
-        res.status(200).json(tasks);
+        res.status(200).json(classes);
 
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
+
+//GET classes by userId
 
 //Get class by ID
 const getClassById = async(req, res) => {
@@ -30,9 +34,9 @@ const getClassById = async(req, res) => {
 //Create class
 const createClass = async(req, res) => {
     try {
-        const {professor, time, assignmentDueDate, examDate, topics, gradingPolicy, contactInfo, textbooks, location, resources} = req.body;
+        const {professor, timing, examDates, topics, gradingPolicy, contactInfo, textbooks, location, user} = req.body;
 
-        const newClass = new Class({professor, time, assignmentDueDate, examDate, topics, gradingPolicy, contactInfo, textbooks, location, resources});
+        const newClass = new Class({professor, timing, examDates, topics, gradingPolicy, contactInfo, textbooks, location, user});
         const savedClass = await newClass.save();
         res.status(201).json(savedClass);
 
@@ -44,8 +48,8 @@ const createClass = async(req, res) => {
 //Update class
 const updateClass = async(req, res) => {
     try {
-        const {professor, time, assignmentDueDate, examDate, topics, gradingPolicy, contactInfo, textbooks, location, resources} = req.body;
-        const updatedClass = await Task.findByIdAndUpdate(req.params.id, {professor, time, assignmentDueDate, examDate, topics, gradingPolicy, contactInfo, textbooks, location, resources}, {new: true});
+        const {professor, timing, examDates, topics, gradingPolicy, contactInfo, textbooks, location} = req.body;
+        const updatedClass = await Class.findByIdAndUpdate(req.params.id, {professor, timing, examDates, topics, gradingPolicy, contactInfo, textbooks, location}, {new: true});
 
         if (!updatedClass)
         {
@@ -75,10 +79,45 @@ const deleteClass = async(req, res) => {
     }
 };
 
-module.exports = {
+//POST from syllabus
+const parseSyllabus = async (req, res, next) => {
+    console.log("Called CLASS CLASS controller");
+    try {
+        const { syllabusFilePath } = req.body;
+        const { userId } = req.body;
+        if (!syllabusFilePath) {
+            return res.status(400).json({ message: "Syllabus file path is required." });
+        }
+        await parseAndSaveSyllabus(syllabusFilePath, userId);
+        console.log("Syllabus parsed and class saved successfully.");
+        next();
+    } catch (error) {
+        console.error("Error parsing syllabus:", error);
+        next(error);
+    }
+};
+
+const getAllClassesbyUserid = async (req, res) => {
+    try {
+        const classes = await Class.find({user: req.params.userid});
+        if (!classes)
+        {
+            return res.status(404).json({ message: "Class not found by userId" });
+        }
+        res.status(200).json(classes);
+
+    } catch (error) {
+        res.status(500).json({message: error.message});
+    }
+}
+
+
+export {
     createClass,
     getAllClasses,
     getClassById,
+    getAllClassesbyUserid,
     updateClass,
-    deleteClass
+    deleteClass,
+    parseSyllabus
 };

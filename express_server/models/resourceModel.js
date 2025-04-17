@@ -1,9 +1,8 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const resourceSchema = mongoose.Schema({
     urls: [String],
-    websites: [String],
-    class: { type: mongoose.Schema.Types.ObjectId, ref: 'Class' }
+    class: { type: mongoose.Schema.Types.ObjectId, ref: 'Class', required: false }
 });
 
-module.exports = mongoose.model('Calendar', resourceSchema);
+export default mongoose.model('Resource', resourceSchema);

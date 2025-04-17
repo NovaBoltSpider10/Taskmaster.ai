@@ -1,15 +1,15 @@
-const express = require('express');
+import express from 'express';
 
-const {
+import {
     createResource,
     getAllResources,
     getResourceById,
     updateResource,
     deleteResource,
     getResourcesByClassId,
-    createResourceByClassId
-
-} = require('../controllers/ResourceController');
+    createResourceByClassId,
+    parseSyllabus
+} from '../controllers/resourceController.js';
 
 const router = express.Router();
 
@@ -17,7 +17,10 @@ const router = express.Router();
 router.get('/', getAllResources);
 
 // GET a single resource by ID
-router.get('/:id', getResourceById);
+router.get('/single/:id', getResourceById);
+
+// Get all resources for a certain class
+router.get('/class/:id', getResourcesByClassId);
 
 // POST a new resource
 router.post('/', createResource);
@@ -28,13 +31,13 @@ router.delete('/:id', deleteResource);
 // UPDATE a resource by ID
 router.patch('/:id', updateResource);
 
-// Get all resources for a certain class
-router.get('/:id', getResourcesByClassId);
+//Get all tasks by syllabus path (Not using in final proj)
+router.post('/syllabus', parseSyllabus)
 
 // Create resource by class ID
-router.post('/:id', createResourceByClassId);
+router.post('/classid/:id', createResourceByClassId);
 
 
 
 
-module.exports = router;
+export default router;
