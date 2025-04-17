@@ -22,6 +22,7 @@ const FlashCards = () => {
   const [error, setError] = useState<string | null>(null);
   const [flippedCardIndex, setFlippedCardIndex] = useState<number | null>(null);
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     const fetchClasses = () => {
@@ -76,6 +77,7 @@ const FlashCards = () => {
 
     setLoading(true);
     setError(null);
+    setShowModal(true);
 
     axios
       .post(`http://localhost:3000/cards/${selectedClass._id}`)
@@ -100,14 +102,34 @@ const FlashCards = () => {
       ? flashcards.filter((card) => card.topic === selectedTopic)
       : [];
 
- 
-
   if (error) {
     return <div className="text-center text-red-500">{error}</div>;
   }
 
   return (
-    <div className="w-full h-full p-6 flex justify-center">
+    <div className="w-full h-full p-6 flex justify-center relative">
+      {/* Warning Modal */}
+      {showModal && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="absolute inset-0 bg-black opacity-50" />
+          <div className="bg-white rounded-lg p-6 z-50 max-w-sm text-center">
+            <p className="text-red-700 mb-4">
+              Warning: Navigating to another page will cause errors and could result in losing your flashcards.
+            </p>
+            <p>
+              Takes approximately 2 minutes for evey 16 topics
+            </p>
+            <br></br>
+            <button
+              onClick={() => setShowModal(false)}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="w-full max-w-5xl space-y-6">
         {/* Class List */}
         <div className="bg-white rounded-xl shadow-md p-6">
@@ -195,10 +217,7 @@ const FlashCards = () => {
                       style={{ backfaceVisibility: "hidden" }}
                     >
                       <p className="text-sm text-gray-500 mb-1">
-                        Topic:{" "}
-                        <span className="font-medium text-gray-800">
-                          {card.topic}
-                        </span>
+                        Topic: <span className="font-medium text-gray-800">{card.topic}</span>
                       </p>
                       <p className="font-semibold text-lg">{card.question}</p>
                     </div>

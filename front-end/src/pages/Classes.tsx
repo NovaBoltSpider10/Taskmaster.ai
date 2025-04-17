@@ -67,7 +67,7 @@ const SyllabusUpload = () => {
       });
 
       setToast({
-        message: "File uploaded successfully!",
+        message: "File uploaded successfully. Please wait up to 2 minutes for data to be parsed",
         type: "success",
         show: true,
       });
@@ -76,7 +76,7 @@ const SyllabusUpload = () => {
     } catch (err) {
       console.error(err);
       setToast({
-        message: "Upload failed. Please try again.",
+        message: "Fatal Error 404. Please try again.",
         type: "error",
         show: true,
       });

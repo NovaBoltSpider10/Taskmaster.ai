@@ -33,6 +33,7 @@ const getTaskById = async(req, res) => {
 
 //Update task
 const updateTask = async(req, res) => {
+    console.log("Called patch");
     try {
         const {deadline, topic, title, resources, status, points, textbook} = req.body;
         const updatedTask = await Task.findByIdAndUpdate(req.params.id, {deadline, topic, title, resources, status, points, textbook}, {new: true});
