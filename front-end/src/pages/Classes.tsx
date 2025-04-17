@@ -7,6 +7,7 @@ import { X } from "lucide-react"; // Optional: Use '×' if you don't want icon
 
 interface ClassData {
   _id: string;
+  name: String,
   professor: String;
   timing: String;
   examDates: String[];
@@ -195,10 +196,16 @@ const SyllabusUpload = () => {
                 style={{ maxWidth: "350px" }} // Slightly bigger card width
               >
                 <h2 className="text-lg font-semibold mb-2">
-                  {classItem.professor}
+                  {classItem.name}
                 </h2>
                 <p className="text-sm text-gray-600 mb-2">
+                  <strong>Professor:</strong> {classItem.professor}
+                </p>
+                <p className="text-sm text-gray-600 mb-2">
                   <strong>Location:</strong> {classItem.location}
+                </p>
+                <p className="text-sm text-gray-600 mb-2">
+                  <strong>Timing:</strong> {classItem.timing}
                 </p>
                 <p className="text-sm text-gray-600 mb-2">
                   <strong>Topics:</strong>

@@ -9,6 +9,7 @@ import Friends from "./pages/Friends";
 import Settings from "./pages/Settings";
 import SplashPage from "./pages/SplashPage";
 import Tasks from "./pages/Tasks";
+import FlashCards from "./pages/FlashCards";
 
 function App() {
   return (
@@ -26,7 +27,7 @@ function App() {
           <Route path="/friends" element={<Friends />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/tasks" element={<Tasks />} />
-
+          <Route path="/flashcards" element={<FlashCards />} />
         </Route>
       </Routes>
     </Router>

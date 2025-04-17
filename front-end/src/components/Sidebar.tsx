@@ -7,6 +7,8 @@ import {
   FaCog,
   FaTasks,
 } from "react-icons/fa";
+import { SiFuturelearn } from "react-icons/si";
+
 import type { IconType } from "react-icons";
 
 interface NavItem {
@@ -24,7 +26,9 @@ function Sidebar() {
     { name: "Friends", path: "/friends", icon: FaUserFriends },
     { name: "Class Manager", path: "/classes", icon: FaChalkboardTeacher },
     { name: "Tasks", path: "/tasks", icon: FaTasks },
+    { name: "FlashCards", path: "/flashcards", icon: SiFuturelearn },
     { name: "Settings", path: "/settings", icon: FaCog },
+
   ];
 
   return (
