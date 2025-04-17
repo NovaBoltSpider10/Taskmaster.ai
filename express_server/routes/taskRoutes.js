@@ -1,7 +1,6 @@
 import { Router } from 'express';
 
-import { 
-    createTask, 
+import {  
     getAllTask, 
     getTaskById, 
     updateTask, 
@@ -17,10 +16,10 @@ const router = Router();
 router.get('/', getAllTask);
 
 // GET a single task by ID
-router.get('/:id', getTaskById);
+router.get('/single/:id', getTaskById);
 
-// POST a new task
-router.post('/', createTask);
+//Get all tasks by class
+router.get('/classid/:classid', getTaskByClassId);
 
 // DELETE a task by ID
 router.delete('/:id', deleteTask);
@@ -28,14 +27,11 @@ router.delete('/:id', deleteTask);
 // UPDATE a task by ID
 router.patch('/:id', updateTask);
 
-//Get all tasks by class
-router.get('/:id', getTaskByClassId);
-
 //Get all tasks by syllabus path (Not using in final proj)
 router.post('/syllabus', parseSyllabus);
 
 //Create task by class id
-router.post('/:id', createTaskByClassId);
+router.post('/classid/:id', createTaskByClassId);
 
 
 

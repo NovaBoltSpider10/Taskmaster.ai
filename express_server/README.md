@@ -146,13 +146,14 @@ The API uses standard HTTP status codes to indicate the outcome of requests. Com
 - Authentication: Requires userId in api call
 - Request Body (none):
 
+
 # Resource Routes
 
 ### Get all Resources from database (Don't use in client side user)
 
-- Endpoint: /cards/
+- Endpoint: /resources/
 - Method: GET
-- Description: Get all cards doc in mongodb.
+- Description: Get all resources doc in mongodb.
 - Request Body (None):
 
 ### Get single resource by id
@@ -164,18 +165,121 @@ The API uses standard HTTP status codes to indicate the outcome of requests. Com
 
 ### Get all resources by classid
 
-- Endpoint: /cards/class/:id
+- Endpoint: /resources/class/:id
 - Method: GET
-- Description: Get all cards associated with classid.
+- Description: Get all resources associated with classid.
 - Request Body (None):
+
+### Post new Resource
+
+- Endpoint: /resources/classid/:id
+- Method: POST
+- Description: Post a new resource associated with classid
+- Request Body (application/json):
+```json
+{
+  "urls": [
+    "https://www.geeksforgeeks.org/binary-search-tree-data-structure/",
+    "https://www.youtube.com/watch?v=COZK7NATh4k"
+  ]
+}
+```
+
+### Patch Resource
+
+- Endpoint: /resources/:id
+- Method: PATCH
+- Description: Patch a resource by its id
+- Request Body (application/json):
+```json
+{
+    "urls": [
+        "https://www.khanacademy.org/computer-science"
+    ]
+}
+```
+
+### Delete Resource
+
+- Endpoint: /resources/:id
+- Method: DELETE
+- Description: Delete a resource by its id
+- Request Body (none):
 
 
 # Task Routes
 
+
+### Get all Tasks from database (Don't use in client side user)
+
+- Endpoint: /tasks/
+- Method: GET
+- Description: Get all tasks doc in mongodb.
+- Request Body (None):
+
+### Get single task by id
+
+- Endpoint: /tasks/single/:id
+- Method: GET
+- Description: Get single task by taskid parameter.
+- Request Body (None):
+
+### Get all tasks by classid
+
+- Endpoint: /tasks/classid/:classid
+- Method: GET
+- Description: Get all resources tasks with classid.
+- Request Body (None):
+
+### Post new Resource
+
+- Endpoint: /tasks/classid/:id
+- Method: POST
+- Description: Post a new resource with classid
+- Request Body (application/json):
+```json
+{
+  "deadline": "2025-04-20T23:59:00.000Z",
+  "topic": "Binary Search Trees",
+  "title": "BST Implementation Assignment",
+  "resources": [
+    "661f20a4c8e8c0ab8b91fa31",
+    "661f20a4c8e8c0ab8b91fa32"
+  ],
+  "status": "pending",
+  "points": 10,
+  "textbook": "Data Structures and Algorithms in Java"
+}
+```
+
+### Patch Task
+
+- Endpoint: /tasks/:id
+- Method: PATCH
+- Description: Patch a task by its id
+- Request Body (application/json):
+```json
+{
+  "deadline": "2025-04-20T23:59:00.000Z",
+  "topic": "Binary Search Trees",
+  "title": "BST Implementation Assignment"
+}
+```
+
+### Delete Resource
+
+- Endpoint: /tasks/:id
+- Method: DELETE
+- Description: Delete a task by its id
+- Request Body (none):
+
 # User Routes
 
-### Syllabus AI with Gemini API
+### POST Syllabus to user profile
 
-- 
+- Endpoint: /user/aisyllabus/:id
+- Method: POST
+- Description: Post a file and Gemini API extracts class, tasks, and helpful resources from the syllabus and send to mongodb
+- Request Body (form-data): add key as "file" and value as the pdf file
 
 ### Author: Tejas, Sriyuth, Srikar
