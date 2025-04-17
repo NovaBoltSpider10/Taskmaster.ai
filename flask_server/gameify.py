@@ -42,7 +42,7 @@ class PointSystem:
         self.user_points += earned_points
 
         return earned_points
-    
+
     def get_points(self):
         return self.user_points
 
@@ -52,11 +52,10 @@ def test():
     point_system = PointSystem(user_points)
 
     task_type = "monthly"
-    deadline = date.today() + timedelta(days = 1)
+    deadline = date.today() + timedelta(days = 3)
     completion_time = date.today()
     
     earned_points = point_system.calculate_points(task_type, deadline, completion_time)
-
 
     print(f"User earned {earned_points} points for completing a {task_type}")
 
