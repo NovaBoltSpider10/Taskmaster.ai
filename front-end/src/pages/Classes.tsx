@@ -188,6 +188,7 @@ const SyllabusUpload = () => {
         {/* Classes Section */}
         <div>
           <h1 className="text-2xl font-bold mb-4">Classes</h1>
+          {userClasses.length === 0 && <p>No classes found. Upload a syllabus to get started</p>}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {userClasses.map((classItem) => (
               <div

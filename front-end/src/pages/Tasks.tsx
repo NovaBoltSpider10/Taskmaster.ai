@@ -106,7 +106,7 @@ const Tasks = () => {
     <div className="flex w-full h-full p-6">
       <div className="w-full space-y-6">
         <h1 className="text-2xl font-bold mb-4">Tasks</h1>
-        {Object.keys(classTasks).length === 0 && <p>No data found</p>}
+        {Object.keys(classTasks).length === 0 && <p>No tasks found. Upload a syllabus to get started</p>}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {Object.keys(classTasks).map((classId, index) => (
             <motion.div

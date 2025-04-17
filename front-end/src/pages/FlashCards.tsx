@@ -25,7 +25,7 @@ const FlashCards = () => {
 
   useEffect(() => {
     const fetchClasses = () => {
-    const userId = "google-oauth2|117092462712380430315";
+      const userId = "google-oauth2|117092462712380430315";
 
       axios
         .get(`http://localhost:3000/class/user/${userId}`)
@@ -78,17 +78,17 @@ const FlashCards = () => {
     setError(null);
 
     axios
-    .post(`http://localhost:3000/cards/${selectedClass._id}`)
-    .then(() => {
-      return fetchFlashcards(selectedClass._id);
-    })
-    .catch((err) => {
-      console.error(err);
-      setError("Failed to generate flashcards.");
-    })
-    .finally(() => {
-      setLoading(false);
-    });
+      .post(`http://localhost:3000/cards/${selectedClass._id}`)
+      .then(() => {
+        return fetchFlashcards(selectedClass._id);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError("Failed to generate flashcards.");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   const topics = flashcards
@@ -100,12 +100,21 @@ const FlashCards = () => {
       ? flashcards.filter((card) => card.topic === selectedTopic)
       : [];
 
+ 
+
+  if (error) {
+    return <div className="text-center text-red-500">{error}</div>;
+  }
+
   return (
     <div className="w-full h-full p-6 flex justify-center">
       <div className="w-full max-w-5xl space-y-6">
         {/* Class List */}
         <div className="bg-white rounded-xl shadow-md p-6">
           <h2 className="text-xl font-bold mb-4">Select a Class</h2>
+          {classes.length === 0 && (
+            <p>No classes found. Upload a syllabus to get started</p>
+          )}
           <div className="space-y-4">
             {classes.map((classItem) => (
               <div
