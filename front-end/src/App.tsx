@@ -1,3 +1,32 @@
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Login from "./pages/Login";
+import SplashPage from "./pages/SplashPage";
+import Dashboard from "./pages/Dashboard";
+import Calendar from "./pages/Calendar";
+import Friends from "./pages/Friends";
+import Syllabus from "./pages/SyllabusDrop";
+import Profile from "./pages/Profile";
+import Signup from "./pages/Signup";
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<SplashPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/calendar" element={<Calendar />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/syllabus" element={<Syllabus />} />
+        <Route path="/friends" element={<Friends />} />
+        <Route path="/signup" element={<Signup />} />
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;
+
 import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'

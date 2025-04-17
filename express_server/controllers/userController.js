@@ -28,6 +28,14 @@ const getProfile = async (req, res) => {
 };
 
 const setupUser = async (req, res) => {
+    console.log(req, res);
+    const existingUser = await User.findOne({ sub: req.oidc.user.sub });
+    
+    if (!existingUser) {
+        res.status(401).json({message: 'user does not exist'});
+    }
+
+    // Needs username, first name, last name from frontend
     const newUser = new User({
         sub: req.oidc.user.sub,
         username: req.body.username,

@@ -54,12 +54,12 @@ const createResource = async(req, res) => {
 //Update resource
 const updateResource = async(req, res) => {
     try {
-        const {url, website} = req.body;
-        const updatedResource = await Task.findByIdAndUpdate(req.params.id, {url, website}, {new: true});
+        const {urls} = req.body;
+        const updatedResource = await Resource.findByIdAndUpdate(req.params.id, {urls}, {new: true});
 
         if (!updatedResource)
         {
-            return res.status(404).json({ message: "Task not found" });
+            return res.status(404).json({ message: "Resource not found" });
         }
 
         res.status(200).json(updatedResource);
@@ -73,10 +73,10 @@ const updateResource = async(req, res) => {
 //Delete resource
 const deleteResource = async(req, res) => {
     try {
-        const deletedResource = await Task.findByIdAndDelete(req.params.id);
+        const deletedResource = await Resource.findByIdAndDelete(req.params.id);
         if (!deletedResource)
         {
-            return res.status(404).json({message: "Task mot found"});
+            return res.status(404).json({message: "Resource mot found"});
         }
         res.status(200).json({message: "Resource deleted successfully"});
 
@@ -88,7 +88,7 @@ const deleteResource = async(req, res) => {
 //Get resource by class ID
 const getResourcesByClassId = async(req, res) => {
     try {
-        const resource = await Resource.findById({classId: req.params.classId});
+        const resource = await Resource.find({class: req.params.id});
 
         if (!resource)
         {
@@ -97,7 +97,7 @@ const getResourcesByClassId = async(req, res) => {
 
         res.status(200).json(resource);
 
-
+  
     } catch (error) {
         res.status(500).json({message: error.message});
     }
@@ -106,39 +106,32 @@ const getResourcesByClassId = async(req, res) => {
 //Create resource by class ID
 const createResourceByClassId = async(req, res) => {
     try {
-        const {url, website} = req.body;
-        const updatedResource = await Task.findByIdAndUpdate(req.params.id, {url, website}, {new: true});
-        const {classId} = req.params;
-
-        if (!classId)
-        {
-            return res.status(404).json({ message: "Class ID not found" });
-        }
+        const {urls} = req.body;
+        const {id} = req.params.id;
         
-        const newResource = new Resource({url, website, classId});
+        const newResource = new Resource({urls, class: id});
         const savedResource = await newResource.save();
         res.status(201).json(savedResource);
-
-        res.status(200).json(updatedResource);
 
     } catch (error) {
         res.status(500).json({message: error.message});
     }
 };
 
-//Create task by Syllabus
-const parseSyllabus = async (req, res) => {
-    console.log("Called resourseParser controller");
+//Create Resource by Syllabus
+const parseSyllabus = async (req, res, next) => {
+    console.log("Called RESOURCE RESOURCE controller");
     try {
         const { syllabusFilePath } = req.body;
         if (!syllabusFilePath) {
             return res.status(400).json({ message: "Syllabus file path is required." });
         }
         await parseAndSaveSyllabus(syllabusFilePath);
-        res.status(200).json({ message: "Syllabus parsed and resources saved successfully." });
+        console.log("Syllabus parsed and resources saved successfully.");
+        next();
     } catch (error) {
         console.error("Error parsing syllabus:", error);
-        res.status(500).json({ message: "An error occurred while parsing the syllabus.", error: error.message });
+        next(error);
     }
 };
 

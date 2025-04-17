@@ -9,8 +9,7 @@ const classSchema = new mongoose.Schema({
     contactInfo: String,
     textbooks: [String],
     location: String,
-    resources: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Resource', required: false }],
-    tasks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Tasks', required: false }],
+    user: {type: String, required: true }
 
 });
 

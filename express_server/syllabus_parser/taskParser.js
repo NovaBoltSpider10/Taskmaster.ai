@@ -1,7 +1,8 @@
 import dotenv from "dotenv";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import * as fs from "fs/promises";
+import fs from "fs/promises";
 import Task from '../models/taskModel.js';
+import {parseAndSaveSyllabus as resourceParser} from "../syllabus_parser/resourceParser.js"
 dotenv.config();
 
 const genAI = new GoogleGenerativeAI(process.env.Google_GenAI_URL);
@@ -20,10 +21,12 @@ async function readSyllabus(filePath) {
 
 
 async function extractSyllabusDataTasks(syllabusText) {
-  const prompt = `
-    Extract the following information which are tasks which could be assignments are test reminders from the syllabus text and put in seperate strinfigied form for each task, use ISO 8601 for data deadlines and set time to midnight unless specified, only include tasks and the points associated with it if there are any. The topic property is the unit name (should not repeat the title name at all) and the title is the name of the task:
 
-    - Tasks { deadline: Date, topic: String, title: String, resources: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Resource' }], status: { type: String, enum: ['pending', 'completed', 'overdue'], default: 'pending' }, points: Number, textbook: String, class: { type: mongoose.Schema.Types.ObjectId, ref: 'Class'}}
+  // TODO: Change the prompt to reflect the new task model
+  const prompt = `
+    Extract the following information which are tasks which could be assignments are test reminders from the syllabus text and put in seperate strinfigied form for each task, use ISO 8601 for data deadlines and set time to midnight unless specified, only include tasks and the points associated with it if there are any. The topic property is the unit name (should not repeat the title name at all) and the title is the name of the task. The taskType should be one of "daily", "weekly", or "monthly", depending on how difficult the task is, the task deadline to a reasonable time (ex: one day before) before the class for which the task is set, the earnedPoints should be initialized to 0 and the completed should be initialized to false:
+
+    - Tasks { topic: String, title: String, resources: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Resource' }], status: { type: String, enum: ['pending', 'completed', 'overdue'], default: 'pending' }, points: Number, taskType: String, deadline: Date, earnedPoints: Number, completed: Boolean, textbook: String, class: { type: mongoose.Schema.Types.ObjectId, ref: 'Class'}}
 
     provide the JSON without any surrounding text for markdown.
   `;
@@ -31,7 +34,7 @@ async function extractSyllabusDataTasks(syllabusText) {
   const result = await model.generateContent([ 
     {
       inlineData: {
-        data: Buffer.from(syllabusText).toString("base64"),
+        data: syllabusText.toString("base64"),
         mimeType: "application/pdf"
       }
     }, 
@@ -50,7 +53,7 @@ async function extractSyllabusDataTasks(syllabusText) {
   }
 }
 
-async function saveTasksToDatabase(tasks) {
+async function saveTasksToDatabase(tasks, classId) {
   console.log("Start of task mongose code");
   if (!tasks || !Array.isArray(tasks)) {
     console.error("Invalid tasks array provided.");
@@ -60,6 +63,7 @@ async function saveTasksToDatabase(tasks) {
   try {
     for (const tasksData of tasks) {
       const newTask = new Task(tasksData);
+      newTask.class = classId;
       await newTask.save();
     } 
     console.log(`Task "${Task.title}" saved to database.`);
@@ -69,7 +73,7 @@ async function saveTasksToDatabase(tasks) {
   }
 }
 
-async function parseAndSaveSyllabus(syllabusFilePath) {
+async function parseAndSaveSyllabus(syllabusFilePath, classId) {
   const syllabusText = await readSyllabus(syllabusFilePath);
   if (!syllabusText) {
       console.error("Failed to read syllabus file.");
@@ -82,8 +86,9 @@ async function parseAndSaveSyllabus(syllabusFilePath) {
       return;
   }
 
-  await saveTasksToDatabase(tasks);
+  await saveTasksToDatabase(tasks, classId);
   console.log("Syllabus parsed and tasks saved successfully.");
+  resourceParser(syllabusFilePath, classId);
   
 }
 

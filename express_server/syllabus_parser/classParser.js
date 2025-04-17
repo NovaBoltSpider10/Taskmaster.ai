@@ -1,8 +1,9 @@
 import dotenv from "dotenv";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import * as fs from "fs/promises";
+import fs from "fs/promises";
 import Class from '../models/classModel.js';
 dotenv.config();
+import {parseAndSaveSyllabus as taskParser} from "../syllabus_parser/taskParser.js"
 
 const genAI = new GoogleGenerativeAI(process.env.Google_GenAI_URL);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
@@ -22,7 +23,7 @@ async function extractSyllabusDataTasks(syllabusText) {
   const prompt = `
     Extract the following information which is the class info from syllabus:
 
-    - Classes: {
+    {
         professor: String, 
         timing: String (timing of class),
         examDates: [Date] (dates of all exams, ISO 8601 for data deadlines and set to 11:59 pm),
@@ -31,9 +32,6 @@ async function extractSyllabusDataTasks(syllabusText) {
         contactInfo: String (string of only email),
         textbooks: [String] (string array of the textbooks to buy),
         location: String (String of room location),
-        resources: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Resource' }] (leave blank),
-        tasks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Tasks' }] (leave blank),
-    
     }
     provide the JSON without any surrounding text for markdown.
   `;
@@ -41,7 +39,7 @@ async function extractSyllabusDataTasks(syllabusText) {
   const result = await model.generateContent([ 
     {
       inlineData: {
-        data: Buffer.from(syllabusText).toString("base64"),
+        data: syllabusText.toString("base64"),
         mimeType: "application/pdf"
       }
     }, 
@@ -50,7 +48,6 @@ async function extractSyllabusDataTasks(syllabusText) {
   const response = await result.response;
   let text = response.text();
   text = text.replace(/```(?:json)?\n?/g, '');
-  console.log(text);
   
   try {
     return JSON.parse(text);
@@ -60,21 +57,27 @@ async function extractSyllabusDataTasks(syllabusText) {
   }
 }
 
-async function saveClassesToDatabase(classes) {
+async function saveClassesToDatabase(classes, userId) {
   console.log("Start of class mongose code");
   
 
   try {
+    classes.user = userId;
     const newClass = new Class(classes);
+    
     await newClass.save();
+    const classId = newClass._id;
+    
     console.log(`Class "${Class.title}" saved to database.`);
+
+    return classId;
 
   } catch(error) {
       console.error("Error saving class to database: ", error);
   }
 }
 
-async function parseAndSaveSyllabus(syllabusFilePath) {
+async function parseAndSaveSyllabus(syllabusFilePath, userId) {
   const syllabusText = await readSyllabus(syllabusFilePath);
   if (!syllabusText) {
       console.error("Failed to read syllabus file.");
@@ -87,8 +90,9 @@ async function parseAndSaveSyllabus(syllabusFilePath) {
       return;
   }
 
-  await saveClassesToDatabase(classText);
+  const classId = await saveClassesToDatabase(classText, userId);
   console.log("Syllabus parsed and classes saved successfully.");
+  taskParser(syllabusFilePath, classId);
   
 }
 

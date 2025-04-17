@@ -1,6 +1,12 @@
 import { Router } from 'express';
 
-import { createCalendar, getAllCalendar, getCalendarById, updateCalendar, deleteCalendar } from '../controllers/calendarController.js';
+import { 
+    createCalendar, 
+    getAllCalendar, 
+    getCalendarById, 
+    updateCalendar, 
+    deleteCalendar 
+} from '../controllers/calendarController.js';
 
 const router = Router();
 
