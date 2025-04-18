@@ -25,7 +25,7 @@ const validateAuth = async (req, res) => {
         return false;
     }
 
-    res.status(200);
+    return true;
 };
 
 export {

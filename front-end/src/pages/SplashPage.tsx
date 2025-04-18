@@ -1,17 +1,14 @@
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import NavBar from "../components/navbar";
 import { motion } from "framer-motion";
 
 function SplashPage() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const handleSignup = () => {
-    navigate("dashboard");
+    // navigate("dashboard");
+    window.location.href = "http://localhost:5000/login"
   };
-
-
-
-
 
   return (
     <>
@@ -328,8 +325,6 @@ function SplashPage() {
         </div>
       </div>
 
-      
-
       {/* Call to Action Section */}
       <div className="w-full py-20 bg-gray-900 text-white text-center">
         <div className="max-w-[1080px] mx-auto px-6">
@@ -350,7 +345,8 @@ function SplashPage() {
       <footer className="bg-gray-900 text-gray-400 py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm mb-4 md:mb-0">
-            &copy; {new Date().getFullYear()} Taskmaster AI. All rights reserved.
+            &copy; {new Date().getFullYear()} Taskmaster AI. All rights
+            reserved.
           </p>
           <div className="flex space-x-6">
             <a

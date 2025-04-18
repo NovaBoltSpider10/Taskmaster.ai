@@ -1,4 +1,5 @@
 import User from '../models/userModel.js';
+import { validateAuth } from './authController.js';
 
 //Get all users
 const getAllUsers = async (req, res) => {
@@ -11,6 +12,13 @@ const getAllUsers = async (req, res) => {
     }
 };
 
+const getUserID = async(req, res) => {
+    if (validateAuth(req, res)) {
+        res.status(200).json({"id": req.oidc.sub});
+    }
+    
+    return;
+};
 
 //Get profile
 const getProfile = async (req, res) => {
@@ -97,6 +105,7 @@ const deleteUser = async (req, res) => {
 
 export {
     getAllUsers,
+    getUserID,
     getProfile,
     updateProfile,
     deleteUser,

@@ -34,7 +34,7 @@ function NavBar() {
               Login
             </Link> */}
             <a
-              href="localhost:5000/login"
+              href="http://localhost:5000/login"
               className="text-gray-800 hover:bg-gray-200 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
             >
               Login

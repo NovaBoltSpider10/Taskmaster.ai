@@ -48,9 +48,10 @@ app.use('/cards', flashCardRoutes);
 app.get('/', async (req, res) => {
     if (!validateAuth(req, res)) {
         res.status(200).json({message: 'Logged out'});
-        // res.send("hi");
         return;
     }   
+    res.redirect('http://localhost:5173/dashboard');
+    return;
 });
 
 // app.post('/setup', requiresAuth(), async() => { setupUser(req, res); } );
