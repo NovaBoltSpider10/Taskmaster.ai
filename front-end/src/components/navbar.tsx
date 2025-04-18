@@ -32,7 +32,7 @@ function NavBar() {
               Get Started
             </Link>
             <Link
-              to="/login"
+              to="/dashboard"
               className="text-gray-800 hover:bg-gray-200 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
             >
               Login
