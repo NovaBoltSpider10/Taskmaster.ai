@@ -21,9 +21,10 @@ async function readSyllabus(filePath) {
 
 async function extractSyllabusDataTasks(syllabusText) {
   const prompt = `
-    Extract the following information which is the class info from syllabus:
+    Extract the following information which is the class info from syllabus, also nicly format the gradingPolicy stuff and make the gradingPolicy relatively short but includes the numbers, dont mention the assignments or its points:
 
     {
+        name: String,
         professor: String, 
         timing: String (timing of class),
         examDates: [Date] (dates of all exams, ISO 8601 for data deadlines and set to 11:59 pm),

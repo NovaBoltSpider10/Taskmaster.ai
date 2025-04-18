@@ -6,7 +6,7 @@ function SplashPage() {
   const navigate = useNavigate();
 
   const handleSignup = () => {
-    navigate("signup");
+    navigate("dashboard");
   };
 
 
