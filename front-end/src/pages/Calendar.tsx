@@ -4,20 +4,12 @@ import {
   View,
   ToolbarProps,
 } from "react-big-calendar";
-import {
-  format,
-  parse,
-  startOfWeek,
-  getDay,
-  addDays,
-  subDays,
-} from "date-fns";
+import { format, parse, startOfWeek, getDay, addDays, subDays } from "date-fns";
 import { enUS } from "date-fns/locale/en-US";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useState, ReactNode } from "react";
 import AddEventModal from "../components/AddEventModal";
 
-// Final event type
 interface MyEvent {
   title: string | ReactNode;
   start: Date;
@@ -33,10 +25,9 @@ const localizer = dateFnsLocalizer({
   locales: { "en-US": enUS },
 });
 
-// ✅ Fix: use actual event type for ToolbarProps
 const CustomToolbar: React.FC<ToolbarProps<MyEvent, object>> = ({ label }) => {
   return (
-    <div className="text-center text-lg font-semibold py-2 text-gray-700">
+    <div className="text-center text-xl font-semibold py-2 text-gray-700">
       {label}
     </div>
   );
@@ -45,9 +36,7 @@ const CustomToolbar: React.FC<ToolbarProps<MyEvent, object>> = ({ label }) => {
 const Calendar = () => {
   const [view, setView] = useState<View>("month");
   const [currentDate, setCurrentDate] = useState(new Date());
-
   const [events, setEvents] = useState<MyEvent[]>([]);
-
   const [modalOpen, setModalOpen] = useState(false);
   const [newEvent, setNewEvent] = useState<MyEvent>({
     title: "",
@@ -71,39 +60,65 @@ const Calendar = () => {
   };
 
   return (
-    <div className="p-6">
-      <div className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center mb-4">
-        <h1 className="text-2xl font-bold">Task Calendar</h1>
-        <div className="flex flex-wrap gap-2">
+    <div className="p-6 bg-gradient-to-br from-[#e0f0ff] via-[#f5eaff] to-[#f3e8ff] min-h-screen">
+      <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center mb-6">
+        <h1 className="text-3xl font-bold text-gray-800">Task Calendar</h1>
+        <div className="flex flex-wrap gap-3">
           <button
-            className="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300"
+            className="bg-gradient-to-r from-green-400 to-green-600 text-white px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-shadow"
             onClick={() => handleNavigate("TODAY")}
           >
             Today
           </button>
           <button
-            className="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300"
+            className="bg-gradient-to-r from-blue-400 to-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-shadow"
             onClick={() => handleNavigate("PREV")}
           >
             Back
           </button>
           <button
-            className="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300"
+            className="bg-gradient-to-r from-blue-400 to-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-shadow"
             onClick={() => handleNavigate("NEXT")}
           >
             Next
           </button>
-          <select
-            value={view}
-            onChange={(e) => setView(e.target.value as View)}
-            className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
-          >
-            <option value="month">Month View</option>
-            <option value="week">Week View</option>
-            <option value="day">Day View</option>
-          </select>
+
+          <div className="relative w-44">
+            {/* Styled gradient button */}
+            <div className="bg-gradient-to-r from-purple-400 to-purple-600 text-white px-4 py-2 rounded-lg shadow-md font-semibold flex items-center justify-between w-full">
+              {view === "month"
+                ? "Month View"
+                : view === "week"
+                ? "Week View"
+                : "Day View"}
+              <svg
+                className="w-4 h-4 ml-2 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M5.23 7.21a.75.75 0 011.06.02L10 11.086l3.71-3.855a.75.75 0 111.08 1.04l-4.25 4.416a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
+
+            {/* Invisible native select */}
+            <select
+              value={view}
+              onChange={(e) => setView(e.target.value as View)}
+              className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
+            >
+              <option value="month">Month View</option>
+              <option value="week">Week View</option>
+              <option value="day">Day View</option>
+            </select>
+          </div>
+
           <button
-            className="bg-green-600 text-white px-4 py-2 rounded"
+            className="bg-gradient-to-r from-orange-400 to-orange-600 text-white px-5 py-2 rounded-lg shadow-md hover:shadow-lg transition-shadow font-semibold"
             onClick={() => {
               const now = new Date();
               setNewEvent({
@@ -121,7 +136,7 @@ const Calendar = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded shadow p-4">
+      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-2xl p-8 border border-gray-200 ring-1 ring-gray-100">
         <BigCalendar
           localizer={localizer}
           events={events}
@@ -141,7 +156,7 @@ const Calendar = () => {
             } as MyEvent);
             setModalOpen(true);
           }}
-          style={{ height: 600 }}
+          style={{ height: 750 }}
         />
       </div>
 

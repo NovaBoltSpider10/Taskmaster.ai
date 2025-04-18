@@ -43,7 +43,7 @@ function Sidebar() {
             alt="Logo"
             className="w-10 h-10"
           />
-          <span className="text-xl font-bold text-gray-800">Taskmaster AI</span>
+          <span className="text-xl font-bold text-gray-800">TaskMaster AI</span>
         </Link>
       </div>
 
