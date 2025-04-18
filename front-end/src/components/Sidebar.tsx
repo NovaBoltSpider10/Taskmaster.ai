@@ -8,7 +8,7 @@ import {
   FaTasks,
 } from "react-icons/fa";
 import { SiFuturelearn } from "react-icons/si";
-
+import { GrResources } from "react-icons/gr";
 import type { IconType } from "react-icons";
 
 interface NavItem {
@@ -27,7 +27,9 @@ function Sidebar() {
     { name: "Class Manager", path: "/classes", icon: FaChalkboardTeacher },
     { name: "Tasks", path: "/tasks", icon: FaTasks },
     { name: "FlashCards", path: "/flashcards", icon: SiFuturelearn },
+    { name: "Resources", path: "/resources", icon: GrResources },
     { name: "Settings", path: "/settings", icon: FaCog },
+
 
   ];
 

@@ -27,7 +27,7 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
-const SyllabusUpload = () => {
+const Classes = () => {
   const [uploading, setUploading] = useState(false);
   const [toast, setToast] = useState<{
     message: string;
@@ -193,12 +193,10 @@ const SyllabusUpload = () => {
             {userClasses.map((classItem) => (
               <div
                 key={classItem._id}
-                className="bg-white rounded-lg shadow-md p-5 hover:shadow-lg transition duration-300"
-                style={{ maxWidth: "350px" }} // Slightly bigger card width
+                className="bg-white rounded-lg shadow-md p-5 hover:shadow-lg transition duration-300 mx-auto"
+                style={{ maxWidth: "400px" }} // Increased card width
               >
-                <h2 className="text-lg font-semibold mb-2">
-                  {classItem.name}
-                </h2>
+                <h2 className="text-lg font-semibold mb-2">{classItem.name}</h2>
                 <p className="text-sm text-gray-600 mb-2">
                   <strong>Professor:</strong> {classItem.professor}
                 </p>
@@ -230,4 +228,4 @@ const SyllabusUpload = () => {
   );
 };
 
-export default SyllabusUpload;
+export default Classes;

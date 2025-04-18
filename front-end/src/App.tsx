@@ -10,7 +10,7 @@ import Settings from "./pages/Settings";
 import SplashPage from "./pages/SplashPage";
 import Tasks from "./pages/Tasks";
 import FlashCards from "./pages/FlashCards";
-
+import Resources from "./pages/Resources";
 function App() {
   return (
     <Router>
@@ -28,6 +28,7 @@ function App() {
           <Route path="/settings" element={<Settings />} />
           <Route path="/tasks" element={<Tasks />} />
           <Route path="/flashcards" element={<FlashCards />} />
+          <Route path="/resources" element={<Resources />} />
         </Route>
       </Routes>
     </Router>
