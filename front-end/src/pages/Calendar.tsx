@@ -4,7 +4,14 @@ import {
   View,
   ToolbarProps,
 } from "react-big-calendar";
-import { format, parse, startOfWeek, getDay, addDays, subDays } from "date-fns";
+import {
+  format,
+  parse,
+  startOfWeek,
+  getDay,
+  addDays,
+  subDays,
+} from "date-fns";
 import { enUS } from "date-fns/locale/en-US";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useState, ReactNode } from "react";
@@ -27,7 +34,7 @@ const localizer = dateFnsLocalizer({
 
 const CustomToolbar: React.FC<ToolbarProps<MyEvent, object>> = ({ label }) => {
   return (
-    <div className="text-center text-xl font-semibold py-2 text-gray-700">
+    <div className="text-center text-xl font-semibold py-2 text-gray-700 dark:text-gray-100">
       {label}
     </div>
   );
@@ -50,19 +57,15 @@ const Calendar = () => {
     const baseDate = new Date(currentDate);
     const delta = view === "month" ? 30 : 7;
 
-    if (action === "TODAY") {
-      setCurrentDate(new Date());
-    } else if (action === "NEXT") {
-      setCurrentDate(addDays(baseDate, delta));
-    } else if (action === "PREV") {
-      setCurrentDate(subDays(baseDate, delta));
-    }
+    if (action === "TODAY") setCurrentDate(new Date());
+    else if (action === "NEXT") setCurrentDate(addDays(baseDate, delta));
+    else if (action === "PREV") setCurrentDate(subDays(baseDate, delta));
   };
 
   return (
-    <div className="p-6 bg-gradient-to-br from-[#e0f0ff] via-[#f5eaff] to-[#f3e8ff] min-h-screen">
+    <div className="p-6 min-h-screen bg-gradient-to-br from-[#e0f0ff] via-[#f5eaff] to-[#f3e8ff] dark:bg-gradient-to-br dark:from-darkBg dark:via-[#2a2139] dark:to-[#1c1a2f] text-gray-900 dark:text-white transition">
       <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">Task Calendar</h1>
+        <h1 className="text-3xl font-bold">Task Calendar</h1>
         <div className="flex flex-wrap gap-3">
           <button
             className="bg-gradient-to-r from-green-400 to-green-600 text-white px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-shadow"
@@ -84,7 +87,6 @@ const Calendar = () => {
           </button>
 
           <div className="relative w-44">
-            {/* Styled gradient button */}
             <div className="bg-gradient-to-r from-purple-400 to-purple-600 text-white px-4 py-2 rounded-lg shadow-md font-semibold flex items-center justify-between w-full">
               {view === "month"
                 ? "Month View"
@@ -104,8 +106,6 @@ const Calendar = () => {
                 />
               </svg>
             </div>
-
-            {/* Invisible native select */}
             <select
               value={view}
               onChange={(e) => setView(e.target.value as View)}
@@ -136,7 +136,7 @@ const Calendar = () => {
         </div>
       </div>
 
-      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-2xl p-8 border border-gray-200 ring-1 ring-gray-100">
+      <div className="bg-white dark:bg-darkCard/90 backdrop-blur-sm rounded-xl shadow-2xl p-8 border border-gray-200 dark:border-gray-700 ring-1 ring-gray-100 dark:ring-gray-600 transition">
         <BigCalendar
           localizer={localizer}
           events={events}
@@ -153,7 +153,7 @@ const Calendar = () => {
             setNewEvent({
               ...event,
               title: String(event.title ?? ""),
-            } as MyEvent);
+            });
             setModalOpen(true);
           }}
           style={{ height: 750 }}
