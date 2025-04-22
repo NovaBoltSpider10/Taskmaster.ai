@@ -108,7 +108,7 @@ function SplashPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
-              className="text-5xl md:text-7xl font-bold text-gray-900 mb-6"
+              className="text-5xl md:text-7xl font-bold text-gray-900 dark:text-white mb-6"
             >
               Taskmaster AI
             </motion.h1>
@@ -116,7 +116,7 @@ function SplashPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-xl md:text-2xl text-gray-600 max-w-2xl mx-auto mb-8"
+              className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-8"
             >
               Your intelligent productivity assistant. Automate tasks, manage
               time efficiently, and boost productivity with AI-powered insights.
@@ -142,7 +142,7 @@ function SplashPage() {
             transition={{ duration: 0.8, delay: 0.6 }}
             className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-20"
           >
-            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+            <div className="bg-gray-100 dark:bg-gray-800 backdrop-blur-sm p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
               <div className="text-indigo-600 mb-4">
                 <svg
                   className="w-12 h-12"
@@ -158,15 +158,15 @@ function SplashPage() {
                   />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold mb-2">
+              <h3 className="text-xl font-semibold mb-2 text-gray-800 dark:text-white">
                 Smart Task Management
               </h3>
-              <p className="text-gray-600">
+              <p className="text-white-700 dark:text-white-300">
                 Organize and prioritize your tasks with AI-powered suggestions.
               </p>
             </div>
 
-            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+            <div className="bg-gray-100 dark:bg-gray-800 backdrop-blur-sm p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
               <div className="text-indigo-600 mb-4">
                 <svg
                   className="w-12 h-12"
@@ -183,12 +183,12 @@ function SplashPage() {
                 </svg>
               </div>
               <h3 className="text-xl font-semibold mb-2">Time Optimization</h3>
-              <p className="text-gray-600">
+              <p className="text-gray-350">
                 Get personalized time management insights and recommendations.
               </p>
             </div>
 
-            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+            <div className="bg-gray-100 dark:bg-gray-800 backdrop-blur-sm p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
               <div className="text-indigo-600 mb-4">
                 <svg
                   className="w-12 h-12"
@@ -207,7 +207,7 @@ function SplashPage() {
               <h3 className="text-xl font-semibold mb-2">
                 Productivity Analytics
               </h3>
-              <p className="text-gray-600">
+              <p className="text-gray-350">
                 Track your progress and get detailed insights into your
                 productivity patterns.
               </p>
@@ -222,7 +222,7 @@ function SplashPage() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
-              className="text-4xl font-bold mb-12 text-center text-gray-900"
+              className="text-4xl font-bold mb-12 text-center text-gray-900 dark:text-white"
             >
               How It Works
             </motion.h2>
@@ -233,7 +233,7 @@ function SplashPage() {
               viewport={{ once: true }}
               className="grid grid-cols-1 md:grid-cols-2 gap-8"
             >
-              <div className="bg-white/80 backdrop-blur-sm p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+              <div className="bg-gray-100 dark:bg-gray-800 backdrop-blur-sm p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
                 <div className="text-blue-600 mb-4">
                   <svg
                     className="w-12 h-12"
@@ -250,11 +250,11 @@ function SplashPage() {
                   </svg>
                 </div>
                 <h3 className="text-2xl font-semibold mb-4">Step 1</h3>
-                <p className="text-gray-600 text-lg">
+                <p className="text-gray-350 text-lg">
                   Sign up or log in to your account to get started.
                 </p>
               </div>
-              <div className="bg-white/80 backdrop-blur-sm p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+              <div className="bg-gray-100 dark:bg-gray-800 backdrop-blur-sm p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
                 <div className="text-blue-600 mb-4">
                   <svg
                     className="w-12 h-12"
@@ -271,11 +271,11 @@ function SplashPage() {
                   </svg>
                 </div>
                 <h3 className="text-2xl font-semibold mb-4">Step 2</h3>
-                <p className="text-gray-600 text-lg">
+                <p className="text-gray-350 text-lg">
                   Add your tasks and let Taskmaster AI organize them for you.
                 </p>
               </div>
-              <div className="bg-white/80 backdrop-blur-sm p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+              <div className="bg-gray-100 dark:bg-gray-800 backdrop-blur-sm p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
                 <div className="text-blue-600 mb-4">
                   <svg
                     className="w-12 h-12"
@@ -292,11 +292,11 @@ function SplashPage() {
                   </svg>
                 </div>
                 <h3 className="text-2xl font-semibold mb-4">Step 3</h3>
-                <p className="text-gray-600 text-lg">
+                <p className="text-gray-350 text-lg">
                   Get AI-powered insights to optimize your productivity.
                 </p>
               </div>
-              <div className="bg-white/80 backdrop-blur-sm p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+              <div className="bg-gray-100 dark:bg-gray-800 backdrop-blur-sm p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
                 <div className="text-blue-600 mb-4">
                   <svg
                     className="w-12 h-12"
@@ -313,7 +313,7 @@ function SplashPage() {
                   </svg>
                 </div>
                 <h3 className="text-2xl font-semibold mb-4">Step 4</h3>
-                <p className="text-gray-600 text-lg">
+                <p className="text-gray-350 text-lg">
                   Stay on top of your goals with real-time updates and
                   reminders.
                 </p>
@@ -322,8 +322,6 @@ function SplashPage() {
           </div>
         </div>
       </div>
-
-      
 
       {/* Call to Action Section */}
       <div className="w-full py-20 bg-gray-900 text-white text-center">
@@ -345,7 +343,8 @@ function SplashPage() {
       <footer className="bg-gray-900 text-gray-400 py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm mb-4 md:mb-0">
-            &copy; {new Date().getFullYear()} Taskmaster AI. All rights reserved.
+            &copy; {new Date().getFullYear()} Taskmaster AI. All rights
+            reserved.
           </p>
           <div className="flex space-x-6">
             <a

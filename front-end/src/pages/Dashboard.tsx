@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import AnimatedBackground from "../components/AnimatedBackground";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -25,18 +26,20 @@ const Dashboard = () => {
       initial="hidden"
       animate="visible"
       onClick={() => navigate(link)}
-      className={`cursor-pointer bg-white dark:bg-darkCard text-gray-800 dark:text-darkText rounded-2xl shadow-lg hover:shadow-xl p-6 transition duration-300 ${className}`}
+      className={`cursor-pointer bg-white/90 dark:bg-[#2a2633] text-gray-800 dark:text-gray-100 rounded-2xl shadow-lg hover:shadow-xl p-6 transition duration-300 ${className}`}
     >
       <h2 className="text-xl font-bold mb-3 text-purple-700 dark:text-lavenderAccent">{title}</h2>
-      <div className="space-y-2 text-gray-700 dark:text-gray-300 text-sm">{children}</div>
+      <div className="space-y-2 text-gray-800 dark:text-gray-300 text-sm">{children}</div>
     </motion.div>
   );
 
   return (
-    <div className="min-h-screen w-full p-6 flex justify-center bg-gradient-to-br from-skyLightest via-white to-skyLightest dark:from-[#181825] dark:via-[#1e1e2e] dark:to-[#181825] text-gray-900 dark:text-darkText transition">
-      <div className="w-full max-w-7xl grid grid-cols-1 md:grid-cols-6 gap-6 pb-10">
+    <div className="relative min-h-screen w-full text-gray-900 dark:text-white px-6 py-10 overflow-hidden">
+      <AnimatedBackground />
+
+      <div className="relative z-10 w-full max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-6 gap-6 pb-10">
         <Card title="User Profile" link="/settings" className="md:col-span-2">
-          <div className="bg-violet-50 dark:bg-darkAccent p-3 rounded-lg">
+          <div className="bg-violet-50 dark:bg-[#3a314c] p-3 rounded-lg">
             <p className="font-medium">John Doe</p>
             <p className="text-xs text-gray-500 dark:text-gray-400">johndoe@example.com</p>
           </div>
@@ -63,7 +66,7 @@ const Dashboard = () => {
             {["Math 101", "Biology 202", "History 150"].map((cls) => (
               <span
                 key={cls}
-                className="bg-purple-100 dark:bg-lavenderSecondary text-purple-700 dark:text-white px-3 py-1 rounded-full text-xs font-semibold"
+                className="bg-purple-100 dark:bg-[#5b4e71] text-purple-700 dark:text-white px-3 py-1 rounded-full text-xs font-semibold"
               >
                 {cls}
               </span>
@@ -72,7 +75,7 @@ const Dashboard = () => {
         </Card>
 
         <Card title="Calendar" link="/calendar" className="md:col-span-2">
-          <div className="bg-blue-50 dark:bg-darkAccent text-blue-800 dark:text-white p-3 rounded-md">
+          <div className="bg-blue-50 dark:bg-[#3a4b6b] text-blue-800 dark:text-white p-3 rounded-md">
             <p>📅 Math HW due Apr 25, 11:59 PM</p>
           </div>
         </Card>
@@ -86,7 +89,7 @@ const Dashboard = () => {
             ].map((task, i) => (
               <div
                 key={i}
-                className="bg-pink-100 dark:bg-lavenderPink text-pink-800 dark:text-white p-3 rounded-md shadow-sm"
+                className="bg-pink-100 dark:bg-[#5a3d4c] text-pink-800 dark:text-white p-3 rounded-md shadow-sm"
               >
                 {task.title}
                 <br />

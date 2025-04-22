@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import NavBar from "../components/navbar";
+import AnimatedBackground from "../components/AnimatedBackground";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -17,8 +18,8 @@ function Login() {
   return (
     <>
       <NavBar />
-
       <div className="relative h-screen overflow-hidden flex items-center justify-center bg-skyLightest dark:bg-darkBg px-4 py-8 transition-colors duration-500">
+        <AnimatedBackground />
         {/* Animated Blobs */}
         <motion.div
           className="absolute w-72 h-72 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl opacity-70 top-[-4rem] left-[-3rem] z-[-1]"

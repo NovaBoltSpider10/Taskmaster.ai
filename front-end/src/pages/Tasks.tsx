@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import AnimatedBackground from "../components/AnimatedBackground";
 
 interface TasksData {
   _id: string;
@@ -33,6 +34,7 @@ const Tasks = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedTask, setSelectedTask] = useState<TasksData | null>(null);
+  const [filterStatus, setFilterStatus] = useState<string>("all");
 
   useEffect(() => {
     const fetchTaskData = async () => {
@@ -112,6 +114,11 @@ const Tasks = () => {
     return "Pending";
   };
 
+  const filteredTasks =
+    filterStatus === "all"
+      ? tasks
+      : tasks.filter((task) => task.status === filterStatus);
+
   if (loading)
     return (
       <div className="flex items-center justify-center h-screen">
@@ -123,62 +130,88 @@ const Tasks = () => {
     return <div className="text-center text-red-500">{String(error)}</div>;
 
   return (
-    <div className="min-h-screen w-full p-6 bg-skyLightest dark:bg-darkBg text-gray-900 dark:text-darkText transition">
-      <div className="w-full space-y-6">
-        <h1 className="text-2xl font-bold mb-4">Tasks</h1>
-        {tasks.length === 0 && (
-          <p>No tasks found. Upload a syllabus to get started.</p>
-        )}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {tasks.map((task, i) => {
-            const due = new Date(task.deadline);
-            const bgClass =
-              task.status === "completed"
-                ? "bg-green-100 dark:bg-green-700/60"
-                : task.status === "overdue"
-                ? "bg-red-100 dark:bg-red-700/60"
-                : "bg-yellow-100 dark:bg-yellow-600/60";
+    <div className="relative min-h-screen w-full text-gray-900 dark:text-darkText transition">
+      <AnimatedBackground />
 
-            const textClass =
-              task.status === "completed"
-                ? "text-green-900 dark:text-green-100"
-                : task.status === "overdue"
-                ? "text-red-900 dark:text-red-100"
-                : "text-yellow-900 dark:text-yellow-100";
-
-            return (
-              <motion.div
-                key={task._id}
-                className={`${bgClass} rounded-lg shadow-md p-4 hover:shadow-lg transition duration-300 cursor-pointer`}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                onClick={() => setSelectedTask(task)}
+      <div className="relative z-10 p-6 max-w-7xl mx-auto">
+        <div className="w-full space-y-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
+            <h1 className="text-2xl font-bold mb-4 md:mb-0">Tasks</h1>
+            <div className="flex items-center gap-3">
+              <label htmlFor="filter" className="text-sm font-medium">
+                Filter by Status:
+              </label>
+              <select
+                id="filter"
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="px-3 py-1 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-darkAccent text-gray-800 dark:text-white"
               >
-                <h3 className={`text-md font-medium ${textClass}`}>
-                  {task.title}
-                </h3>
-                <p className={`text-sm ${textClass}`}>
-                  <strong>Class:</strong> {task.className}
-                </p>
-                <p className={`text-sm ${textClass}`}>
-                  <strong>Topic:</strong> {task.topic}
-                </p>
-                <p className={`text-sm ${textClass}`}>
-                  <strong>Deadline:</strong> {due.toLocaleString()}
-                </p>
-                <p className={`text-sm ${textClass}`}>
-                  <strong>Status:</strong> {statusLabel(task)}
-                </p>
-                <p className={`text-sm ${textClass}`}>
-                  <strong>Points:</strong> {task.points}
-                </p>
-              </motion.div>
-            );
-          })}
+                <option value="all">All</option>
+                <option value="pending">Pending</option>
+                <option value="completed">Completed</option>
+                <option value="overdue">Overdue</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Task Cards */}
+          {filteredTasks.length === 0 ? (
+            <p>No tasks match the selected filter.</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-12">
+              {filteredTasks.map((task, i) => {
+                const due = new Date(task.deadline);
+                const bgClass =
+                  task.status === "completed"
+                    ? "bg-green-200 dark:bg-green-900/60"
+                    : task.status === "overdue"
+                    ? "bg-red-200 dark:bg-red-900/60"
+                    : "bg-yellow-200 dark:bg-yellow-800/60";
+
+                const textClass =
+                  task.status === "completed"
+                    ? "text-green-900 dark:text-green-100"
+                    : task.status === "overdue"
+                    ? "text-red-900 dark:text-red-100"
+                    : "text-yellow-900 dark:text-yellow-100";
+
+                return (
+                  <motion.div
+                    key={task._id}
+                    className={`${bgClass} rounded-lg shadow-md p-4 hover:shadow-lg transition duration-300 cursor-pointer`}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: i * 0.1 }}
+                    onClick={() => setSelectedTask(task)}
+                  >
+                    <h3 className={`text-md font-medium ${textClass}`}>
+                      {task.title}
+                    </h3>
+                    <p className={`text-sm ${textClass}`}>
+                      <strong>Class:</strong> {task.className}
+                    </p>
+                    <p className={`text-sm ${textClass}`}>
+                      <strong>Topic:</strong> {task.topic}
+                    </p>
+                    <p className={`text-sm ${textClass}`}>
+                      <strong>Deadline:</strong> {due.toLocaleString()}
+                    </p>
+                    <p className={`text-sm ${textClass}`}>
+                      <strong>Status:</strong> {statusLabel(task)}
+                    </p>
+                    <p className={`text-sm ${textClass}`}>
+                      <strong>Points:</strong> {task.points}
+                    </p>
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
 
+      {/* Task Modal */}
       {selectedTask && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white dark:bg-darkCard text-gray-800 dark:text-white rounded-lg p-6 w-96 shadow-lg">

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
+import AnimatedBackground from "../components/AnimatedBackground";
 
 interface ClassData {
   _id: string;
@@ -129,9 +130,10 @@ const FlashCards: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-skyLightest dark:bg-darkBg text-gray-900 dark:text-darkText transition">
+    <div className="relative min-h-screen w-full overflow-hidden text-gray-900 dark:text-white">
+      <AnimatedBackground />
       {/* Header */}
-      <header className="bg-white dark:bg-darkCard shadow-sm border-b border-gray-200 dark:border-gray-700">
+      <header className="relative z-10 bg-white/90 dark:bg-darkCard shadow-sm border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
             Flashcards
@@ -139,12 +141,12 @@ const FlashCards: React.FC = () => {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-6">
+      <main className="relative z-10 max-w-7xl mx-auto px-4 py-6">
         <div className="grid grid-cols-12 gap-6">
           {/* Left Panel */}
           <div className="col-span-3 space-y-6">
             {/* Class Selector */}
-            <div className="bg-white dark:bg-darkCard rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+            <div className="bg-white/90 dark:bg-darkCard rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
               <h2 className="text-lg font-semibold text-gray-700 dark:text-white mb-3">
                 Classes
               </h2>
@@ -171,7 +173,7 @@ const FlashCards: React.FC = () => {
 
             {/* Topic Selector */}
             {flashcards && topics.length > 0 && (
-              <div className="bg-white dark:bg-darkCard rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+              <div className="bg-white/90 dark:bg-darkCard rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
                 <h2 className="text-lg font-semibold text-gray-700 dark:text-white mb-3">
                   Topics
                 </h2>

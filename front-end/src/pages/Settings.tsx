@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import AnimatedBackground from "../components/AnimatedBackground";
 
 const Settings = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -8,6 +9,9 @@ const Settings = () => {
     if (storedTheme === "dark") {
       document.documentElement.classList.add("dark");
       setIsDarkMode(true);
+    } else if (storedTheme === "light") {
+      document.documentElement.classList.remove("dark");
+      setIsDarkMode(false);
     }
   }, []);
 
@@ -19,8 +23,9 @@ const Settings = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-skyLightest via-white to-skyLightest dark:from-[#181825] dark:via-[#1e1e2e] dark:to-[#181825] text-gray-800 dark:text-darkText transition px-4 py-10">
-      <div className="max-w-4xl mx-auto space-y-10">
+    <div className="relative min-h-screen w-full text-gray-800 dark:text-darkText transition px-4 py-10">
+      <AnimatedBackground />
+      <div className="relative z-10 max-w-4xl mx-auto space-y-10 pb-20">
         <h1 className="text-3xl font-bold mb-4">Settings</h1>
 
         {/* Profile Settings */}

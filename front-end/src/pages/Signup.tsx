@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import NavBar from "../components/navbar";
+import AnimatedBackground from "../components/AnimatedBackground";
 
 function SignUp() {
   const [email, setEmail] = useState("");
@@ -17,6 +18,7 @@ function SignUp() {
     <>
       <NavBar />
       <div className="h-screen flex flex-col bg-skyLightest dark:bg-darkBg transition-colors duration-500">
+        <AnimatedBackground />
         <div className="flex-grow flex items-center justify-center px-4 overflow-y-auto py-8">
           <div className="w-[480px] bg-white dark:bg-darkCard shadow-md rounded-lg p-8 space-y-6">
             <div className="text-center">

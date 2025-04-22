@@ -97,8 +97,8 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50">
-      <div className="bg-white dark:bg-darkCard text-gray-900 dark:text-white rounded p-6 w-full max-w-md shadow-lg">
+    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center px-4">
+      <div className="relative w-full max-w-sm sm:max-w-md md:max-w-lg bg-white dark:bg-darkCard text-gray-900 dark:text-white rounded-lg p-6 shadow-xl mx-auto">
         <h2 className="text-xl font-semibold mb-4">
           {isEditing ? "Edit Event" : "Add New Event"}
         </h2>
