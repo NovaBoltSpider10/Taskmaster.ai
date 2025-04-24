@@ -6,19 +6,19 @@ const Dashboard = () => {
   const [error, setError] = useState<string | null>(null);
 
   const navigate = useNavigate();
-  useEffect(()=> {
+
+  useEffect(() => {
     axios
-    .get(`http://localhost:5000/user/id`)
+    .get(`http://localhost:5000/`)
     .then((response) => {
       console.log(response.data);
     })
     .catch((err) => {
       console.error("Failed to fetch id:", err);
       setError(err);
-    })
+    });
   }, []);
-  
-        
+
   const SquareCard = ({
     title,
     link,

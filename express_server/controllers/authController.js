@@ -14,14 +14,17 @@ const config = {
 
 const validateAuth = async (req, res) => {
     if (!req.oidc.isAuthenticated()) {
-        res.status(401).json({message: 'logged out'});
+        console.log("logged out validate auth");
         return false;
     }
 
-    const existingUser = await User.findOne({ sub: req.oidc.user.sub });
+    return true;
+};
 
-    if (!existingUser) {
-        res.status(401).json({message: 'database not configured. call /setup endpoint'});
+const validateUser = async (req, res) => {
+    const user = await User.findOne({ sub: req.oidc.user.sub });
+    if (!user) {
+        console.log('not setup');
         return false;
     }
 
@@ -29,5 +32,5 @@ const validateAuth = async (req, res) => {
 };
 
 export {
-    config, validateAuth
+    config, validateAuth, validateUser,
 };

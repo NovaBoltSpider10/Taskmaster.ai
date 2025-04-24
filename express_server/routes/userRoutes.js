@@ -51,6 +51,6 @@ router.post(
   }
 );
 
-router.post("/", setupUser);
+router.post("/setup", setupUser);
 
 export default router;

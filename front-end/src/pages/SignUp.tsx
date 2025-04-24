@@ -1,8 +1,9 @@
-import NavBar from "../components/navbar";
+// import NavBar from "../components/navbar";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import axios from 'axios';
 
 // Define Zod schema for validation
 const signupSchema = z.object({
@@ -31,13 +32,16 @@ function Signup() {
 
   const onSubmit = (data: SignupFormData) => {
     console.log("Signup Data:", data);
-    navigate("/dashboard"); // Navigate to dashboard after successful signup
+
+    
+
+    navigate("/dashboard");
   };
 
   return (
     <>
       <div className="h-screen flex flex-col">
-        <NavBar />
+        {/* <NavBar /> */}
         <div className="flex-grow flex items-center justify-center bg-gray-100 px-4 overflow-y-auto py-8">
           {/* Added `pt-16` to account for the navbar height */}
           <div className="w-[600px] bg-white shadow-md rounded-lg p-8 space-y-6 mt-16">
@@ -112,27 +116,6 @@ function Signup() {
                   <p className="text-red-500 text-sm mt-1">{errors.username.message}</p>
                 )}
               </div>
-
-              {/* Date of Birth */}
-              {/* <div>
-                <label
-                  htmlFor="dob"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Date of Birth
-                </label>
-                <input
-                  type="date"
-                  id="dob"
-                  {...register("dob")}
-                  className={`w-full px-3 py-2 border ${
-                    errors.dob ? "border-red-500" : "border-gray-300"
-                  } rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
-                />
-                {errors.dob && (
-                  <p className="text-red-500 text-sm mt-1">{errors.dob.message}</p>
-                )}
-              </div> */}
 
               {/* Submit Button */}
               <div className="md:col-span-2">

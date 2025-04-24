@@ -1,6 +1,5 @@
-import PageLayout from "./components/PageLayout";
-// import Login from "./pages/Login";
-// import SignUp from "./pages/SignUp";
+import PageLayout from "./components/PageLayout";;
+import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
 import Calendar from "./pages/Calendar";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
@@ -28,6 +27,7 @@ function App() {
           <Route path="/settings" element={<Settings />} />
           <Route path="/tasks" element={<Tasks />} />
           <Route path="/flashcards" element={<FlashCards />} />
+          <Route path="/setup" element={<SignUp />} />
         </Route>
       </Routes>
     </Router>

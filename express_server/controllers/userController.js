@@ -13,11 +13,13 @@ const getAllUsers = async (req, res) => {
 };
 
 const getUserID = async(req, res) => {
-    if (validateAuth(req, res)) {
-        res.status(200).json({"id": req.oidc.sub});
+    console.log(req.session.sub);
+    if (req.session.sub) {
+        res.status(200).json({id: req.session.sub});
+        return;
     }
     
-    return;
+    res.status(404).json({id: "ID not found"});
 };
 
 //Get profile
@@ -47,8 +49,8 @@ const setupUser = async (req, res) => {
     const newUser = new User({
         sub: req.oidc.user.sub,
         username: req.body.username,
-        firstName: req.body.fname,
-        lastName: req.body.lname,
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
         email: req.oidc.user.email,
         pfp: req.oidc.user.picture,
     });
@@ -59,7 +61,7 @@ const setupUser = async (req, res) => {
             return false;
     });
 
-    res.status(200).json({'message': 'created user'});
+    res.redirect('/');
 };
 
 
