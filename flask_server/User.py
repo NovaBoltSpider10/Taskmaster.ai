@@ -5,7 +5,8 @@ from datetime import datetime
 class User:
     def __init__(self, sub: str):
         self.sub = sub
-
+        self.points = 0
+        self.level = 1
         self.personality: float = 0
         self.preferred_time: int = 0
         self.in_person: bool = False
@@ -44,3 +45,9 @@ class User:
         }
 
         users.update_one(query_filter, update_operation)
+
+    def to_vector(self):
+        return [self.personality,
+                self.preferred_time,
+                int(self.in_person),
+                int(self.private_space) if self.in_person else -1]
