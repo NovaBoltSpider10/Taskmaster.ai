@@ -2,12 +2,12 @@ import { Router } from "express";
 import { parseSyllabus as parseClassSyllabus } from "../controllers/classController.js";
 
 import {
+  getUserByToken,
   getAllUsers,
-  getProfile,
+  getUserByUsername,
+  setupUser,
   updateProfile,
   deleteUser,
-  setupUser,
-  getUserID,
 } from "../controllers/userController.js";
 
 import multer from "multer";
