@@ -57,7 +57,7 @@ const Classes = () => {
     formData.append("file", file);
 
     const userId = "google-oauth2|117092462712380430315";
-    const uploadUrl = `http://localhost:3000/user/aisyllabus/${encodeURIComponent(userId)}/api/upload`;
+    const uploadUrl = `http://localhost:5000/user/aisyllabus/${encodeURIComponent(userId)}/api/upload`;
 
     try {
       setUploading(true);
@@ -92,7 +92,7 @@ const Classes = () => {
       const userId = "google-oauth2|117092462712380430315";
 
       axios
-        .get(`http://localhost:3000/class/user/${userId}`)
+        .get(`http://localhost:5000/class/user/${userId}`)
         .then((res) => setUserClasses(res.data))
         .catch((err) => setError(err))
         .finally(() => setLoading(false));

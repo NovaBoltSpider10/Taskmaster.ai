@@ -49,7 +49,7 @@ const FlashCards: React.FC = () => {
       const userId = "google-oauth2|117092462712380430315";
       try {
         const res = await axios.get<ClassData[]>(
-          `http://localhost:3000/class/user/${userId}`
+          `http://localhost:5000/class/user/${userId}`
         );
         setClasses(res.data);
       } catch (err) {
@@ -69,7 +69,7 @@ const FlashCards: React.FC = () => {
     setError(null);
     try {
       const res = await axios.get<FlashcardsData[]>(
-        `http://localhost:3000/cards/class/${classId}`
+        `http://localhost:5000/cards/class/${classId}`
       );
       setFlashcards(res.data || []);
       setCurrentCardIndex(0);

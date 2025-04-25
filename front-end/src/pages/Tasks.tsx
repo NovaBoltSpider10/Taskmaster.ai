@@ -42,13 +42,13 @@ const Tasks = () => {
       try {
         const userid = "google-oauth2|117092462712380430315";
         const { data: classes } = await axios.get<ClassData[]>(
-          `http://localhost:3000/class/user/${userid}`
+          `http://localhost:5000/class/user/${userid}`
         );
 
         const all = await Promise.all(
           classes.map(async (c) => {
             const { data: ts } = await axios.get<TasksData[]>(
-              `http://localhost:3000/tasks/classid/${c._id}`
+              `http://localhost:5000/tasks/classid/${c._id}`
             );
             return ts.map((t) => ({ ...t, className: c.name }));
           })
@@ -58,7 +58,7 @@ const Tasks = () => {
         const now = new Date();
         tasksData.forEach((t) => {
           if (t.status === "pending" && new Date(t.deadline) < now) {
-            axios.patch(`http://localhost:3000/tasks/${t._id}`, {
+            axios.patch(`http://localhost:5000/tasks/${t._id}`, {
               status: "overdue",
             });
             t.status = "overdue";
@@ -83,7 +83,7 @@ const Tasks = () => {
     taskId: string,
     newStatus: TasksData["status"]
   ) => {
-    await axios.patch(`http://localhost:3000/tasks/${taskId}`, {
+    await axios.patch(`http://localhost:5000/tasks/${taskId}`, {
       status: newStatus,
     });
     setTasks((prev) =>
