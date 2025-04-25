@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import AnimatedBackground from "../components/AnimatedBackground";
 
 interface TasksData {
   _id: string;
@@ -29,11 +30,11 @@ export interface ClassData {
 }
 
 const Tasks = () => {
-  const [userClasses, setUserClasses] = useState<ClassData[] | null>(null);
   const [tasks, setTasks] = useState<TasksData[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
   const [selectedTask, setSelectedTask] = useState<TasksData | null>(null);
+  const [filterStatus, setFilterStatus] = useState<string>("all");
 
   useEffect(() => {
     const fetchTaskData = async () => {
@@ -43,9 +44,7 @@ const Tasks = () => {
         const { data: classes } = await axios.get<ClassData[]>(
           `http://localhost:3000/class/user/${userid}`
         );
-        setUserClasses(classes);
 
-        // fetch all tasks and tag with className
         const all = await Promise.all(
           classes.map(async (c) => {
             const { data: ts } = await axios.get<TasksData[]>(
@@ -56,7 +55,6 @@ const Tasks = () => {
         );
         const tasksData = all.flat();
 
-        // auto-update any pending-but-past tasks to "overdue"
         const now = new Date();
         tasksData.forEach((t) => {
           if (t.status === "pending" && new Date(t.deadline) < now) {
@@ -68,9 +66,13 @@ const Tasks = () => {
         });
 
         setTasks(tasksData);
-      } catch (err) {
-        setError(err);
-      } finally {
+        setLoading(false);
+      } catch (err: unknown) {
+        if (axios.isAxiosError(err)) {
+          setError(err.response?.data?.message || "Failed to load tasks.");
+        } else {
+          setError("An unexpected error occurred.");
+        }
         setLoading(false);
       }
     };
@@ -85,9 +87,7 @@ const Tasks = () => {
       status: newStatus,
     });
     setTasks((prev) =>
-      prev.map((t) =>
-        t._id === taskId ? { ...t, status: newStatus } : t
-      )
+      prev.map((t) => (t._id === taskId ? { ...t, status: newStatus } : t))
     );
   };
 
@@ -97,14 +97,12 @@ const Tasks = () => {
       setSelectedTask(null)
     );
   };
+
   const handlePending = () => {
     if (!selectedTask) return;
-  
     const now = new Date();
     const due = new Date(selectedTask.deadline);
-    // if the deadline’s already passed, mark it overdue instead
     const newStatus: TasksData["status"] = due < now ? "overdue" : "pending";
-  
     updateTaskStatus(selectedTask._id, newStatus).then(() =>
       setSelectedTask(null)
     );
@@ -116,88 +114,117 @@ const Tasks = () => {
     return "Pending";
   };
 
+  const filteredTasks =
+    filterStatus === "all"
+      ? tasks
+      : tasks.filter((task) => task.status === filterStatus);
+
   if (loading)
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"></div>
       </div>
     );
+
   if (error)
     return <div className="text-center text-red-500">{String(error)}</div>;
 
-
   return (
-    <div className="flex w-full h-full p-6">
-      <div className="w-full space-y-6">
-        <h1 className="text-2xl font-bold mb-4">Tasks</h1>
-        {tasks.length === 0 && (
-          <p>No tasks found. Upload a syllabus to get started.</p>
-        )}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {tasks.map((task, i) => {
-            const due = new Date(task.deadline);
-            const bgClass =
-              task.status === "completed"
-                ? "bg-green-200"
-                : task.status === "overdue"
-                ? "bg-red-200"
-                : "bg-yellow-200";
-            const textClass =
-              task.status === "completed"
-                ? "text-green-800"
-                : task.status === "overdue"
-                ? "text-red-800"
-                : "text-yellow-800";
+    <div className="relative min-h-screen w-full text-gray-900 dark:text-darkText transition">
+      <AnimatedBackground />
 
-            return (
-              <motion.div
-                key={task._id}
-                className={`${bgClass} rounded-lg shadow-md p-4 hover:shadow-lg transition duration-300 cursor-pointer`}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                onClick={() => setSelectedTask(task)}
+      <div className="relative z-10 p-6 max-w-7xl mx-auto">
+        <div className="w-full space-y-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
+            <h1 className="text-2xl font-bold mb-4 md:mb-0">Tasks</h1>
+            <div className="flex items-center gap-3">
+              <label htmlFor="filter" className="text-sm font-medium">
+                Filter by Status:
+              </label>
+              <select
+                id="filter"
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="px-3 py-1 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-darkAccent text-gray-800 dark:text-white"
               >
-                <h3 className={`text-md font-medium ${textClass}`}>
-                  {task.title}
-                </h3>
-                <p className={`text-sm ${textClass}`}>
-                  <strong>Class:</strong> {task.className}
-                </p>
-                <p className={`text-sm ${textClass}`}>
-                  <strong>Topic:</strong> {task.topic}
-                </p>
-                <p className={`text-sm ${textClass}`}>
-                  <strong>Deadline:</strong> {due.toLocaleString()}
-                </p>
-                <p className={`text-sm ${textClass}`}>
-                  <strong>Status:</strong> {statusLabel(task)}
-                </p>
-                <p className={`text-sm ${textClass}`}>
-                  <strong>Points:</strong> {task.points}
-                </p>
-              </motion.div>
-            );
-          })}
+                <option value="all">All</option>
+                <option value="pending">Pending</option>
+                <option value="completed">Completed</option>
+                <option value="overdue">Overdue</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Task Cards */}
+          {filteredTasks.length === 0 ? (
+            <p>No tasks match the selected filter.</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-12">
+              {filteredTasks.map((task, i) => {
+                const due = new Date(task.deadline);
+                const bgClass =
+                  task.status === "completed"
+                    ? "bg-green-200 dark:bg-green-900/60"
+                    : task.status === "overdue"
+                    ? "bg-red-200 dark:bg-red-900/60"
+                    : "bg-yellow-200 dark:bg-yellow-800/60";
+
+                const textClass =
+                  task.status === "completed"
+                    ? "text-green-900 dark:text-green-100"
+                    : task.status === "overdue"
+                    ? "text-red-900 dark:text-red-100"
+                    : "text-yellow-900 dark:text-yellow-100";
+
+                return (
+                  <motion.div
+                    key={task._id}
+                    className={`${bgClass} rounded-lg shadow-md p-4 hover:shadow-lg transition duration-300 cursor-pointer`}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: i * 0.1 }}
+                    onClick={() => setSelectedTask(task)}
+                  >
+                    <h3 className={`text-md font-medium ${textClass}`}>
+                      {task.title}
+                    </h3>
+                    <p className={`text-sm ${textClass}`}>
+                      <strong>Class:</strong> {task.className}
+                    </p>
+                    <p className={`text-sm ${textClass}`}>
+                      <strong>Topic:</strong> {task.topic}
+                    </p>
+                    <p className={`text-sm ${textClass}`}>
+                      <strong>Deadline:</strong> {due.toLocaleString()}
+                    </p>
+                    <p className={`text-sm ${textClass}`}>
+                      <strong>Status:</strong> {statusLabel(task)}
+                    </p>
+                    <p className={`text-sm ${textClass}`}>
+                      <strong>Points:</strong> {task.points}
+                    </p>
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
 
+      {/* Task Modal */}
       {selectedTask && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-96 shadow-lg">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-darkCard text-gray-800 dark:text-white rounded-lg p-6 w-96 shadow-lg">
             <h2 className="text-lg font-bold mb-4">Update Task Status</h2>
-            <p className="mb-4">
+            <p className="mb-2">
               <strong>Task:</strong> {selectedTask.title}
             </p>
             <p className="mb-4">
               <strong>Class:</strong> {selectedTask.className}
             </p>
-            <p className="mb-4">
-              <strong>Deadline:</strong> {selectedTask.deadline}
-            </p>
             <div className="space-y-2">
               <button
-                className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600"
+                className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700"
                 onClick={handleComplete}
               >
                 Mark as Completed
@@ -209,7 +236,7 @@ const Tasks = () => {
                 Mark as Pending
               </button>
               <button
-                className="w-full bg-gray-300 text-black py-2 rounded hover:bg-gray-400"
+                className="w-full bg-gray-300 dark:bg-gray-600 text-black dark:text-white py-2 rounded hover:bg-gray-400 dark:hover:bg-gray-700"
                 onClick={() => setSelectedTask(null)}
               >
                 Cancel
