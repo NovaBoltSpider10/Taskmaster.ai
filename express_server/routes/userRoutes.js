@@ -6,7 +6,6 @@ import {
   getAllUsers,
   getUserByUsername,
   setupUser,
-  updateProfile,
   deleteUser,
 } from "../controllers/userController.js";
 
@@ -26,8 +25,6 @@ const upload = multer({ storage: storage });
 const router = Router();
 
 router.get("/", getAllUsers);
-
-router.get("/id", getUserID);
 
 router.get("/:id", getProfile);
 

@@ -37,7 +37,7 @@ const setupUser = async (req, res) => {
     }
 
     if (await User.findOne({ userName })) {
-      return res.status(400).json({ message: "Email already taken" });
+      return res.status(400).json({ message: "Username already taken" });
     }
 
     const newUserId = crypto.randomBytes(8).toString("hex");
@@ -86,6 +86,5 @@ export {
   getAllUsers,
   getUserByUsername,
   setupUser,
-  updateProfile,
   deleteUser,
 }
