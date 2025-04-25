@@ -30,6 +30,8 @@ const FlashCards: React.FC = () => {
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [showGeneratePopup, setShowGeneratePopup] = useState(false);
+  const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
 
   // --- Test Mode State ---
   const [mode, setMode] = useState<"flashcards" | "test">("flashcards");
@@ -40,6 +42,8 @@ const FlashCards: React.FC = () => {
   const [testQuestions, setTestQuestions] = useState<MCQ[]>([]);
   const [currentTestIndex, setCurrentTestIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState<string[]>([]);
+  const [showResults, setShowResults] = useState(false);
+  const [testScore, setTestScore] = useState(0);
 
   // --- Utility to shuffle an array ---
   const shuffle = <T,>(arr: T[]): T[] => {
@@ -87,6 +91,19 @@ const FlashCards: React.FC = () => {
     }
   };
 
+  // --- Generate flash cards ---
+  const generateFlashCards = async (classId: ClassData["_id"]) => {
+    try {
+      await axios.post(`http://localhost:3000/cards/${classId}`);
+      console.log("Generated successfully");
+    } catch (err) {
+      console.error(err);
+      setError("Error generating flashcards");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // --- Handlers for study mode ---
   const handleClassClick = (cls: ClassData) => {
     setSelectedClass(cls);
@@ -104,6 +121,9 @@ const FlashCards: React.FC = () => {
       setCurrentCardIndex((i) => i - 1);
       setIsFlipped(false);
     }
+  };
+  const handleResetFlip = () => {
+    setIsFlipped(false);
   };
 
   // --- Derived data for study mode ---
@@ -168,7 +188,9 @@ const FlashCards: React.FC = () => {
           <div className="col-span-3 space-y-6">
             {/* Class Selection */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-              <h2 className="text-lg font-semibold text-gray-700 mb-3">Classes</h2>
+              <h2 className="text-lg font-semibold text-gray-700 mb-3">
+                Classes
+              </h2>
               <div className="space-y-2">
                 {classes.map((cls) => (
                   <motion.div
@@ -191,10 +213,16 @@ const FlashCards: React.FC = () => {
             {/* Topic Selection */}
             {flashcards && topics.length > 0 && (
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                <h2 className="text-lg font-semibold text-gray-700 mb-3">Topics</h2>
+                <h2 className="text-lg font-semibold text-gray-700 mb-3">
+                  Topics
+                </h2>
                 <div className="space-y-2">
                   <button
-                    onClick={() => setSelectedTopic(null)}
+                    onClick={() => {
+                      setSelectedTopic(null);
+                      setIsFlipped(false);
+                      setCurrentCardIndex(0);
+                    }}
                     className={`w-full text-left p-2 rounded-lg transition-all ${
                       selectedTopic === null
                         ? "bg-gray-700 text-white"
@@ -206,7 +234,11 @@ const FlashCards: React.FC = () => {
                   {topics.map((t) => (
                     <button
                       key={t}
-                      onClick={() => setSelectedTopic(t)}
+                      onClick={() => {
+                        setSelectedTopic(t);
+                        setIsFlipped(false);
+                        setCurrentCardIndex(0);
+                      }}
                       className={`w-full text-left p-2 rounded-lg transition-all ${
                         selectedTopic === t
                           ? "bg-gray-700 text-white"
@@ -309,7 +341,9 @@ const FlashCards: React.FC = () => {
                         </h3>
                         <div className="flex space-x-2">
                           <button
-                            onClick={() => setCurrentTestIndex((i) => Math.max(i - 1, 0))}
+                            onClick={() =>
+                              setCurrentTestIndex((i) => Math.max(i - 1, 0))
+                            }
                             disabled={currentTestIndex === 0}
                             className="px-4 py-2 bg-gray-100 rounded-lg disabled:opacity-50 text-gray-700"
                           >
@@ -326,9 +360,11 @@ const FlashCards: React.FC = () => {
                             <button
                               onClick={() => {
                                 const score = userAnswers.filter(
-                                  (ans, idx) => ans === testQuestions[idx].correct
+                                  (ans, idx) =>
+                                    ans === testQuestions[idx].correct
                                 ).length;
-                                alert(`You scored ${score} / ${testQuestions.length}`);
+                                setTestScore(score);
+                                setShowResults(true); // Show the results modal
                                 setMode("flashcards");
                               }}
                               className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800"
@@ -343,25 +379,29 @@ const FlashCards: React.FC = () => {
                           {testQuestions[currentTestIndex].question}
                         </p>
                         <div className="grid grid-cols-2 gap-4">
-                          {testQuestions[currentTestIndex].options.map((opt) => (
-                            <button
-                              key={opt}
-                              onClick={() => selectAnswer(opt)}
-                              className={`p-4 border rounded-lg text-left transition-all ${
-                                userAnswers[currentTestIndex] === opt
-                                  ? "bg-gray-100 border-gray-400"
-                                  : "hover:bg-gray-50 border-gray-200"
-                              }`}
-                            >
-                              {opt}
-                            </button>
-                          ))}
+                          {testQuestions[currentTestIndex].options.map(
+                            (opt) => (
+                              <button
+                                key={opt}
+                                onClick={() => selectAnswer(opt)}
+                                className={`p-4 border rounded-lg text-left transition-all ${
+                                  userAnswers[currentTestIndex] === opt
+                                    ? "bg-gray-100 border-gray-400"
+                                    : "hover:bg-gray-50 border-gray-200"
+                                }`}
+                              >
+                                {opt}
+                              </button>
+                            )
+                          )}
                         </div>
                       </div>
                     </>
                   ) : (
                     <div className="text-center py-12">
-                      <p className="text-gray-600">Click "Start Test" to begin your quiz</p>
+                      <p className="text-gray-600">
+                        Click "Start Test" to begin your quiz
+                      </p>
                     </div>
                   )}
                 </div>
@@ -435,7 +475,9 @@ const FlashCards: React.FC = () => {
                         </span>
                         <button
                           onClick={handleNextCard}
-                          disabled={currentCardIndex === filteredCards.length - 1}
+                          disabled={
+                            currentCardIndex === filteredCards.length - 1
+                          }
                           className={`px-6 py-2 rounded-lg font-medium ${
                             currentCardIndex === filteredCards.length - 1
                               ? "bg-gray-100 text-gray-400 cursor-not-allowed"
@@ -449,7 +491,19 @@ const FlashCards: React.FC = () => {
                   ) : (
                     <div className="text-center py-12">
                       <p className="text-gray-600">
-                        {flashcards ? "No flashcards for this topic." : "Select a class to get started."}
+                        {flashcards && selectedClass ? (
+                          <button
+                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                            onClick={() => {
+                              setSelectedClassId(selectedClass._id); // Store the class ID
+                              setShowGeneratePopup(true); // Show the popup
+                            }}
+                          >
+                            Generate Flashcards
+                          </button>
+                        ) : (
+                          "Select a class to get started."
+                        )}
                       </p>
                     </div>
                   )}
@@ -459,6 +513,58 @@ const FlashCards: React.FC = () => {
           </div>
         </div>
       </main>
+
+      {/* Results Modal */}
+      {showResults && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-96">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">Test Results</h2>
+            <p className="text-lg text-gray-700">
+              You scored <span className="font-bold">{testScore}</span> /{" "}
+              {testQuestions.length}
+            </p>
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={() => setShowResults(false)}
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Generate Flashcards Popup */}
+      {showGeneratePopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-96">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Generate Flashcards</h2>
+            <p className="text-gray-700 mb-6">
+              Warning: Flashcards generation may take up to 2 minutes. Do you want to proceed?
+            </p>
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={() => setShowGeneratePopup(false)} // Close the popup
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  if (selectedClassId) {
+                    generateFlashCards(selectedClassId); // Call the generation function
+                  }
+                  setShowGeneratePopup(false); // Close the popup
+                }}
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+              >
+                Proceed
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

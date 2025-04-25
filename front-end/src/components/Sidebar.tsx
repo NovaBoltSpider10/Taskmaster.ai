@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   FaTachometerAlt,
   FaCalendarAlt,
@@ -17,58 +17,56 @@ interface NavItem {
   icon: IconType;
 }
 
-function Sidebar() {
+const navItems: NavItem[] = [
+  { name: "Dashboard", path: "/dashboard", icon: FaTachometerAlt },
+  { name: "Calendar",  path: "/calendar",  icon: FaCalendarAlt },
+  { name: "Friends",   path: "/friends",   icon: FaUserFriends },
+  { name: "Class Manager", path: "/classes", icon: FaChalkboardTeacher },
+  { name: "Tasks",     path: "/tasks",     icon: FaTasks },
+  { name: "FlashCards",path: "/flashcards",icon: SiFuturelearn },
+  { name: "Resources", path: "/resources", icon: GrResources },
+  { name: "Settings",  path: "/settings",  icon: FaCog },
+];
+
+export default function Sidebar() {
   const location = useLocation();
-
-  const navItems: NavItem[] = [
-    { name: "Dashboard", path: "/dashboard", icon: FaTachometerAlt },
-    { name: "Calendar", path: "/calendar", icon: FaCalendarAlt },
-    { name: "Friends", path: "/friends", icon: FaUserFriends },
-    { name: "Class Manager", path: "/classes", icon: FaChalkboardTeacher },
-    { name: "Tasks", path: "/tasks", icon: FaTasks },
-    { name: "FlashCards", path: "/flashcards", icon: SiFuturelearn },
-    { name: "Resources", path: "/resources", icon: GrResources },
-    { name: "Settings", path: "/settings", icon: FaCog },
-
-
-  ];
+  const navigate = useNavigate();
 
   return (
-    <div className="w-64 h-screen bg-white shadow-md p-4">
-      {/* Logo Section */}
-      <div className="mb-6">
-        <Link to="/" className="flex items-center gap-2">
-          <img
-            src="/school_work_1.svg" // Replace with your logo path
-            alt="Logo"
-            className="w-10 h-10"
-          />
-          <span className="text-xl font-bold text-gray-800">Taskmaster AI</span>
-        </Link>
+    <aside className="flex flex-col justify-between h-screen w-64 bg-[#0A1F44]">
+      {/* Top: Logo + Nav */}
+      <div>
+        {/* Brand */}
+        <div className="flex items-center px-6 py-5">
+          {/* Replace src with your real logo */}
+          <img className="mr-4 cursor-pointer" onClick={() => navigate("")} src="school_work_1.svg" alt="Logo" width={30} height={30}/>
+          <span className="text-white text-xl font-bold cursor-pointer" onClick={() => navigate("")}>TaskMaster.ai</span>
+        </div>
+
+        {/* Nav Links */}
+        <nav className="mt-3">
+          {navItems.map((item) => {
+            const isActive = location.pathname === item.path;
+            return (
+              <Link
+                key={item.name}
+                to={item.path}
+                className={`
+                  flex items-center px-6 py-3 mx-1 mb-1 rounded-lg transition-colors
+                  ${isActive
+                    ? "bg-[#300dc9] text-white"
+                    : "text-gray-300 hover:bg-[#152648] hover:text-white"}
+                `}
+              >
+                <item.icon className="w-5 h-5 mr-3" />
+                <span className="font-medium">{item.name}</span>
+              </Link>
+            );
+          })}
+        </nav>
       </div>
 
-      {/* Navigation Section */}
-      <nav className="space-y-4">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          return (
-            <Link
-              key={item.name}
-              to={item.path}
-              className={`flex items-center gap-4 px-3 py-2 rounded-md text-gray-700 hover:bg-blue-100 transition ${
-                location.pathname === item.path
-                  ? "bg-blue-200 font-semibold"
-                  : ""
-              }`}
-            >
-              <Icon size={20} />
-              <span>{item.name}</span>
-            </Link>
-          );
-        })}
-      </nav>
-    </div>
+      
+    </aside>
   );
 }
-
-export default Sidebar;

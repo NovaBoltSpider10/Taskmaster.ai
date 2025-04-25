@@ -192,6 +192,9 @@ const Tasks = () => {
             <p className="mb-4">
               <strong>Class:</strong> {selectedTask.className}
             </p>
+            <p className="mb-4">
+              <strong>Deadline:</strong> {selectedTask.deadline}
+            </p>
             <div className="space-y-2">
               <button
                 className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600"

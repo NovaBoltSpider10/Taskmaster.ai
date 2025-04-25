@@ -21,7 +21,7 @@ async function readSyllabus(filePath) {
 
 async function extractSyllabusDataTasks(syllabusText) {
   const prompt = `
-    Extract the following information which are resource urls which could be any links are helpful information such as guides in the syllabus:
+    Using the topics in the syllabus and other information, find helpful links off the internet that can help prepare for the topics in the syllabus and format like below, don't just use links in the syllabus:
 
     {
         urls: [String] (String array of all the url to websites and other helpful places),
