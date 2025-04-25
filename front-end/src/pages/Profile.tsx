@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import AnimatedBackground from "../components/AnimatedBackground";
 
 const defaultImage = "/user.png";
 
@@ -36,8 +35,6 @@ const Profile = () => {
 
   return (
     <div className="relative min-h-screen w-full text-gray-800 dark:text-white px-6 py-10">
-      <AnimatedBackground />
-
       <div className="relative z-10 max-w-xl mx-auto bg-white/80 dark:bg-[#2a2633] rounded-2xl p-8 shadow-xl space-y-8">
         {/* Page Title */}
         <h1 className="text-3xl font-bold text-center text-purple-700 dark:text-lavenderAccent">

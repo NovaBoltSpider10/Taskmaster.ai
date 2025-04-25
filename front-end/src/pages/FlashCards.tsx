@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
-import AnimatedBackground from "../components/AnimatedBackground";
 
 interface ClassData {
   _id: string;
@@ -131,7 +130,6 @@ const FlashCards: React.FC = () => {
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden text-gray-900 dark:text-white">
-      <AnimatedBackground />
       {/* Header */}
       <header className="relative z-10 bg-white/90 dark:bg-darkCard shadow-sm border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 py-4">

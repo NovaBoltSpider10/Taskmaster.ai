@@ -1,4 +1,3 @@
-import AnimatedBackground from "../components/AnimatedBackground";
 import {
   Calendar as BigCalendar,
   dateFnsLocalizer,
@@ -20,20 +19,53 @@ import { motion } from "framer-motion";
 import AddEventModal from "../components/AddEventModal";
 import ical from "ical.js";
 import ical2json from "ical2json";
+import { useWindowSize } from "react-use";
 
-interface MyEvent {
-  title: string;
-  start: Date;
-  end: Date;
-  description?: string;
-}
-
-type IcalEvent = {
+interface IcalEvent {
   SUMMARY?: string;
   DTSTART: string;
   DTEND: string;
   DESCRIPTION?: string;
-};
+  LOCATION?: string;
+}
+
+const style = document.createElement("style");
+style.innerHTML = `
+  .dark .rbc-month-view {
+    background-color: #2a2a2a !important;
+  }
+  .dark .rbc-off-range {
+    background-color: #333 !important;
+    color: #999 !important;
+  }
+  .dark .rbc-today {
+    background-color: rgba(139, 92, 246, 0.15) !important;
+  }
+  .rbc-event {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    border-radius: 0.5rem !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .rbc-event-content {
+    white-space: normal !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    height: 100%;
+  }
+`;
+document.head.appendChild(style);
+
+interface MyEvent {
+  id: string;
+  title: string;
+  start: Date;
+  end: Date;
+  description?: string;
+  location?: string;
+}
 
 const localizer = dateFnsLocalizer({
   format,
@@ -49,17 +81,35 @@ const CustomToolbar: React.FC<ToolbarProps<MyEvent, object>> = ({ label }) => (
   </div>
 );
 
+const EventComponent = ({ event, view }: { event: MyEvent; view: View }) => {
+  const { width } = useWindowSize();
+  const isSplitScreen = width < 900;
+  const isWeek = view === "week";
+  const shouldHide = isSplitScreen && isWeek;
+
+  if (shouldHide) return null;
+
+  const start = new Date(event.start);
+  const end = new Date(event.end);
+  const duration = (end.getTime() - start.getTime()) / (1000 * 60);
+  if (duration < 30) return null;
+
+  return (
+    <div className="w-full h-full px-2 py-1 text-white text-sm truncate flex items-center">
+      <span className="font-bold">{event.title}</span>
+      {event.location && (
+        <span className="ml-2 text-xs opacity-80 truncate">({event.location})</span>
+      )}
+    </div>
+  );
+};
+
 const Calendar = () => {
   const [view, setView] = useState<View>("month");
   const [currentDate, setCurrentDate] = useState(new Date());
   const [events, setEvents] = useState<MyEvent[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
-  const [newEvent, setNewEvent] = useState<MyEvent>({
-    title: "",
-    start: new Date(),
-    end: new Date(new Date().getTime() + 60 * 60 * 1000),
-    description: "",
-  });
+  const [newEvent, setNewEvent] = useState<MyEvent | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<MyEvent | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -71,17 +121,19 @@ const Calendar = () => {
         .split("END:VTIMEZONE").join("X-END:VTIMEZONE");
 
       const jcalData = ical.parse(text);
-      const parsed = ical2json.convert(jcalData) as {
+      const parsed = ical2json.convert(jcalData) as unknown as {
         VCALENDAR: { VEVENT?: IcalEvent[] }[];
       };
 
       const vevents = parsed?.VCALENDAR?.[0]?.VEVENT ?? [];
 
       const newEvents: MyEvent[] = vevents.map((e) => ({
+        id: crypto.randomUUID(),
         title: typeof e.SUMMARY === "string" ? e.SUMMARY : "Untitled Event",
         start: new Date(e.DTSTART),
         end: new Date(e.DTEND),
         description: e.DESCRIPTION || "",
+        location: e.LOCATION || "",
       }));
 
       setEvents((prev) => [...prev, ...newEvents]);
@@ -101,12 +153,11 @@ const Calendar = () => {
 
   return (
     <div className="relative min-h-screen px-4 py-10 text-gray-900 dark:text-white">
-      <AnimatedBackground />
       <div className="relative z-10 w-full max-w-screen-xl mx-auto space-y-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <h1 className="text-4xl font-extrabold tracking-tight">Your Calendar</h1>
           <div className="flex flex-wrap gap-3">
-            <button onClick={() => handleNavigate("TODAY")} className="bg-pink-500 hover:bg-pink-600 text-white font-semibold px-4 py-2 rounded-md">
+            <button onClick={() => handleNavigate("TODAY")} className="bg-pink-400 hover:bg-pink-500 text-white font-semibold px-4 py-2 rounded-md">
               Today
             </button>
             <button onClick={() => handleNavigate("PREV")} className="bg-purple-500 hover:bg-purple-600 text-white font-semibold px-4 py-2 rounded-md">
@@ -118,7 +169,7 @@ const Calendar = () => {
             <select
               value={view}
               onChange={(e) => setView(e.target.value as View)}
-              className="px-4 py-2 rounded-md text-white bg-blue-500 hover:bg-blue-600 font-semibold"
+              className="px-4 py-2 rounded-md text-white bg-pink-400 hover:bg-pink-500 font-semibold"
             >
               <option value="month">Month</option>
               <option value="week">Week</option>
@@ -128,12 +179,15 @@ const Calendar = () => {
               className="px-5 py-2 bg-red-500 hover:bg-red-600 text-white font-bold rounded-md"
               onClick={() => {
                 const now = new Date();
-                setNewEvent({
+                const blankEvent: MyEvent = {
+                  id: crypto.randomUUID(),
                   title: "",
                   start: now,
                   end: new Date(now.getTime() + 60 * 60 * 1000),
                   description: "",
-                });
+                  location: "",
+                };
+                setNewEvent(blankEvent);
                 setSelectedEvent(null);
                 setModalOpen(true);
               }}
@@ -188,49 +242,49 @@ const Calendar = () => {
             view={view}
             onView={(v) => setView(v)}
             views={["month", "week", "day"]}
-            components={{ toolbar: CustomToolbar }}
+            components={{
+              toolbar: CustomToolbar,
+              event: (props) => <EventComponent {...props} view={view} />,
+            }}
             onSelectEvent={(event) => {
               setSelectedEvent(event as MyEvent);
-              setNewEvent({
-                title: typeof event.title === "string" ? event.title : "",
-                start: new Date(event.start),
-                end: new Date(event.end),
-                description: event.description || "",
-              });
+              setNewEvent(event as MyEvent);
               setModalOpen(true);
             }}
           />
         </motion.div>
       </div>
 
-      <AddEventModal
-        isOpen={modalOpen}
-        onClose={() => {
-          setModalOpen(false);
-          setSelectedEvent(null);
-        }}
-        onSave={(updatedEvent) => {
-          if (selectedEvent) {
-            setEvents((prev) =>
-              prev.map((e) => (e === selectedEvent ? updatedEvent : e))
-            );
-          } else {
-            setEvents((prev) => [...prev, updatedEvent]);
-          }
-          setModalOpen(false);
-          setSelectedEvent(null);
-        }}
-        onDelete={() => {
-          if (selectedEvent) {
-            setEvents((prev) => prev.filter((e) => e !== selectedEvent));
+      {newEvent && (
+        <AddEventModal
+          isOpen={modalOpen}
+          onClose={() => {
             setModalOpen(false);
             setSelectedEvent(null);
-          }
-        }}
-        isEditing={!!selectedEvent}
-        eventData={newEvent}
-        setEventData={setNewEvent}
-      />
+          }}
+          onSave={(updatedEvent) => {
+            if (selectedEvent) {
+              setEvents((prev) =>
+                prev.map((e) => (e.id === updatedEvent.id ? updatedEvent : e))
+              );
+            } else {
+              setEvents((prev) => [...prev, updatedEvent]);
+            }
+            setModalOpen(false);
+            setSelectedEvent(null);
+          }}
+          onDelete={() => {
+            if (selectedEvent) {
+              setEvents((prev) => prev.filter((e) => e.id !== selectedEvent.id));
+              setModalOpen(false);
+              setSelectedEvent(null);
+            }
+          }}
+          isEditing={!!selectedEvent}
+          eventData={newEvent}
+          setEventData={setNewEvent}
+        />
+      )}
     </div>
   );
 };

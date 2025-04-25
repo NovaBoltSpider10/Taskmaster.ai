@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import axios from "axios";
-import AnimatedBackground from "../components/AnimatedBackground";
 
 interface TasksData {
   _id: string;
@@ -131,8 +130,6 @@ const Tasks = () => {
 
   return (
     <div className="relative min-h-screen w-full text-gray-900 dark:text-darkText transition">
-      <AnimatedBackground />
-
       <div className="relative z-10 p-6 max-w-7xl mx-auto">
         <div className="w-full space-y-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">

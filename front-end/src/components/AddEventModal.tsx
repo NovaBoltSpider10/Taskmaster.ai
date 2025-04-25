@@ -2,10 +2,12 @@ import { Dialog } from "@headlessui/react";
 import { Fragment } from "react";
 
 interface MyEvent {
+  id: string;
   title: string;
   start: Date;
   end: Date;
   description?: string;
+  location?: string;
 }
 
 interface AddEventModalProps {
@@ -40,10 +42,13 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
             {isEditing ? "Edit Event" : "Add New Event"}
           </Dialog.Title>
 
-          <form className="space-y-4" onSubmit={(e) => {
-            e.preventDefault();
-            onSave(eventData);
-          }}>
+          <form
+            className="space-y-4"
+            onSubmit={(e) => {
+              e.preventDefault();
+              onSave(eventData);
+            }}
+          >
             <div>
               <label className="block text-sm font-semibold text-gray-700 dark:text-darkText">
                 Title
@@ -53,6 +58,19 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
                 value={eventData.title}
                 onChange={(e) => setEventData({ ...eventData, title: e.target.value })}
                 required
+                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-darkAccent px-3 py-2 text-gray-900 dark:text-white focus:ring-2 focus:ring-skyAccent focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-darkText">
+                Location
+              </label>
+              <input
+                type="text"
+                value={eventData.location || ""}
+                onChange={(e) => setEventData({ ...eventData, location: e.target.value })}
+                placeholder="Enter event location"
                 className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-darkAccent px-3 py-2 text-gray-900 dark:text-white focus:ring-2 focus:ring-skyAccent focus:outline-none"
               />
             </div>

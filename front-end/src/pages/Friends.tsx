@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import AnimatedBackground from "../components/AnimatedBackground";
 
 const Friends = () => {
   const friends = [
@@ -57,8 +56,6 @@ const Friends = () => {
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden text-gray-900 dark:text-white">
-      <AnimatedBackground />
-
       <div className="relative z-10 w-full max-w-7xl mx-auto px-6 py-10 space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">Friends</h1>
