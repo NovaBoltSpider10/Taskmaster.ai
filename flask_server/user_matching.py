@@ -65,33 +65,34 @@ class UserMatchClient:
         self.model.fit(self.feature_matrix)
 
     def match(self, target_user: User):
-        if len(self.unmatched_users) < 2:
+        if len(self.unmatched_users) < 3:
             return False
         
         self.train_model()
         target_vector = np.array(self._user_to_vector(target_user)).reshape(1, -1)
         distances, indices = self.model.kneighbors(target_vector)
 
-        #group = [target_user]
+        group = [target_user]
+        group_number = random.randint(1, 1000)
 
         for i in indices[0]:
             matched_user = self.user_map[i]
             if matched_user.sub != target_user.sub:
-                #group.append(matched_user)
-                group_number = random.randint(1, 1000)
-                target_user.group_number = group_number
-                matched_user.group_number = group_number
+                group.append(matched_user)
 
-                self.unmatched_users.remove(target_user)
-                self.unmatched_users.remove(matched_user)
+                if len(group) == 3:
+                    for user in group:
+                        user.group_number = group_number
+                        if user in self.unmatched_users:
+                            self.unmatched_users.remove(user)
 
-                print(f"Matched {target_user.sub} with {matched_user.sub} in group {group_number}")
-                return True
+                    print(f"Matched {[user.sub for user in group]} in group {group_number}")
+                    return True
         return False
     
 def test():
     users = []
-    for i in range(10):
+    for i in range(9):
         u = User(sub=str(i))
         u.personality = random.random()
         u.preferred_time = random.randint(0, 3)
@@ -107,7 +108,7 @@ def test():
     client = UserMatchClient(users=users)
 
     groups_formed = 0
-    max_groups = 5
+    max_groups = 3
 
     while groups_formed < max_groups and len(client.unmatched_users) >= 2:
         matched = False
