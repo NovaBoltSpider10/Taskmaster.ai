@@ -5,3 +5,7 @@
 body {
   @apply bg-skyLightest dark:bg-darkBg text-gray-900 dark:text-darkText font-roboto;
 }
+
+.btn-sky {
+  @apply px-4 py-2 bg-skyPrimary hover:bg-skySecondary text-gray-900 font-medium rounded-md transition;
+}

@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import { Dialog } from "@headlessui/react";
+import { Fragment } from "react";
 
-interface EventFormData {
-  title: React.ReactNode;
+interface MyEvent {
+  title: string;
   start: Date;
   end: Date;
   description?: string;
@@ -9,161 +10,120 @@ interface EventFormData {
 
 interface AddEventModalProps {
   isOpen: boolean;
-  onClose: () => void;
-  onSave: (event: EventFormData) => void;
-  onDelete?: () => void;
   isEditing: boolean;
-  eventData: EventFormData;
-  setEventData: (event: EventFormData) => void;
+  eventData: MyEvent;
+  setEventData: (data: MyEvent) => void;
+  onClose: () => void;
+  onSave: (event: MyEvent) => void;
+  onDelete: () => void;
 }
 
-const formatToInput = (date: Date) => {
-  const hours = date.getHours() % 12 || 12;
-  const minutes = date.getMinutes().toString().padStart(2, "0");
-  const ampm = date.getHours() >= 12 ? "PM" : "AM";
-  return `${hours}:${minutes} ${ampm}`;
-};
-
-const formatDateForInput = (date: Date) => {
-  return date.toISOString().split("T")[0];
-};
-
-const parseTime = (timeStr: string): { hour: number; minute: number } | null => {
-  const match = timeStr.trim().toUpperCase().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/);
-  if (!match) return null;
-
-  const [, hourStr, minuteStr, ampm] = match;
-  let hour = parseInt(hourStr, 10);
-  const minute = parseInt(minuteStr, 10);
-
-  if (hour < 1 || hour > 12 || minute < 0 || minute > 59) return null;
-  if (ampm === "PM" && hour !== 12) hour += 12;
-  if (ampm === "AM" && hour === 12) hour = 0;
-
-  return { hour, minute };
-};
-
-const combineDateAndTime = (dateString: string, time: { hour: number; minute: number }): Date => {
-  const [year, month, day] = dateString.split("-").map(Number);
-  return new Date(year, month - 1, day, time.hour, time.minute);
+const toLocalInputValue = (date: Date) => {
+  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+  return local.toISOString().slice(0, 16);
 };
 
 const AddEventModal: React.FC<AddEventModalProps> = ({
   isOpen,
+  isEditing,
+  eventData,
+  setEventData,
   onClose,
   onSave,
   onDelete,
-  isEditing,
-  eventData,
 }) => {
-  const [title, setTitle] = useState("");
-  const [date, setDate] = useState("");
-  const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
-  const [description, setDescription] = useState("");
-
-  useEffect(() => {
-    if (eventData.start && eventData.end) {
-      setTitle(String(eventData.title ?? ""));
-      setDate(formatDateForInput(eventData.start));
-      setStartTime(formatToInput(eventData.start));
-      setEndTime(formatToInput(eventData.end));
-      setDescription(eventData.description || "");
-    }
-  }, [eventData]);
-
-  if (!isOpen) return null;
-
-  const handleSave = () => {
-    const parsedStart = parseTime(startTime);
-    const parsedEnd = parseTime(endTime);
-
-    if (!parsedStart || !parsedEnd || !date) {
-      alert("Please enter a valid date and time in hh:mm AM/PM format.");
-      return;
-    }
-
-    const start = combineDateAndTime(date, parsedStart);
-    const end = combineDateAndTime(date, parsedEnd);
-
-    const newEvent: EventFormData = {
-      title: title.trim(),
-      start,
-      end,
-      description: description.trim(),
-    };
-
-    onSave(newEvent);
-  };
-
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center px-4">
-      <div className="relative w-full max-w-sm sm:max-w-md md:max-w-lg bg-white dark:bg-darkCard text-gray-900 dark:text-white rounded-lg p-6 shadow-xl mx-auto">
-        <h2 className="text-xl font-semibold mb-4">
-          {isEditing ? "Edit Event" : "Add New Event"}
-        </h2>
+    <Dialog open={isOpen} onClose={onClose} as={Fragment}>
+      <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-4">
+        <Dialog.Panel className="w-full max-w-xl bg-white dark:bg-darkCard p-6 rounded-2xl shadow-xl ring-1 ring-gray-200 dark:ring-zinc-700 overflow-hidden">
+          <Dialog.Title className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
+            {isEditing ? "Edit Event" : "Add New Event"}
+          </Dialog.Title>
 
-        <input
-          type="text"
-          placeholder="Event title"
-          className="w-full mb-2 p-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-darkAccent rounded"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-        <label className="text-sm">Date</label>
-        <input
-          type="date"
-          className="w-full mb-2 p-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-darkAccent rounded"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-        />
-        <label className="text-sm">Start Time (hh:mm AM/PM)</label>
-        <input
-          type="text"
-          className="w-full mb-2 p-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-darkAccent rounded"
-          value={startTime}
-          onChange={(e) => setStartTime(e.target.value)}
-          placeholder="e.g. 07:00 PM"
-        />
-        <label className="text-sm">End Time (hh:mm AM/PM)</label>
-        <input
-          type="text"
-          className="w-full mb-4 p-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-darkAccent rounded"
-          value={endTime}
-          onChange={(e) => setEndTime(e.target.value)}
-          placeholder="e.g. 08:00 PM"
-        />
-        <textarea
-          placeholder="Description (optional)"
-          className="w-full mb-4 p-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-darkAccent rounded"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
+          <form className="space-y-4" onSubmit={(e) => {
+            e.preventDefault();
+            onSave(eventData);
+          }}>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-darkText">
+                Title
+              </label>
+              <input
+                type="text"
+                value={eventData.title}
+                onChange={(e) => setEventData({ ...eventData, title: e.target.value })}
+                required
+                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-darkAccent px-3 py-2 text-gray-900 dark:text-white focus:ring-2 focus:ring-skyAccent focus:outline-none"
+              />
+            </div>
 
-        <div className="flex justify-end gap-2">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 rounded bg-gray-200 dark:bg-gray-600 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-500"
-          >
-            Cancel
-          </button>
-          {isEditing && onDelete && (
-            <button
-              onClick={onDelete}
-              className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
-            >
-              Delete
-            </button>
-          )}
-          <button
-            onClick={handleSave}
-            className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
-          >
-            Save
-          </button>
-        </div>
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-darkText">
+                  Start Time
+                </label>
+                <input
+                  type="datetime-local"
+                  value={toLocalInputValue(eventData.start)}
+                  onChange={(e) => setEventData({ ...eventData, start: new Date(e.target.value) })}
+                  className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-darkAccent px-3 py-2 text-gray-900 dark:text-white focus:ring-2 focus:ring-skyAccent focus:outline-none"
+                />
+              </div>
+
+              <div className="flex-1">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-darkText">
+                  End Time
+                </label>
+                <input
+                  type="datetime-local"
+                  value={toLocalInputValue(eventData.end)}
+                  onChange={(e) => setEventData({ ...eventData, end: new Date(e.target.value) })}
+                  className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-darkAccent px-3 py-2 text-gray-900 dark:text-white focus:ring-2 focus:ring-skyAccent focus:outline-none"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-darkText">
+                Description
+              </label>
+              <textarea
+                value={eventData.description}
+                onChange={(e) => setEventData({ ...eventData, description: e.target.value })}
+                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-darkAccent px-3 py-2 text-gray-900 dark:text-white resize-none h-24 focus:ring-2 focus:ring-skyAccent focus:outline-none"
+              />
+            </div>
+
+            <div className="mt-6 flex justify-between items-center gap-3">
+              {isEditing && (
+                <button
+                  type="button"
+                  onClick={onDelete}
+                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md"
+                >
+                  Delete
+                </button>
+              )}
+              <div className="ml-auto flex gap-3">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-skyPrimary hover:bg-skySecondary text-gray-900 font-semibold rounded-md"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </form>
+        </Dialog.Panel>
       </div>
-    </div>
+    </Dialog>
   );
 };
 

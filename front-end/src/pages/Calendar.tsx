@@ -5,18 +5,35 @@ import {
   View,
   ToolbarProps,
 } from "react-big-calendar";
-import { format, parse, startOfWeek, getDay, addDays, subDays } from "date-fns";
+import {
+  format,
+  parse,
+  startOfWeek,
+  getDay,
+  addDays,
+  subDays,
+} from "date-fns";
 import { enUS } from "date-fns/locale/en-US";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import { useState, ReactNode } from "react";
+import { useRef, useState } from "react";
+import { motion } from "framer-motion";
 import AddEventModal from "../components/AddEventModal";
+import ical from "ical.js";
+import ical2json from "ical2json";
 
 interface MyEvent {
-  title: string | ReactNode;
+  title: string;
   start: Date;
   end: Date;
   description?: string;
 }
+
+type IcalEvent = {
+  SUMMARY?: string;
+  DTSTART: string;
+  DTEND: string;
+  DESCRIPTION?: string;
+};
 
 const localizer = dateFnsLocalizer({
   format,
@@ -26,13 +43,11 @@ const localizer = dateFnsLocalizer({
   locales: { "en-US": enUS },
 });
 
-const CustomToolbar: React.FC<ToolbarProps<MyEvent, object>> = ({ label }) => {
-  return (
-    <div className="text-center text-xl font-semibold py-2 text-gray-700 dark:text-gray-100">
-      {label}
-    </div>
-  );
-};
+const CustomToolbar: React.FC<ToolbarProps<MyEvent, object>> = ({ label }) => (
+  <div className="text-center text-xl font-bold py-3 text-purple-700 dark:text-purple-300">
+    {label}
+  </div>
+);
 
 const Calendar = () => {
   const [view, setView] = useState<View>("month");
@@ -42,80 +57,75 @@ const Calendar = () => {
   const [newEvent, setNewEvent] = useState<MyEvent>({
     title: "",
     start: new Date(),
-    end: new Date(),
+    end: new Date(new Date().getTime() + 60 * 60 * 1000),
     description: "",
   });
   const [selectedEvent, setSelectedEvent] = useState<MyEvent | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleFileImport = async (file: File) => {
+    try {
+      let text = await file.text();
+      text = text
+        .split("BEGIN:VTIMEZONE").join("X-BEGIN:VTIMEZONE")
+        .split("END:VTIMEZONE").join("X-END:VTIMEZONE");
+
+      const jcalData = ical.parse(text);
+      const parsed = ical2json.convert(jcalData) as {
+        VCALENDAR: { VEVENT?: IcalEvent[] }[];
+      };
+
+      const vevents = parsed?.VCALENDAR?.[0]?.VEVENT ?? [];
+
+      const newEvents: MyEvent[] = vevents.map((e) => ({
+        title: typeof e.SUMMARY === "string" ? e.SUMMARY : "Untitled Event",
+        start: new Date(e.DTSTART),
+        end: new Date(e.DTEND),
+        description: e.DESCRIPTION || "",
+      }));
+
+      setEvents((prev) => [...prev, ...newEvents]);
+    } catch (err) {
+      console.error("File import failed:", err);
+      alert("This doesn't seem to be a valid calendar file.");
+    }
+  };
 
   const handleNavigate = (action: "TODAY" | "PREV" | "NEXT") => {
-    const baseDate = new Date(currentDate);
+    const base = new Date(currentDate);
     const delta = view === "month" ? 30 : 7;
-
     if (action === "TODAY") setCurrentDate(new Date());
-    else if (action === "NEXT") setCurrentDate(addDays(baseDate, delta));
-    else if (action === "PREV") setCurrentDate(subDays(baseDate, delta));
+    if (action === "NEXT") setCurrentDate(addDays(base, delta));
+    if (action === "PREV") setCurrentDate(subDays(base, delta));
   };
 
   return (
-    <div className="relative min-h-screen w-full text-gray-900 dark:text-white px-4 py-10">
+    <div className="relative min-h-screen px-4 py-10 text-gray-900 dark:text-white">
       <AnimatedBackground />
-      <div className="relative z-10 max-w-7xl mx-auto space-y-10">
-        <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
-          <h1 className="text-3xl font-bold">Task Calendar</h1>
+      <div className="relative z-10 w-full max-w-screen-xl mx-auto space-y-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <h1 className="text-4xl font-extrabold tracking-tight">Your Calendar</h1>
           <div className="flex flex-wrap gap-3">
-            <button
-              className="bg-gradient-to-r from-green-400 to-green-600 text-white px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-shadow"
-              onClick={() => handleNavigate("TODAY")}
-            >
+            <button onClick={() => handleNavigate("TODAY")} className="bg-pink-500 hover:bg-pink-600 text-white font-semibold px-4 py-2 rounded-md">
               Today
             </button>
-            <button
-              className="bg-gradient-to-r from-blue-400 to-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-shadow"
-              onClick={() => handleNavigate("PREV")}
-            >
+            <button onClick={() => handleNavigate("PREV")} className="bg-purple-500 hover:bg-purple-600 text-white font-semibold px-4 py-2 rounded-md">
               Back
             </button>
-            <button
-              className="bg-gradient-to-r from-blue-400 to-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-shadow"
-              onClick={() => handleNavigate("NEXT")}
-            >
+            <button onClick={() => handleNavigate("NEXT")} className="bg-purple-500 hover:bg-purple-600 text-white font-semibold px-4 py-2 rounded-md">
               Next
             </button>
-
-            <div className="relative w-44">
-              <select
-                value={view}
-                onChange={(e) => setView(e.target.value as View)}
-                className="w-full px-4 py-2 rounded-lg font-semibold bg-gradient-to-r from-purple-400 to-purple-600 text-white shadow-md appearance-none cursor-pointer dark:text-white"
-              >
-                <option className="text-black dark:text-white" value="month">
-                  Month View
-                </option>
-                <option className="text-black dark:text-white" value="week">
-                  Week View
-                </option>
-                <option className="text-black dark:text-white" value="day">
-                  Day View
-                </option>
-              </select>
-              <div className="pointer-events-none absolute top-1/2 right-3 transform -translate-y-1/2">
-                <svg
-                  className="w-4 h-4 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M5.23 7.21a.75.75 0 011.06.02L10 11.086l3.71-3.855a.75.75 0 111.08 1.04l-4.25 4.416a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
-            </div>
-
+            <select
+              value={view}
+              onChange={(e) => setView(e.target.value as View)}
+              className="px-4 py-2 rounded-md text-white bg-blue-500 hover:bg-blue-600 font-semibold"
+            >
+              <option value="month">Month</option>
+              <option value="week">Week</option>
+              <option value="day">Day</option>
+            </select>
             <button
-              className="bg-gradient-to-r from-orange-400 to-orange-600 text-white px-5 py-2 rounded-lg shadow-md hover:shadow-lg transition-shadow font-semibold"
+              className="px-5 py-2 bg-red-500 hover:bg-red-600 text-white font-bold rounded-md"
               onClick={() => {
                 const now = new Date();
                 setNewEvent({
@@ -133,7 +143,41 @@ const Calendar = () => {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-darkCard/90 backdrop-blur-sm rounded-xl shadow-2xl p-8 border border-gray-200 dark:border-gray-700 ring-1 ring-gray-100 dark:ring-gray-600 transition">
+        <div
+          onDrop={(e) => {
+            e.preventDefault();
+            const file = e.dataTransfer.files[0];
+            if (file?.name.endsWith(".ics")) {
+              handleFileImport(file);
+            }
+          }}
+          onDragOver={(e) => e.preventDefault()}
+          className="w-full p-4 text-center border-2 border-dashed border-pink-300 rounded-lg cursor-pointer bg-pink-50 dark:bg-purple-700/30 hover:bg-pink-100 dark:hover:bg-purple-600/30 transition"
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <p className="text-sm font-semibold text-gray-700 dark:text-purple-200">
+            Drag & drop your <code>.ics</code> calendar file here or click to browse
+          </p>
+          <input
+            type="file"
+            accept=".ics"
+            ref={fileInputRef}
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handleFileImport(file);
+            }}
+          />
+        </div>
+
+        <motion.div
+          key={`${view}-${currentDate.toDateString()}`}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -12 }}
+          transition={{ duration: 0.4, ease: "easeInOut" }}
+          className="w-full h-[750px] bg-white dark:bg-zinc-800 rounded-2xl shadow-2xl overflow-hidden border border-gray-200 dark:border-zinc-600"
+        >
           <BigCalendar
             localizer={localizer}
             events={events}
@@ -142,20 +186,21 @@ const Calendar = () => {
             date={currentDate}
             onNavigate={(date) => setCurrentDate(date)}
             view={view}
-            onView={(newView: View) => setView(newView)}
+            onView={(v) => setView(v)}
             views={["month", "week", "day"]}
             components={{ toolbar: CustomToolbar }}
             onSelectEvent={(event) => {
               setSelectedEvent(event as MyEvent);
               setNewEvent({
-                ...event,
-                title: String(event.title ?? ""),
+                title: typeof event.title === "string" ? event.title : "",
+                start: new Date(event.start),
+                end: new Date(event.end),
+                description: event.description || "",
               });
               setModalOpen(true);
             }}
-            style={{ height: 750 }}
           />
-        </div>
+        </motion.div>
       </div>
 
       <AddEventModal
@@ -167,11 +212,9 @@ const Calendar = () => {
         onSave={(updatedEvent) => {
           if (selectedEvent) {
             setEvents((prev) =>
-              prev.map((event) =>
-                event === selectedEvent ? updatedEvent : event
-              )
+              prev.map((e) => (e === selectedEvent ? updatedEvent : e))
             );
-          } else if (updatedEvent.title) {
+          } else {
             setEvents((prev) => [...prev, updatedEvent]);
           }
           setModalOpen(false);

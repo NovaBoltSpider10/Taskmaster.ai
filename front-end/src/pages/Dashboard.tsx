@@ -38,7 +38,7 @@ const Dashboard = () => {
       <AnimatedBackground />
 
       <div className="relative z-10 w-full max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-6 gap-6 pb-10">
-        <Card title="User Profile" link="/settings" className="md:col-span-2">
+        <Card title="User Profile" link="/profile" className="md:col-span-2">
           <div className="bg-violet-50 dark:bg-[#3a314c] p-3 rounded-lg">
             <p className="font-medium">John Doe</p>
             <p className="text-xs text-gray-500 dark:text-gray-400">johndoe@example.com</p>
