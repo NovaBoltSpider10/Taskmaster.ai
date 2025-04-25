@@ -5,15 +5,84 @@ import NavBar from "../components/navbar";
 import AnimatedBackground from "../components/AnimatedBackground";
 
 function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  // Use a single state object for form data
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
+  // Add state for errors
+  const [errors, setErrors] = useState({
+    email: "",
+    password: "",
+  });
+
   const navigate = useNavigate();
+
+  // Validation function (simplified for login)
+  const validateField = (name: string, value: string): string => {
+    switch (name) {
+      case 'email':
+        if (value.trim() === '') return 'Email is required';
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return !emailRegex.test(value) ? 'Invalid email format' : '';
+      case 'password':
+        if (value.trim() === '') return 'Password is required';
+        // Add other password validation if needed (e.g., min length)
+        return '';
+      default:
+        return '';
+    }
+  };
+
+  // Handle input changes
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // Validate on change after initial interaction
+    if (errors[name as keyof typeof errors]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: validateField(name, value),
+      }));
+    }
+  };
+
+  // Handle input blur for validation
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setErrors((prev) => ({
+      ...prev,
+      [name]: validateField(name, value),
+    }));
+  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Login attempted", { email, password });
-    navigate("/dashboard");
+
+    // Validate all fields on submit
+    const newErrors = {
+      email: validateField('email', formData.email),
+      password: validateField('password', formData.password),
+    };
+
+    setErrors(newErrors);
+
+    const isValid = Object.values(newErrors).every((error) => error === '');
+
+    if (isValid) {
+      console.log("Login attempted", formData);
+      // Proceed with login logic (API call, etc.)
+      navigate("/dashboard");
+    } else {
+      console.log('Form validation failed:', newErrors);
+    }
   };
+
+  // Consistent input and error styling
+  const inputClass = `w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-darkAccent text-[#2a2a2a] dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500`;
+  const errorClass = `text-red-500 text-xs mt-1`;
 
   return (
     <>
@@ -40,39 +109,45 @@ function Login() {
         {/* Login Card */}
         <div className="w-[480px] bg-white dark:bg-darkCard shadow-md rounded-lg p-8 space-y-6 z-10 relative transition">
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-gray-800 dark:text-white">Welcome Back</h2>
+            <h2 className="text-3xl font-bold text-[#2a2a2a] dark:text-white">Welcome Back</h2>
             <p className="text-gray-500 dark:text-gray-300 mt-2">Sign in to your account</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+              <label htmlFor="email" className="block text-sm font-medium text-[#2a2a2a] dark:text-gray-200 mb-1">
                 Email Address
               </label>
               <input
                 type="email"
                 id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                onBlur={handleBlur}
                 required
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-darkAccent text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={inputClass}
                 placeholder="you@example.com"
               />
+              {errors.email && <p className={errorClass}>{errors.email}</p>}
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-[#2a2a2a] dark:text-gray-200 mb-1">
                 Password
               </label>
               <input
                 type="password"
                 id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                onBlur={handleBlur}
                 required
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-darkAccent text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={inputClass}
                 placeholder="Enter your password"
               />
+              {errors.password && <p className={errorClass}>{errors.password}</p>}
             </div>
 
             <div className="flex items-center justify-between">
@@ -101,7 +176,7 @@ function Login() {
             </button>
 
             <div className="text-center mt-4">
-              <p className="text-sm text-gray-600 dark:text-gray-300">
+              <p className="text-sm text-[#5a5a5a] dark:text-gray-300">
                 Don't have an account?{" "}
                 <Link to="/signup" className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300">
                   Sign up
