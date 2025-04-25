@@ -1,7 +1,23 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 const Dashboard = () => {
+  const [error, setError] = useState<string | null>(null);
+
   const navigate = useNavigate();
+
+  useEffect(() => {
+    axios
+    .get(`http://localhost:5000/`)
+    .then((response) => {
+      console.log(response.data);
+    })
+    .catch((err) => {
+      console.error("Failed to fetch id:", err);
+      setError(err);
+    });
+  }, []);
 
   const SquareCard = ({
     title,
@@ -38,6 +54,10 @@ const Dashboard = () => {
       <div className="text-sm text-gray-700">{children}</div>
     </div>
   );
+
+  if (error) {
+    return <div className="text-center text-red-500">{error}</div>;
+  }
 
   return (
     <div className="w-full h-full p-6 flex justify-center">

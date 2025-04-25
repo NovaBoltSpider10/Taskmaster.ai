@@ -21,16 +21,12 @@ async function readSyllabus(filePath) {
 
 
 async function extractSyllabusDataTasks(syllabusText) {
-  const prompt = `
-    Extract the following information which are tasks which could be assignments are test reminders from the syllabus text and put in seperate strinfigied form for each task, use ISO 8601 for data deadlines and set time to midnight unless specified, only include tasks and the points associated with it if there are any. The topic property is the unit name (should not repeat the title name at all) and the title is the name of the task:
 
-    { 
-      deadline: Date, 
-      topic: String, 
-      title: String, 
-      resources: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Resource' }], 
-      status: { type: String, enum: ['pending', 'completed', 'overdue'], default: 'pending' }, 
-      points: Number, textbook: String, class: { type: mongoose.Schema.Types.ObjectId, ref: 'Class'}}
+  // TODO: Change the prompt to reflect the new task model
+  const prompt = `
+    Extract the following information which are tasks which could be assignments are test reminders from the syllabus text and put in seperate strinfigied form for each task, use ISO 8601 for data deadlines and set time to midnight unless specified, only include tasks and the points associated with it if there are any. The topic property is the unit name (should not repeat the title name at all) and the title is the name of the task. The taskType should be one of "daily", "weekly", or "monthly", depending on how difficult the task is, the task deadline to a reasonable time (ex: one day before) before the class for which the task is set, the earnedPoints should be initialized to 0 and the completed should be initialized to false:
+
+    - Tasks { topic: String, title: String, resources: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Resource' }], status: { type: String, enum: ['pending', 'completed', 'overdue'], default: 'pending' }, points: Number, taskType: String, deadline: Date, earnedPoints: Number, completed: Boolean, textbook: String, class: { type: mongoose.Schema.Types.ObjectId, ref: 'Class'}}
 
     provide the JSON without any surrounding text for markdown.
   `;

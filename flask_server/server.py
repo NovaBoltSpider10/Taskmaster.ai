@@ -3,6 +3,11 @@ from flask_restful import Resource, Api
 
 from flask_server.User import User
 from user_matching import *
+from flask import Flask, jsonify, request
+from flask_restful import Resource, Api
+
+from flask_server.User import User
+from user_matching import *
 
 app = Flask(__name__)
 api = Api(app)
@@ -14,6 +19,8 @@ class MatchRequest(Resource):
         return '', 200
     
     def post(self):
+        print(request.get_json())
+        
         users: list[User] = []
         for i in range(102):
             users.append(User())

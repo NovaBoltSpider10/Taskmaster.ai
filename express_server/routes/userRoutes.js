@@ -2,11 +2,12 @@ import { Router } from "express";
 import { parseSyllabus as parseClassSyllabus } from "../controllers/classController.js";
 
 import {
+  getUserByToken,
   getAllUsers,
-  getProfile,
+  getUserByUsername,
+  setupUser,
   updateProfile,
   deleteUser,
-  setupUser,
 } from "../controllers/userController.js";
 
 import multer from "multer";
@@ -25,6 +26,8 @@ const upload = multer({ storage: storage });
 const router = Router();
 
 router.get("/", getAllUsers);
+
+router.get("/id", getUserID);
 
 router.get("/:id", getProfile);
 
@@ -48,6 +51,6 @@ router.post(
   }
 );
 
-router.post("/", setupUser);
+router.post("/setup", setupUser);
 
 export default router;
