@@ -93,7 +93,7 @@ const createTaskByClassId = async(req, res) => {
         {
             return res.status(404).json({message: "Class ID is required"});
         }
-
+        
         const newTask = new Task({deadline, topic, title, resources, status, points, textbook, class: classId});
 
         const savedTask = await newTask.save();
