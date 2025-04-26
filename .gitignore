@@ -1,6 +1,0 @@
-node_modules
-.env
-.gitignore
-.venv
-uploads/
-__pycache__/
