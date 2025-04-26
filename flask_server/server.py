@@ -1,13 +1,8 @@
-from flask import Flask, jsonify, request
-from flask_restful import Resource, Api
-
-from flask_server.User import User
+from User import User
 from user_matching import *
 from flask import Flask, jsonify, request
 from flask_restful import Resource, Api
-
-from flask_server.User import User
-from user_matching import *
+from mongo import *
 
 app = Flask(__name__)
 api = Api(app)
@@ -19,35 +14,40 @@ class MatchRequest(Resource):
         return '', 200
     
     def post(self):
-        print(request.get_json())
-        
-        users: list[User] = []
-        for i in range(102):
-            users.append(User())
-            users[i].personality = random.random()
-            users[i].preferred_time = random.randint(0, 3)
-            users[i].in_person = random.randint(0, 1)
+        users = []
+        for i in range(9):
+            u = User(sub=str(i))
+            u.personality = random.random()
+            u.preferred_time = random.randint(0, 3)
+            u.in_person = random.choice([True, False])
+            u.private_space = random.choice([True, False]) if u.in_person else False
+            users.append(u)
+            print(f"user {i} answers:")
+            print(f"Personality: {u.personality}")
+            print(f"Preferred study time: {u.preferred_time}")
+            print(f"In person or virtual: {u.in_person}")
+            if u.in_person:
+                print(f"Public or private study area: {u.private_space}")
+        client = UserMatchClient(users=users)
 
-            if users[i].in_person:
-                users[i].private_space = random.randint(0, 1)
+        groups_formed = 0
+        max_groups = 3
 
-        matchClient = UserMatchClient(users=users)
-        matchClient.match(users[0])
-        
-        return jsonify(users), 200
-        # get user form post data
-        # get user from database
-        # return matched group
+        while groups_formed < max_groups and len(client.unmatched_users) >= 2:
+            matched = False
+            for user in client.unmatched_users[:]:  
+                if client.match(user):
+                    groups_formed += 1
+                    matched = True
+                    break  
+            if not matched:
+                print("No more possible matches.")
+                break
 
 
-'''
-When user wants to get points:
-Make call: send which task got completed with mongo id
-Initialize point system with db data
-Calculate points
-Update db
-return response ok
-'''
+class finishTask(Resource):
+    def post(self):
+        pass
 
 
 api.add_resource(MatchRequest, "/match")
