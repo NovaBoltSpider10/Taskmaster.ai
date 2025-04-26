@@ -97,8 +97,8 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
-      <div className="bg-white rounded p-6 w-full max-w-md shadow-lg relative z-50">
+    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center px-4">
+      <div className="relative w-full max-w-sm sm:max-w-md md:max-w-lg bg-white dark:bg-darkCard text-gray-900 dark:text-white rounded-lg p-6 shadow-xl mx-auto">
         <h2 className="text-xl font-semibold mb-4">
           {isEditing ? "Edit Event" : "Add New Event"}
         </h2>
@@ -106,21 +106,21 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
         <input
           type="text"
           placeholder="Event title"
-          className="w-full mb-2 p-2 border rounded"
+          className="w-full mb-2 p-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-darkAccent rounded"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
         <label className="text-sm">Date</label>
         <input
           type="date"
-          className="w-full mb-2 p-2 border rounded"
+          className="w-full mb-2 p-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-darkAccent rounded"
           value={date}
           onChange={(e) => setDate(e.target.value)}
         />
         <label className="text-sm">Start Time (hh:mm AM/PM)</label>
         <input
           type="text"
-          className="w-full mb-2 p-2 border rounded"
+          className="w-full mb-2 p-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-darkAccent rounded"
           value={startTime}
           onChange={(e) => setStartTime(e.target.value)}
           placeholder="e.g. 07:00 PM"
@@ -128,14 +128,14 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
         <label className="text-sm">End Time (hh:mm AM/PM)</label>
         <input
           type="text"
-          className="w-full mb-4 p-2 border rounded"
+          className="w-full mb-4 p-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-darkAccent rounded"
           value={endTime}
           onChange={(e) => setEndTime(e.target.value)}
           placeholder="e.g. 08:00 PM"
         />
         <textarea
           placeholder="Description (optional)"
-          className="w-full mb-4 p-2 border rounded"
+          className="w-full mb-4 p-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-darkAccent rounded"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
@@ -143,7 +143,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
         <div className="flex justify-end gap-2">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300"
+            className="px-4 py-2 rounded bg-gray-200 dark:bg-gray-600 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-500"
           >
             Cancel
           </button>

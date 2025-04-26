@@ -1,4 +1,5 @@
-import PageLayout from "./components/PageLayout";;
+import PageLayout from "./components/PageLayout";
+import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
 import Calendar from "./pages/Calendar";
@@ -9,13 +10,13 @@ import Settings from "./pages/Settings";
 import SplashPage from "./pages/SplashPage";
 import Tasks from "./pages/Tasks";
 import FlashCards from "./pages/FlashCards";
-
+import Resources from "./pages/Resources";
 function App() {
   return (
     <Router>
       <Routes>
-        {/* <Route path="/login" element={<Login />} /> */}
-        {/* <Route path="/signup" element={<SignUp />} /> */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<SignUp />} />
         <Route path="/" element={<SplashPage/>} />
 
         {/* Routes using shared layout */}
@@ -27,7 +28,7 @@ function App() {
           <Route path="/settings" element={<Settings />} />
           <Route path="/tasks" element={<Tasks />} />
           <Route path="/flashcards" element={<FlashCards />} />
-          <Route path="/setup" element={<SignUp />} />
+          <Route path="/resources" element={<Resources />} />
         </Route>
       </Routes>
     </Router>
