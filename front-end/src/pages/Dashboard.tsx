@@ -1,6 +1,19 @@
+import axios from "axios";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+interface UserData {
+  _id: string;
+  userName: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
 const Dashboard = () => {
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   const SquareCard = ({
@@ -39,6 +52,39 @@ const Dashboard = () => {
     </div>
   );
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setLoading(true);
+    setError(null);
+    axios
+      .get("http://localhost:3000/user/me", {
+        headers: {
+          "x-auth-token": token,
+        },
+      })
+      .then((userResponse) => {
+        setUserData(userResponse.data);
+        console.log("Success in reading user data");
+      })
+      .catch((err) => {
+        setError(err);
+      setError(err);
+        console.error("Error fetching user data:", err);
+      }).finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading)
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"></div>
+      </div>
+    );
+  if (error)
+    return <div className="text-center text-red-500">{String(error)}</div>;
+
+
   return (
     <div className="w-full h-full p-6 flex justify-center">
       <div className="w-full max-w-5xl space-y-6">
@@ -47,11 +93,15 @@ const Dashboard = () => {
           <div className="flex-1">
             <SquareCard title="User Profile" link="/settings">
               <p>
-                <strong>Name:</strong> John Doe
+                <strong>Name:</strong> {userData?.firstName} {userData?.lastName}
               </p>
               <p>
-                <strong>Email:</strong> johndoe@example.com
+                <strong>Email:</strong> {userData?.email}
               </p>
+              <p>
+                <strong>Username:</strong> {userData?.userName}
+              </p>
+
             </SquareCard>
           </div>
 

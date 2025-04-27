@@ -7,7 +7,7 @@ import { X } from "lucide-react"; // Optional: Use '×' if you don't want icon
 
 interface ClassData {
   _id: string;
-  name: String,
+  name: String;
   professor: String;
   timing: String;
   examDates: String[];
@@ -17,6 +17,10 @@ interface ClassData {
   textbooks: String[];
   location: String;
   user: String;
+}
+
+interface UserData {
+  _id: string;
 }
 
 const schema = z.object({
@@ -37,6 +41,8 @@ const Classes = () => {
   const [userClasses, setUserClasses] = useState<ClassData[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const token = localStorage.getItem("token");
 
   const {
     register,
@@ -48,68 +54,80 @@ const Classes = () => {
     resolver: zodResolver(schema),
   });
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = (data: FormData) => {
+    setUploading(true);
+  
     const file = data.file[0];
     const formData = new FormData();
     formData.append("file", file);
-
-    const userId = "google-oauth2|117092462712380430315";
-    const uploadUrl = `http://localhost:3000/user/aisyllabus/${encodeURIComponent(
-      userId
-    )}/api/upload`;
-
-    try {
-      setUploading(true);
-      await axios.post(uploadUrl, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+  
+    axios
+      .get<UserData>("http://localhost:3000/user/me", {
+        headers: { "x-auth-token": token! },
+      })
+      .then((userResp) => {
+        const userId = userResp.data._id;
+        setUserData(userResp.data);
+  
+        return axios.post(
+          `http://localhost:3000/user/aisyllabus/${userId}/api/upload`, // ← use it here
+          formData,
+          { headers: { "Content-Type": "multipart/form-data" } }
+        );
+      })
+      .then(() => {
+        setToast({
+          message:
+            "File uploaded successfully. Please wait up to 2 minutes for data to be parsed",
+          type: "success",
+          show: true,
+        });
+        reset(); // clears file input
+      })
+      .catch((err) => {
+        console.error(err);
+        setToast({
+          message: "Fatal Error 404. Please try again.",
+          type: "error",
+          show: true,
+        });
+      })
+      .finally(() => {
+        setUploading(false);
       });
-
-      setToast({
-        message: "File uploaded successfully. Please wait up to 2 minutes for data to be parsed",
-        type: "success",
-        show: true,
-      });
-
-      reset(); // ✅ clears file input and triggers watch
-    } catch (err) {
-      console.error(err);
-      setToast({
-        message: "Fatal Error 404. Please try again.",
-        type: "error",
-        show: true,
-      });
-    } finally {
-      setUploading(false);
-    }
   };
+  
 
   const fileName = watch("file")?.[0]?.name ?? null;
 
   useEffect(() => {
-    const fetchClasses = () => {
-      setLoading(true);
-      setError(null);
-
-      const userId = "google-oauth2|117092462712380430315";
-
-      axios
-        .get(`http://localhost:3000/class/user/${userId}`)
-        .then((response) => {
-          setUserClasses(response.data);
-        })
-        .catch((err) => {
-          console.error("Failed to fetch classes:", err);
-          setError(err);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    };
-
-    fetchClasses();
-  }, []);
+    setLoading(true);
+    setError(null);
+  
+    axios
+      .get<UserData>("http://localhost:3000/user/me", {
+        headers: { "x-auth-token": token! },
+      })
+      .then((userResp) => {
+        const userId = userResp.data._id;      // ← grab it here
+        setUserData(userResp.data);
+  
+        return axios.get<ClassData[]>(
+          `http://localhost:3000/class/user/${userId}` // ← use it here
+        );
+      })
+      .then((classResp) => {
+        setUserClasses(classResp.data);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch classes:", err);
+        setError(err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [token]);
+  
 
   if (loading) {
     return (
@@ -188,7 +206,9 @@ const Classes = () => {
         {/* Classes Section */}
         <div>
           <h1 className="text-2xl font-bold mb-4">Classes</h1>
-          {userClasses.length === 0 && <p>No classes found. Upload a syllabus to get started</p>}
+          {userClasses.length === 0 && (
+            <p>No classes found. Upload a syllabus to get started</p>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {userClasses.map((classItem) => (
               <div

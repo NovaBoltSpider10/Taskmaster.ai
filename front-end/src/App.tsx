@@ -1,6 +1,6 @@
 import PageLayout from "./components/PageLayout";
 import Login from "./pages/Login";
-import SignUp from "./pages/SignUp";
+import SignUp from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import Calendar from "./pages/Calendar";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
@@ -29,6 +29,7 @@ function App() {
           <Route path="/tasks" element={<Tasks />} />
           <Route path="/flashcards" element={<FlashCards />} />
           <Route path="/resources" element={<Resources />} />
+
         </Route>
       </Routes>
     </Router>

@@ -21,6 +21,10 @@ interface ClassData {
   user: string;
 }
 
+interface UserData {
+  _id: string;
+}
+
 const Resources = () => {
   const [userClasses, setUserClasses] = useState<ClassData[]>([]);
   const [resources, setResources] = useState<ResourceData[]>([]);
@@ -33,23 +37,45 @@ const Resources = () => {
       setError(null);
 
       try {
-        const userId = "google-oauth2|117092462712380430315";
+        const token = localStorage.getItem("token");
+        if (!token) throw new Error("No auth token found");
 
-        // 1) fetch classes
+        // 1) fetch current user to get real userId
+        const userRes = await axios.get<UserData>(
+          "http://localhost:3000/user/me",
+          {
+            headers: {
+              "x-auth-token": token,
+            },
+          }
+        );
+        const userId = userRes.data._id;
+
+        // 2) fetch classes for that user
         const classesRes = await axios.get<ClassData[]>(
-          `http://localhost:3000/class/user/${userId}`
+          `http://localhost:3000/class/user/${userId}`,
+          {
+            headers: {
+              "x-auth-token": token,
+            },
+          }
         );
         setUserClasses(classesRes.data);
 
-        // 2) fetch resources for each class in parallel
+        // 3) fetch resources for each class in parallel
         const resourcesPromises = classesRes.data.map((cls) =>
           axios.get<ResourceData[]>(
-            `http://localhost:3000/resources/class/${cls._id}`
+            `http://localhost:3000/resources/class/${cls._id}`,
+            {
+              headers: {
+                "x-auth-token": token,
+              },
+            }
           )
         );
         const resourcesResults = await Promise.all(resourcesPromises);
 
-        // flatten the arrays (each endpoint returns an array of length 1)
+        // flatten all results
         const allResources = resourcesResults.flatMap((r) => r.data);
         setResources(allResources);
       } catch (err: any) {

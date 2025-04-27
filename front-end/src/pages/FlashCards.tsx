@@ -20,6 +20,10 @@ type MCQ = {
   options: string[];
 };
 
+interface UserData {
+  _id: string;
+}
+
 const FlashCards: React.FC = () => {
   // --- Study Mode State ---
   const [classes, setClasses] = useState<ClassData[]>([]);
@@ -44,20 +48,37 @@ const FlashCards: React.FC = () => {
   const [userAnswers, setUserAnswers] = useState<string[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [testScore, setTestScore] = useState(0);
+  const token = localStorage.getItem("token");
+
 
   // --- Utility to shuffle an array ---
   const shuffle = <T,>(arr: T[]): T[] => {
     return [...arr].sort(() => Math.random() - 0.5);
   };
 
+  
+
   // --- Fetch list of classes on mount ---
   useEffect(() => {
     const fetchClasses = async () => {
       setLoading(true);
-      const userId = "google-oauth2|117092462712380430315";
+      setError(null);
+  
       try {
+        const token = localStorage.getItem("token");
+        if (!token) throw new Error("No auth token");
+  
+        // 1) get the current user
+        const userRes = await axios.get<UserData>(
+          "http://localhost:3000/user/me",
+          { headers: { "x-auth-token": token } }
+        );
+        const userId = userRes.data._id;
+  
+        // 2) fetch classes for that user
         const res = await axios.get<ClassData[]>(
-          `http://localhost:3000/class/user/${userId}`
+          `http://localhost:3000/class/user/${userId}`,
+          { headers: { "x-auth-token": token } }
         );
         setClasses(res.data);
       } catch (err) {
@@ -67,6 +88,7 @@ const FlashCards: React.FC = () => {
         setLoading(false);
       }
     };
+  
     fetchClasses();
   }, []);
 

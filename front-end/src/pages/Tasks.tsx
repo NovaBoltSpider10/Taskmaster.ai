@@ -2,6 +2,10 @@ import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import axios from "axios";
 
+interface UserData {
+  _id: string;
+}
+
 interface TasksData {
   _id: string;
   deadline: string;
@@ -29,53 +33,78 @@ export interface ClassData {
 }
 
 const Tasks = () => {
+  const [userData, setUserData] = useState<UserData | null>(null);
   const [userClasses, setUserClasses] = useState<ClassData[] | null>(null);
   const [tasks, setTasks] = useState<TasksData[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<any>(null);
   const [selectedTask, setSelectedTask] = useState<TasksData | null>(null);
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
-    const fetchTaskData = async () => {
-      setLoading(true);
-      try {
-        const userid = "google-oauth2|117092462712380430315";
-        const { data: classes } = await axios.get<ClassData[]>(
-          `http://localhost:3000/class/user/${userid}`
+    setLoading(true);
+    setError(null);
+  
+    axios
+      // 1) get current user
+      .get<UserData>("http://localhost:3000/user/me", {
+        headers: { "x-auth-token": token },
+      })
+      .then((userResp) => {
+        const user = userResp.data;
+        setUserData(user);
+  
+        // 2) get that user’s classes
+        return axios.get<ClassData[]>(
+          `http://localhost:3000/class/user/${user._id}`
         );
+      })
+      .then((classResp) => {
+        const classes = classResp.data;
         setUserClasses(classes);
-
-        // fetch all tasks and tag with className
-        const all = await Promise.all(
-          classes.map(async (c) => {
-            const { data: ts } = await axios.get<TasksData[]>(
-              `http://localhost:3000/tasks/classid/${c._id}`
-            );
-            return ts.map((t) => ({ ...t, className: c.name }));
-          })
+  
+        // 3) fetch tasks for each class in parallel, tagging with className
+        return Promise.all(
+          classes.map((c) =>
+            axios
+              .get<TasksData[]>(`http://localhost:3000/tasks/classid/${c._id}`)
+              .then((taskResp) =>
+                taskResp.data.map((t) => ({ ...t, className: c.name }))
+              )
+          )
         );
-        const tasksData = all.flat();
-
-        // auto-update any pending-but-past tasks to "overdue"
+      })
+      .then(async (nestedTasks) => {
+        // flatten the array-of-arrays
+        const tasksData = nestedTasks.flat();
+  
+        // 4) auto-patch any overdue “pending” tasks
         const now = new Date();
-        tasksData.forEach((t) => {
-          if (t.status === "pending" && new Date(t.deadline) < now) {
-            axios.patch(`http://localhost:3000/tasks/${t._id}`, {
-              status: "overdue",
-            });
-            t.status = "overdue";
-          }
-        });
-
-        setTasks(tasksData);
-      } catch (err) {
+        const patchCalls = tasksData
+          .filter((t) => t.status === "pending" && new Date(t.deadline) < now)
+          .map((t) =>
+            axios
+              .patch(`http://localhost:3000/tasks/${t._id}`, { status: "overdue" })
+              .then(() => {
+                t.status = "overdue";
+              })
+          );
+  
+        // wait for all patches (if any), then carry on with the full list
+        return Promise.all(patchCalls).then(() => tasksData);
+      })
+      .then((finalTasks) => {
+        setTasks(finalTasks);
+      })
+      .catch((err) => {
+        console.error("Error fetching task data:", err);
         setError(err);
-      } finally {
+      })
+      .finally(() => {
         setLoading(false);
-      }
-    };
-    fetchTaskData();
-  }, []);
+      });
+  }, [token]);
+  
 
   const updateTaskStatus = async (
     taskId: string,
@@ -85,9 +114,7 @@ const Tasks = () => {
       status: newStatus,
     });
     setTasks((prev) =>
-      prev.map((t) =>
-        t._id === taskId ? { ...t, status: newStatus } : t
-      )
+      prev.map((t) => (t._id === taskId ? { ...t, status: newStatus } : t))
     );
   };
 
@@ -99,12 +126,12 @@ const Tasks = () => {
   };
   const handlePending = () => {
     if (!selectedTask) return;
-  
+
     const now = new Date();
     const due = new Date(selectedTask.deadline);
     // if the deadline’s already passed, mark it overdue instead
     const newStatus: TasksData["status"] = due < now ? "overdue" : "pending";
-  
+
     updateTaskStatus(selectedTask._id, newStatus).then(() =>
       setSelectedTask(null)
     );
@@ -124,7 +151,6 @@ const Tasks = () => {
     );
   if (error)
     return <div className="text-center text-red-500">{String(error)}</div>;
-
 
   return (
     <div className="flex w-full h-full p-6">
