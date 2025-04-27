@@ -1,32 +1,10 @@
-'''
-Extrovert vs introvert: 
-    number from 0 to 1
-    0 for extrovert
-    1 for introvert
-
-Preferred time: number selection
-    0 for morning (before 12 pm)
-    1 for afternoon (before 4 pm)
-    2 for evening (before 8 pm) 
-    3 for night (after 8 pm)
--> Different plots per time slot
-
-In person vs virtual: 
-    0 for online
-    1 for in person
-
-If in person:
-Public space vs private space: 
-    0 for public
-    1 for private
-'''
-
 import random
 from datetime import date
 from User import User
 import pandas as pd
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
+
 
 class UserMatchClient:
     def __init__(self, users: list[User], min_filter_users=10) -> None:
@@ -77,7 +55,7 @@ class UserMatchClient:
 
         for i in indices[0]:
             matched_user = self.user_map[i]
-            if matched_user.sub != target_user.sub:
+            if matched_user.userId != target_user.userId:
                 group.append(matched_user)
 
                 if len(group) == 3:
@@ -86,10 +64,11 @@ class UserMatchClient:
                         if user in self.unmatched_users:
                             self.unmatched_users.remove(user)
 
-                    print(f"Matched {[user.sub for user in group]} in group {group_number}")
+                    print(f"Matched {[user.userId for user in group]} in group {group_number}")
                     return True
         return False
     
+
 def test():
     users = []
     for i in range(9):

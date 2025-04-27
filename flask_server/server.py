@@ -16,7 +16,7 @@ class MatchRequest(Resource):
     def post(self):
         users = []
         for i in range(9):
-            u = User(sub=str(i))
+            u = User(userId=str(i))
             u.personality = random.random()
             u.preferred_time = random.randint(0, 3)
             u.in_person = random.choice([True, False])

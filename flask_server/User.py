@@ -3,15 +3,15 @@ from datetime import datetime
 
 
 class User:
-    def __init__(self, sub: str):
-        self.sub = sub
+    def __init__(self, userId: str):
+        self.userId = userId
         self.points = 0
         self.level = 1
         self.personality: float = 0
-        self.preferred_time: int = 0
-        self.in_person: bool = False
-        self.private_space: bool = False
-        self.group_number: int = 0
+        self.preferred_time = 0
+        self.in_person = False
+        self.private_space = False
+        self.group_number = 0
 
         self.streak = 0
         self.last_task_date = datetime.now().date()
@@ -20,7 +20,7 @@ class User:
         db = client['test']
         users = db['users']
 
-        query_filter = {'sub': self.sub}
+        query_filter = {'_id': self.userId}
         update_operation = {"$set": {
                     "preferences": {
                     "personality": self.personality,
@@ -37,7 +37,7 @@ class User:
         db = client['test']
         users = db['users']
 
-        query_filter = {'sub': self.sub}
+        query_filter = {'_id': self.userId}
         update_operation = {"$set": {
                 "streak": self.streak,
                 "lastTaskDate": self.last_task_date,
