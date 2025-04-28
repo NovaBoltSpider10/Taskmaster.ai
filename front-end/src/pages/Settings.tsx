@@ -14,6 +14,30 @@ import { motion } from "framer-motion"; // Uncomment if Framer Motion is install
 // type Theme = "light" | "dark" | "clean";
 type ActiveTab = "Profile" | "Personalization" | "Notifications" | "Account" | "Privacy";
 
+// Simple Toggle Switch Component (can be moved to a separate file)
+interface ToggleSwitchProps {
+  label: string;
+  enabled: boolean;
+  onChange: (enabled: boolean) => void;
+}
+const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ label, enabled, onChange }) => (
+  <div className="flex items-center justify-between p-3 bg-card rounded-md shadow-sm border border-border">
+    <label className="text-sm font-medium text-card-foreground">{label}</label>
+    <button
+      onClick={() => onChange(!enabled)}
+      className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary ${
+        enabled ? 'bg-primary' : 'bg-muted'
+      }`}
+    >
+      <span
+        className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform duration-200 ease-in-out ${
+          enabled ? 'translate-x-6' : 'translate-x-1'
+        }`}
+      />
+    </button>
+  </div>
+);
+
 const Settings = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>("Profile");
   const { theme, setTheme } = useTheme(); // Use theme and setTheme from context
@@ -24,6 +48,13 @@ const Settings = () => {
       username: user?.username || '',
       email: user?.email || '',
       // Add firstName, lastName if needed for editing
+  });
+
+  // State for Privacy Settings
+  const [privacySettings, setPrivacySettings] = useState({
+      emailPublic: false, // Default: false. Load from user data later.
+      discordPublic: false,
+      socialMediaPublic: false,
   });
 
   // Local state for image preview
@@ -37,12 +68,29 @@ const Settings = () => {
             email: user.email,
         });
         setProfilePreview(user.profileImageUrl);
+        // TODO: Load actual privacy settings from user data
+        // setPrivacySettings({
+        //    emailPublic: user.privacy?.emailPublic || false,
+        //    discordPublic: user.privacy?.discordPublic || false,
+        //    socialMediaPublic: user.privacy?.socialMediaPublic || false,
+        // });
     }
   }, [user]);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       const { name, value } = event.target;
       setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handlePrivacyToggle = (key: keyof typeof privacySettings) => {
+      setPrivacySettings(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const handleSavePrivacySettings = () => {
+      console.log("Saving Privacy Settings:", privacySettings);
+      // TODO: Add API call here to save privacySettings to the backend
+      // e.g., updateUserSettings(userId, { privacy: privacySettings });
+      alert("Privacy settings saved (stub)!"); // Placeholder feedback
   };
 
   const handleProfileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -235,14 +283,49 @@ const Settings = () => {
            </div>
          );
        case "Privacy":
-         // Restore original Privacy placeholder content
+         // Add new Privacy settings content here
          return (
           <div>
              <h2 className="text-xl font-semibold mb-4 text-foreground">Privacy</h2>
              {/* <PrivacySettings /> */}
-              <p className="text-muted-foreground italic text-sm">Privacy Settings component missing. Implement in /settings_pages/PrivacySettings.tsx</p>
+             <p className="text-muted-foreground italic text-sm mb-6">Privacy settings component missing. Implement in /settings_pages/PrivacySettings.tsx</p>
+
+             {/* --- New Contact Information Sharing Section --- */}
+             <div className="space-y-4 border-t border-border pt-6">
+                <h3 className="text-lg font-medium text-emphasis mb-2">Contact Information Sharing</h3>
+                <p className="text-sm text-muted-foreground mb-4">Choose which contact details friends can see or request.</p>
+
+                <ToggleSwitch
+                    label="Allow friends to see Email"
+                    enabled={privacySettings.emailPublic}
+                    onChange={() => handlePrivacyToggle('emailPublic')}
+                />
+                <ToggleSwitch
+                    label="Allow friends to see Discord"
+                    enabled={privacySettings.discordPublic}
+                    onChange={() => handlePrivacyToggle('discordPublic')}
+                />
+                <ToggleSwitch
+                    label="Allow friends to see Social Media Links"
+                    enabled={privacySettings.socialMediaPublic}
+                    onChange={() => handlePrivacyToggle('socialMediaPublic')}
+                 />
+
+                <div className="mt-6">
+                    <button
+                        onClick={handleSavePrivacySettings}
+                        className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:opacity-90 transition duration-300 text-sm font-semibold"
+                    >
+                        Save Privacy Settings
+                    </button>
+                </div>
+            </div>
+             {/* --- End New Section --- */}
+
              {/* Placeholder Content - Using theme variables */}
-             <div className="space-y-4 mt-4">
+             {/* Keep existing placeholders for now, or remove if replaced by new section */}
+             <div className="space-y-4 mt-8 border-t border-border pt-6">
+                <h3 className="text-lg font-medium text-emphasis mb-2">Data Management</h3>
                 <button className="w-full text-left px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:opacity-90 transition duration-300 text-sm font-semibold">Request Data Download</button>
                 <button className="w-full text-left px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:opacity-90 transition duration-300 text-sm font-semibold">View Activity Logs</button>
                 <button className="w-full text-left px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:opacity-90 transition duration-300 text-sm font-semibold">Manage Permissions</button>
