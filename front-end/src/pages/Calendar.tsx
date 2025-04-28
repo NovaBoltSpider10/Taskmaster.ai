@@ -7,20 +7,19 @@ import {
 import { format, parse, startOfWeek, getDay, addDays, subDays } from "date-fns";
 import { enUS } from "date-fns/locale/en-US";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import { useRef, useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import AddEventModal from "../components/AddEventModal";
-import ical from "ical.js";
-import ical2json from "ical2json";
-import { useWindowSize } from "react-use";
 import { getTasks } from "../components/tasksStore";
+import AddEventModal from "../components/AddEventModal";
 
-interface IcalEvent {
-  SUMMARY?: string;
-  DTSTART: string;
-  DTEND: string;
-  DESCRIPTION?: string;
-  LOCATION?: string;
+interface MyEvent {
+  id: string;
+  title: string;
+  start: Date;
+  end: Date;
+  description?: string;
+  location?: string;
+  allDay?: boolean;
 }
 
 const style = document.createElement("style");
@@ -52,16 +51,6 @@ style.innerHTML = `
 `;
 document.head.appendChild(style);
 
-interface MyEvent {
-  id: string;
-  title: string;
-  start: Date;
-  end: Date;
-  description?: string;
-  location?: string;
-  allDay?: boolean;
-}
-
 const localizer = dateFnsLocalizer({
   format,
   parse,
@@ -76,26 +65,12 @@ const CustomToolbar: React.FC<ToolbarProps<MyEvent, object>> = ({ label }) => (
   </div>
 );
 
-const EventComponent = ({ event, view }: { event: MyEvent; view: View }) => {
-  const { width } = useWindowSize();
-  const isSplitScreen = width < 900;
-  const isWeek = view === "week";
-  const shouldHide = isSplitScreen && isWeek;
-
-  if (shouldHide) return null;
-
-  const start = new Date(event.start);
-  const end = new Date(event.end);
-  const duration = (end.getTime() - start.getTime()) / (1000 * 60);
-  if (duration < 30) return null;
-
+const EventComponent = ({ event }: { event: MyEvent }) => {
   return (
-    <div className="w-full h-full px-2 py-1 text-white text-sm truncate flex items-center">
+    <div className="w-full h-full px-2 py-1 text-white text-sm truncate flex items-center gap-1">
       <span className="font-bold">{event.title}</span>
       {event.location && (
-        <span className="ml-2 text-xs opacity-80 truncate">
-          ({event.location})
-        </span>
+        <span className="text-xs opacity-80 truncate">({event.location})</span>
       )}
     </div>
   );
@@ -108,61 +83,28 @@ const Calendar = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [newEvent, setNewEvent] = useState<MyEvent | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<MyEvent | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Fetch tasks from the store and convert them to calendar events
-  const taskEvents: MyEvent[] = getTasks().map((task) => {
-    const deadline = new Date(task.deadline);
-
-    const start = new Date(deadline.getTime() - 1 * 60 * 60 * 1000); // 1 hour before deadline
-    const end = deadline; // actual deadline time
-
-    return {
-      id: task._id,
-      title: task.title,
-      start: start,
-      end: end,
-      description: task.topic || "",
-      location: task.classLocation || "",
-      allDay: false,
-    };
-  });
-
-  const handleFileImport = async (file: File) => {
-    try {
-      let text = await file.text();
-      text = text
-        .split("BEGIN:VTIMEZONE")
-        .join("X-BEGIN:VTIMEZONE")
-        .split("END:VTIMEZONE")
-        .join("X-END:VTIMEZONE");
-
-      const jcalData = ical.parse(text);
-      const parsed = ical2json.convert(jcalData) as unknown as {
-        VCALENDAR: { VEVENT?: IcalEvent[] }[];
+  useEffect(() => {
+    const tasks = getTasks();
+    const taskEvents = tasks.map((task) => {
+      const deadline = new Date(task.deadline);
+      const start = new Date(deadline.getTime() - 1 * 60 * 60 * 1000); // 1 hour before
+      return {
+        id: task._id,
+        title: task.title,
+        start,
+        end: deadline,
+        description: task.topic || "",
+        location: task.classLocation || "",
+        allDay: false,
       };
-
-      const vevents = parsed?.VCALENDAR?.[0]?.VEVENT ?? [];
-
-      const newEvents: MyEvent[] = vevents.map((e) => ({
-        id: crypto.randomUUID(),
-        title: typeof e.SUMMARY === "string" ? e.SUMMARY : "Untitled Event",
-        start: new Date(e.DTSTART),
-        end: new Date(e.DTEND),
-        description: e.DESCRIPTION || "",
-        location: e.LOCATION || "",
-      }));
-
-      setEvents((prev) => [...prev, ...newEvents]);
-    } catch (err) {
-      console.error("File import failed:", err);
-      alert("This doesn't seem to be a valid calendar file.");
-    }
-  };
+    });
+    setEvents(taskEvents);
+  }, []);
 
   const handleNavigate = (action: "TODAY" | "PREV" | "NEXT") => {
     const base = new Date(currentDate);
-    const delta = view === "month" ? 30 : 7;
+    const delta = view === "month" ? 30 : view === "week" ? 7 : 1;
     if (action === "TODAY") setCurrentDate(new Date());
     if (action === "NEXT") setCurrentDate(addDays(base, delta));
     if (action === "PREV") setCurrentDate(subDays(base, delta));
@@ -172,9 +114,7 @@ const Calendar = () => {
     <div className="relative min-h-screen px-4 py-10 text-gray-900 dark:text-white">
       <div className="relative z-10 w-full max-w-screen-xl mx-auto space-y-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <h1 className="text-4xl font-extrabold tracking-tight">
-            Your Calendar
-          </h1>
+          <h1 className="text-4xl font-extrabold tracking-tight">Your Calendar</h1>
           <div className="flex flex-wrap gap-3">
             <button
               onClick={() => handleNavigate("TODAY")}
@@ -206,12 +146,12 @@ const Calendar = () => {
             <button
               className="px-5 py-2 bg-red-500 hover:bg-red-600 text-white font-bold rounded-md"
               onClick={() => {
-                const deadline = new Date();
+                const now = new Date();
                 const blankEvent: MyEvent = {
                   id: crypto.randomUUID(),
                   title: "",
-                  start: deadline,
-                  end: deadline,
+                  start: now,
+                  end: now,
                   description: "",
                   location: "",
                 };
@@ -225,34 +165,6 @@ const Calendar = () => {
           </div>
         </div>
 
-        <div
-          onDrop={(e) => {
-            e.preventDefault();
-            const file = e.dataTransfer.files[0];
-            if (file?.name.endsWith(".ics")) {
-              handleFileImport(file);
-            }
-          }}
-          onDragOver={(e) => e.preventDefault()}
-          className="w-full p-4 text-center border-2 border-dashed border-pink-300 rounded-lg cursor-pointer bg-pink-50 dark:bg-purple-700/30 hover:bg-pink-100 dark:hover:bg-purple-600/30 transition"
-          onClick={() => fileInputRef.current?.click()}
-        >
-          <p className="text-sm font-semibold text-gray-700 dark:text-purple-200">
-            Drag & drop your <code>.ics</code> calendar file here or click to
-            browse
-          </p>
-          <input
-            type="file"
-            accept=".ics"
-            ref={fileInputRef}
-            className="hidden"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) handleFileImport(file);
-            }}
-          />
-        </div>
-
         <motion.div
           key={`${view}-${currentDate.toDateString()}`}
           initial={{ opacity: 0, y: 12 }}
@@ -263,7 +175,7 @@ const Calendar = () => {
         >
           <BigCalendar
             localizer={localizer}
-            events={[...events, ...taskEvents]}
+            events={events}
             startAccessor="start"
             endAccessor="end"
             date={currentDate}
@@ -273,13 +185,15 @@ const Calendar = () => {
             views={["month", "week", "day"]}
             components={{
               toolbar: CustomToolbar,
-              event: (props) => <EventComponent {...props} view={view} />,
+              event: (props) => <EventComponent {...props} />,
             }}
             onSelectEvent={(event) => {
               setSelectedEvent(event as MyEvent);
               setNewEvent(event as MyEvent);
               setModalOpen(true);
             }}
+            step={60}
+            timeslots={1}
           />
         </motion.div>
       </div>
@@ -304,9 +218,7 @@ const Calendar = () => {
           }}
           onDelete={() => {
             if (selectedEvent) {
-              setEvents((prev) =>
-                prev.filter((e) => e.id !== selectedEvent.id)
-              );
+              setEvents((prev) => prev.filter((e) => e.id !== selectedEvent.id));
               setModalOpen(false);
               setSelectedEvent(null);
             }
