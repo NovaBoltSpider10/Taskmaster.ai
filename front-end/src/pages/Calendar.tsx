@@ -4,14 +4,7 @@ import {
   View,
   ToolbarProps,
 } from "react-big-calendar";
-import {
-  format,
-  parse,
-  startOfWeek,
-  getDay,
-  addDays,
-  subDays,
-} from "date-fns";
+import { format, parse, startOfWeek, getDay, addDays, subDays } from "date-fns";
 import { enUS } from "date-fns/locale/en-US";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useRef, useState } from "react";
@@ -20,6 +13,7 @@ import AddEventModal from "../components/AddEventModal";
 import ical from "ical.js";
 import ical2json from "ical2json";
 import { useWindowSize } from "react-use";
+import { getTasks } from "../components/tasksStore";
 
 interface IcalEvent {
   SUMMARY?: string;
@@ -65,6 +59,7 @@ interface MyEvent {
   end: Date;
   description?: string;
   location?: string;
+  allDay?: boolean;
 }
 
 const localizer = dateFnsLocalizer({
@@ -98,7 +93,9 @@ const EventComponent = ({ event, view }: { event: MyEvent; view: View }) => {
     <div className="w-full h-full px-2 py-1 text-white text-sm truncate flex items-center">
       <span className="font-bold">{event.title}</span>
       {event.location && (
-        <span className="ml-2 text-xs opacity-80 truncate">({event.location})</span>
+        <span className="ml-2 text-xs opacity-80 truncate">
+          ({event.location})
+        </span>
       )}
     </div>
   );
@@ -113,12 +110,32 @@ const Calendar = () => {
   const [selectedEvent, setSelectedEvent] = useState<MyEvent | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  // Fetch tasks from the store and convert them to calendar events
+  const taskEvents: MyEvent[] = getTasks().map((task) => {
+    const deadline = new Date(task.deadline);
+
+    const start = new Date(deadline.getTime() - 1 * 60 * 60 * 1000); // 1 hour before deadline
+    const end = deadline; // actual deadline time
+
+    return {
+      id: task._id,
+      title: task.title,
+      start: start,
+      end: end,
+      description: task.topic || "",
+      location: task.classLocation || "",
+      allDay: false,
+    };
+  });
+
   const handleFileImport = async (file: File) => {
     try {
       let text = await file.text();
       text = text
-        .split("BEGIN:VTIMEZONE").join("X-BEGIN:VTIMEZONE")
-        .split("END:VTIMEZONE").join("X-END:VTIMEZONE");
+        .split("BEGIN:VTIMEZONE")
+        .join("X-BEGIN:VTIMEZONE")
+        .split("END:VTIMEZONE")
+        .join("X-END:VTIMEZONE");
 
       const jcalData = ical.parse(text);
       const parsed = ical2json.convert(jcalData) as unknown as {
@@ -155,15 +172,26 @@ const Calendar = () => {
     <div className="relative min-h-screen px-4 py-10 text-gray-900 dark:text-white">
       <div className="relative z-10 w-full max-w-screen-xl mx-auto space-y-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <h1 className="text-4xl font-extrabold tracking-tight">Your Calendar</h1>
+          <h1 className="text-4xl font-extrabold tracking-tight">
+            Your Calendar
+          </h1>
           <div className="flex flex-wrap gap-3">
-            <button onClick={() => handleNavigate("TODAY")} className="bg-pink-400 hover:bg-pink-500 text-white font-semibold px-4 py-2 rounded-md">
+            <button
+              onClick={() => handleNavigate("TODAY")}
+              className="bg-pink-400 hover:bg-pink-500 text-white font-semibold px-4 py-2 rounded-md"
+            >
               Today
             </button>
-            <button onClick={() => handleNavigate("PREV")} className="bg-purple-500 hover:bg-purple-600 text-white font-semibold px-4 py-2 rounded-md">
+            <button
+              onClick={() => handleNavigate("PREV")}
+              className="bg-purple-500 hover:bg-purple-600 text-white font-semibold px-4 py-2 rounded-md"
+            >
               Back
             </button>
-            <button onClick={() => handleNavigate("NEXT")} className="bg-purple-500 hover:bg-purple-600 text-white font-semibold px-4 py-2 rounded-md">
+            <button
+              onClick={() => handleNavigate("NEXT")}
+              className="bg-purple-500 hover:bg-purple-600 text-white font-semibold px-4 py-2 rounded-md"
+            >
               Next
             </button>
             <select
@@ -178,12 +206,12 @@ const Calendar = () => {
             <button
               className="px-5 py-2 bg-red-500 hover:bg-red-600 text-white font-bold rounded-md"
               onClick={() => {
-                const now = new Date();
+                const deadline = new Date();
                 const blankEvent: MyEvent = {
                   id: crypto.randomUUID(),
                   title: "",
-                  start: now,
-                  end: new Date(now.getTime() + 60 * 60 * 1000),
+                  start: deadline,
+                  end: deadline,
                   description: "",
                   location: "",
                 };
@@ -210,7 +238,8 @@ const Calendar = () => {
           onClick={() => fileInputRef.current?.click()}
         >
           <p className="text-sm font-semibold text-gray-700 dark:text-purple-200">
-            Drag & drop your <code>.ics</code> calendar file here or click to browse
+            Drag & drop your <code>.ics</code> calendar file here or click to
+            browse
           </p>
           <input
             type="file"
@@ -234,7 +263,7 @@ const Calendar = () => {
         >
           <BigCalendar
             localizer={localizer}
-            events={events}
+            events={[...events, ...taskEvents]}
             startAccessor="start"
             endAccessor="end"
             date={currentDate}
@@ -275,7 +304,9 @@ const Calendar = () => {
           }}
           onDelete={() => {
             if (selectedEvent) {
-              setEvents((prev) => prev.filter((e) => e.id !== selectedEvent.id));
+              setEvents((prev) =>
+                prev.filter((e) => e.id !== selectedEvent.id)
+              );
               setModalOpen(false);
               setSelectedEvent(null);
             }
