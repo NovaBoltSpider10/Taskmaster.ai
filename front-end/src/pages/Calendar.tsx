@@ -1,4 +1,3 @@
-import AnimatedBackground from "../components/AnimatedBackground";
 import {
   Calendar as BigCalendar,
   dateFnsLocalizer,
@@ -44,7 +43,7 @@ const localizer = dateFnsLocalizer({
 });
 
 const CustomToolbar: React.FC<ToolbarProps<MyEvent, object>> = ({ label }) => (
-  <div className="text-center text-xl font-bold py-3 text-purple-700 dark:text-purple-300">
+  <div className="text-center text-xl font-bold py-3 text-emphasis">
     {label}
   </div>
 );
@@ -100,32 +99,31 @@ const Calendar = () => {
   };
 
   return (
-    <div className="relative min-h-screen px-4 py-10 text-gray-900 dark:text-white">
-      <AnimatedBackground />
+    <div className="w-full">
       <div className="relative z-10 w-full max-w-screen-xl mx-auto space-y-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <h1 className="text-4xl font-extrabold tracking-tight">Your Calendar</h1>
+          <h1 className="text-4xl font-extrabold tracking-tight text-emphasis">Your Calendar</h1>
           <div className="flex flex-wrap gap-3">
-            <button onClick={() => handleNavigate("TODAY")} className="bg-pink-500 hover:bg-pink-600 text-white font-semibold px-4 py-2 rounded-md">
+            <button onClick={() => handleNavigate("TODAY")} className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold px-4 py-2 rounded-md transition">
               Today
             </button>
-            <button onClick={() => handleNavigate("PREV")} className="bg-purple-500 hover:bg-purple-600 text-white font-semibold px-4 py-2 rounded-md">
+            <button onClick={() => handleNavigate("PREV")} className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold px-4 py-2 rounded-md transition">
               Back
             </button>
-            <button onClick={() => handleNavigate("NEXT")} className="bg-purple-500 hover:bg-purple-600 text-white font-semibold px-4 py-2 rounded-md">
+            <button onClick={() => handleNavigate("NEXT")} className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold px-4 py-2 rounded-md transition">
               Next
             </button>
             <select
               value={view}
               onChange={(e) => setView(e.target.value as View)}
-              className="px-4 py-2 rounded-md text-white bg-blue-500 hover:bg-blue-600 font-semibold"
+              className="px-4 py-2 rounded-md text-foreground bg-input border border-input font-semibold appearance-none focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring"
             >
               <option value="month">Month</option>
               <option value="week">Week</option>
               <option value="day">Day</option>
             </select>
             <button
-              className="px-5 py-2 bg-red-500 hover:bg-red-600 text-white font-bold rounded-md"
+              className="px-5 py-2 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-md transition"
               onClick={() => {
                 const now = new Date();
                 setNewEvent({
@@ -152,10 +150,10 @@ const Calendar = () => {
             }
           }}
           onDragOver={(e) => e.preventDefault()}
-          className="w-full p-4 text-center border-2 border-dashed border-pink-300 rounded-lg cursor-pointer bg-pink-50 dark:bg-purple-700/30 hover:bg-pink-100 dark:hover:bg-purple-600/30 transition"
+          className="w-full p-4 text-center border-2 border-dashed border-border rounded-lg cursor-pointer bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground transition"
           onClick={() => fileInputRef.current?.click()}
         >
-          <p className="text-sm font-semibold text-gray-700 dark:text-purple-200">
+          <p className="text-sm font-semibold">
             Drag & drop your <code>.ics</code> calendar file here or click to browse
           </p>
           <input
@@ -176,7 +174,7 @@ const Calendar = () => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -12 }}
           transition={{ duration: 0.4, ease: "easeInOut" }}
-          className="w-full h-[750px] bg-white dark:bg-zinc-800 rounded-2xl shadow-2xl overflow-hidden border border-gray-200 dark:border-zinc-600"
+          className="w-full h-[750px] bg-card rounded-2xl shadow-soft overflow-hidden border border-border"
         >
           <BigCalendar
             localizer={localizer}

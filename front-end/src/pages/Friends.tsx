@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import AnimatedBackground from "../components/AnimatedBackground";
 
 const Friends = () => {
   const friends = [
@@ -49,23 +48,21 @@ const Friends = () => {
   const statusBadge = (status: string) => {
     const base = "px-3 py-1 rounded-full text-xs font-bold";
     if (status === "Online")
-      return `${base} bg-green-100 dark:bg-green-800 text-green-700 dark:text-green-100`;
+      return `${base} bg-primary/20 text-primary`;
     if (status === "Busy")
-      return `${base} bg-yellow-100 dark:bg-yellow-700 text-yellow-700 dark:text-yellow-100`;
-    return `${base} bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200`;
+      return `${base} bg-accent text-accent-foreground`;
+    return `${base} bg-muted text-muted-foreground`;
   };
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden text-gray-900 dark:text-white">
-      <AnimatedBackground />
-
+    <div className="w-full">
       <div className="relative z-10 w-full max-w-7xl mx-auto px-6 py-10 space-y-6">
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Friends</h1>
+          <h1 className="text-2xl font-bold text-emphasis">Friends</h1>
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            className="px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-darkAccent text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-400 font-medium"
+            className="px-3 py-2 rounded-md border border-input bg-input text-foreground focus:outline-none focus:ring-2 focus:ring-ring font-medium appearance-none"
           >
             <option value="Online">Online</option>
             <option value="Offline">Offline</option>
@@ -84,12 +81,12 @@ const Friends = () => {
                 animate="visible"
                 exit="exit"
                 layout
-                className="bg-white/90 dark:bg-darkCard rounded-xl shadow-md p-5 hover:shadow-lg transition-all"
+                className="bg-card rounded-xl shadow-md p-5 hover:shadow-lg transition-all"
               >
-                <h2 className="text-lg font-semibold text-violet-800 dark:text-lavenderAccent mb-1">
+                <h2 className="text-lg font-semibold text-emphasis mb-1">
                   {friend.name}
                 </h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                <p className="text-sm text-muted-foreground mb-2">
                   {friend.email}
                 </p>
                 <span className={statusBadge(friend.status)}>{friend.status}</span>

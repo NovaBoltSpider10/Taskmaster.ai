@@ -4,7 +4,6 @@ import * as z from "zod";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { X } from "lucide-react";
-import AnimatedBackground from "../components/AnimatedBackground";
 
 interface ClassData {
   _id: string;
@@ -104,32 +103,29 @@ const Classes = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-4 border-primary border-t-transparent"></div>
       </div>
     );
   }
 
   if (error) {
-    return <div className="text-center text-red-500">{String(error)}</div>;
+    return <div className="text-center text-destructive">{String(error)}</div>;
   }
 
   return (
-    <div className="relative min-h-screen w-full text-gray-900 dark:text-white px-6 py-10 overflow-hidden">
-      <AnimatedBackground />
-
-      {/* Toast */}
+    <div className="w-full">
       {toast.show && (
         <div
           className={`fixed top-5 right-5 z-50 px-4 py-3 rounded-md shadow-lg flex items-center gap-3 ${
             toast.type === "success"
-              ? "bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-100"
-              : "bg-red-100 dark:bg-red-700 text-red-800 dark:text-white"
+              ? "bg-primary/10 text-primary"
+              : "bg-destructive/10 text-destructive"
           }`}
         >
           <span>{toast.message}</span>
           <button
             onClick={() => setToast((prev) => ({ ...prev, show: false }))}
-            className="ml-auto text-xl font-bold hover:text-red-500"
+            className="ml-auto text-xl font-bold hover:text-destructive/80 transition"
           >
             <X size={16} />
           </button>
@@ -137,17 +133,16 @@ const Classes = () => {
       )}
 
       <div className="relative z-10 max-w-7xl mx-auto space-y-10">
-        <h1 className="text-3xl font-bold">AI Syllabus Reader</h1>
+        <h1 className="text-3xl font-bold text-emphasis">AI Syllabus Reader</h1>
 
-        {/* Upload Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="bg-white/90 dark:bg-darkCard rounded-lg p-6 shadow-md border border-gray-200 dark:border-gray-700">
-            <h2 className="text-xl font-bold mb-4">Upload Syllabus</h2>
+          <div className="bg-card text-card-foreground rounded-lg p-6 shadow-md border border-border">
+            <h2 className="text-xl font-bold mb-4 text-emphasis">Upload Syllabus</h2>
             <label
               htmlFor="file"
-              className="relative border-2 border-dashed border-gray-400 dark:border-gray-600 rounded-lg p-6 text-center hover:border-gray-600 dark:hover:border-gray-400 transition cursor-pointer block"
+              className="relative border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary transition cursor-pointer block bg-background"
             >
-              <p className="text-gray-600 dark:text-gray-300">
+              <p className="text-muted-foreground">
                 Drag or click to select a file
               </p>
               <input
@@ -158,16 +153,16 @@ const Classes = () => {
               />
             </label>
             {errors.file && (
-              <p className="text-red-500 text-sm mt-1">{errors.file.message}</p>
+              <p className="text-destructive text-sm mt-1">{errors.file.message}</p>
             )}
             {fileName && (
-              <p className="text-sm text-gray-700 dark:text-gray-300 mt-2">
+              <p className="text-sm text-muted-foreground mt-2">
                 <strong>Selected File:</strong> {fileName}
               </p>
             )}
             <button
               type="submit"
-              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+              className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition disabled:opacity-50"
               disabled={uploading}
             >
               {uploading ? "Uploading..." : "Submit"}
@@ -175,10 +170,9 @@ const Classes = () => {
           </div>
         </form>
 
-        {/* Class Cards */}
-        <h2 className="text-2xl font-bold">Classes</h2>
+        <h2 className="text-2xl font-bold text-emphasis">Classes</h2>
         {userClasses.length === 0 && (
-          <p className="text-gray-600 dark:text-gray-300">
+          <p className="text-muted-foreground">
             No classes found. Upload a syllabus to get started.
           </p>
         )}
@@ -186,31 +180,31 @@ const Classes = () => {
           {userClasses.map((classItem) => (
             <div
               key={classItem._id}
-              className="bg-white dark:bg-darkCard border border-gray-200 dark:border-gray-700 rounded-lg shadow-md p-5 hover:shadow-lg transition duration-300"
+              className="bg-card border border-border rounded-lg shadow-md p-5 hover:shadow-lg transition duration-300"
             >
-              <h3 className="text-lg font-semibold mb-2 text-violet-800 dark:text-lavenderAccent">
+              <h3 className="text-lg font-semibold mb-2 text-emphasis">
                 {classItem.name}
               </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">
+              <p className="text-sm text-muted-foreground mb-1">
                 <strong>Professor:</strong> {classItem.professor}
               </p>
-              <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">
+              <p className="text-sm text-muted-foreground mb-1">
                 <strong>Location:</strong> {classItem.location}
               </p>
-              <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">
+              <p className="text-sm text-muted-foreground mb-1">
                 <strong>Timing:</strong> {classItem.timing}
               </p>
-              <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">
+              <p className="text-sm text-muted-foreground mb-1">
                 <strong>Topics:</strong>
               </p>
-              <div className="border border-gray-300 dark:border-gray-600 rounded-md p-3 max-h-32 overflow-y-auto bg-gray-200 dark:bg-darkAccent">
-                <ul className="list-disc list-inside text-sm text-gray-800 dark:text-gray-200 space-y-1">
+              <div className="border border-input rounded-md p-3 max-h-32 overflow-y-auto bg-muted">
+                <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
                   {classItem.topics.map((topic, index) => (
                     <li key={index}>{topic}</li>
                   ))}
                 </ul>
               </div>
-              <p className="text-sm text-gray-600 dark:text-gray-300 mt-4">
+              <p className="text-sm text-muted-foreground mt-4">
                 <strong>Grading Policy:</strong> {classItem.gradingPolicy}
               </p>
             </div>
