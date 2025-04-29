@@ -4,11 +4,19 @@ from User import User
 import pandas as pd
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
+import os
+
+os.environ["LOKY_MAX_CPU_COUNT"] = "8"
 
 
 class UserMatchClient:
     def __init__(self, users: list[User], min_filter_users=10) -> None:
         self.users: list[User] = users
+
+        for u in self.users:
+            if not u.preferences:
+                self.users.remove(u)
+
         self.unmatched_users: list[User] = self._populate_unmatched()
         self.min_filter_users: int = min_filter_users
         self.model = None
@@ -66,7 +74,7 @@ class UserMatchClient:
                         if user in self.unmatched_users:
                             self.unmatched_users.remove(user)
 
-                    print(f"Matched {[user.userId for user in group]} in group {group_number}")
+                    print(f"Matched {[user.name for user in group]} in group {group_number}")
                     return True
         return False
     

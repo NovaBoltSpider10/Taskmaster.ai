@@ -10,34 +10,12 @@ class User:
 
         self.userId = userObject.get("_id")
         self.preferences = userObject.get("preferences")
-        # self.personality = userObject.get("preferences").get("personality")
-        # self.preferred_time = userObject.get("preferences").get("preferred_time")
-        # self.in_person = userObject.get("preferences").get("personality")
-        # self.private_space = userObject.get("preferences").get("personality")
-        self.points = userObject.get("points")
-        self.streak = userObject.get("streak")
+        self.name = userObject.get("username")
+        self.points = userObject.get("points") if userObject.get("points") else 0
+        self.streak = userObject.get("streak") if userObject.get("streak") else 0
         self.last_task_date = userObject.get("lastTaskDate")
-        self.group_number = userObject.get("groupNumber")
-        self.level = userObject.get("level")
-
-
-    def match_update(self, client: MongoClient):
-        db = client['test']
-        users = db['users']
-
-        query_filter = {'_id': self.userId}
-        update_operation = {"$set": {
-                    "preferences": self.preferences,
-                    # {
-                    #     "personality": self.personality,
-                    #     "time": self.preferred_time,
-                    #     "inPerson": self.in_person,
-                    #     "privateSpace": self.private_space,
-                    # },
-            }
-        }
-
-        users.update_one(query_filter, update_operation)
+        self.group_number = userObject.get("groupNumber") if userObject.get("groupNumber") else 0
+        self.level = userObject.get("level") if userObject.get("level") else 0
 
     def streak_update(self, client: MongoClient):
         db = client['test']
@@ -55,9 +33,9 @@ class User:
     def to_vector(self):
         return [
             self.preferences.get('personality'),
-            self.preferences.get('preferred_time'),
-            int(self.preferences.get('in_person')),
-            int(self.preferences.get('private_space')) if self.preferences.get('in_person') else -1,
+            self.preferences.get('time'),
+            int(self.preferences.get('inPerson')),
+            int(self.preferences.get('privateSpace')) if self.preferences.get('in_person') else -1,
         ]
     
         # return [self.personality,

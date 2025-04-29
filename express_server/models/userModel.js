@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
-import preferencesSchema from './preferencesModel.js';
 import dotenv from 'dotenv';
+import jwt from 'jsonwebtoken';
 dotenv.config();
 
 const userSchema = new mongoose.Schema({
@@ -18,7 +18,13 @@ const userSchema = new mongoose.Schema({
     level: Number,
     groupNumber: Number,
 
-    preferences: preferencesSchema,
+    preferences: {
+        personality: Number,
+        time: Number,
+        inPerson: Number,
+        privateSpace: Number,
+    },
+
     classes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Class' }],
     calendar: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Calendar' }],
     gpa: Number,

@@ -1,5 +1,4 @@
 import User from "../models/userModel.js";
-import crypto from "crypto";
 import bcrypt from "bcrypt";
 
 const getUserByToken = async (req, res) => {
@@ -59,10 +58,10 @@ const setupUser = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
     const newUser = new User({
-      userName,
-      firstName,
-      lastName,
-      email,
+      username: userName,
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
       password: hashedPassword,
     });
     const savedUser = await newUser.save();

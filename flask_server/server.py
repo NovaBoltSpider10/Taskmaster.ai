@@ -2,7 +2,7 @@ from User import User
 from user_matching import *
 from mongo import *
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, make_response
 from flask_restful import Resource, Api
 from bson.objectid import ObjectId
 
@@ -11,35 +11,39 @@ api = Api(app)
 
 
 class MatchRequest(Resource):
-    def get(self):
-        #Return group number
-        return '', 200
-    
     def post(self):
-        users = [User(userObject=u) for u in client['test']['users'].find()]
-        # for u in users:
-        #     print(f"user {u._id} answers:")
-        #     print(f"Personality: {u.preferences.get('personality')}")
-        #     print(f"Preferred study time: {u.preferences.get('personality')}")
-        #     print(f"In person or virtual: {u.preferences.get('personality')}")
-        #     if u.in_person:
-        #         print(f"Public or private study area: {u.preferences.get('personality')}")
+        users = client['test']['users']
+        userId = request.get_json().get('userId')
 
-        match_client = UserMatchClient(users=users)
+        if group_number := users.find_one({"_id": ObjectId(userId)}).get('groupNumber'):
+            return make_response(jsonify({"group_number": group_number}), 200)
 
-        groups_formed = 0
-        max_groups = 3
+        match_client = UserMatchClient(users=[User(userObject=u) for u in users.find()])
 
-        while groups_formed < max_groups and len(match_client.unmatched_users) >= 2:
+        while len(match_client.unmatched_users) >= 2:
             matched = False
             for user in match_client.unmatched_users[:]:  
                 if match_client.match(user):
-                    groups_formed += 1
                     matched = True
                     break  
             if not matched:
                 print("No more possible matches.")
                 break
+
+        for u in match_client.users:
+            if u.userId != ObjectId(userId):
+                continue
+            
+            # users.update_one(
+            #     {"_id": ObjectId(u.userId)},
+            #     {"$set": {
+            #         "groupNumber": u.group_number,
+            #     }},
+            # )
+
+            return make_response(jsonify({"group_number": u.group_number}), 200)
+
+        return make_response(jsonify({"message": "Error grouping user"}), 404)
 
 
 class SetPreferences(Resource):
@@ -51,18 +55,18 @@ class SetPreferences(Resource):
         user_object = users.update_one(
             {"_id": ObjectId(userId)}, 
             {"$set": {
-            "preferences": {
-                "personality": data.get('personality'),
-                "time": data.get('preferred_time'),
-                "inPerson": data.get('in_person'),
-                "privateSpace": data.get('private_space'),
-            }}}
+                "preferences": {
+                    "personality": data.get('personality'),
+                    "time": data.get('preferred_time'),
+                    "inPerson": data.get('in_person'),
+                    "privateSpace": data.get('private_space'),
+                }
+            }}
         )
-        print(user_object)    
         return 200
 
 
-class finishTask(Resource):
+class FinishTask(Resource):
     def post(self):
         pass
 
