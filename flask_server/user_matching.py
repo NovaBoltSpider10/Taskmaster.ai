@@ -19,18 +19,19 @@ class UserMatchClient:
     def _populate_unmatched(self) -> list[User]:
         return list(filter(lambda u: u.group_number == 0, self.users))
 
-    def _user_to_vector(self, user: User):
-        return [user.personality,
-                user.preferred_time,
-                int(user.in_person),
-                int(user.private_space) if user.in_person else -1]
+    # def _user_to_vector(self, user: User):
+    #     return [user.personality,
+    #             user.preferred_time,
+    #             int(user.in_person),
+    #             int(user.private_space) if user.in_person else -1]
     
     def build_feature_matrix(self):
         self.feature_matrix = []
         self.user_map = {}
 
         for i,user in enumerate(self.unmatched_users):
-            toVectorObj = self._user_to_vector(user)
+            # toVectorObj = self._user_to_vector(user)
+            toVectorObj = user.to_vector()
             self.feature_matrix.append(toVectorObj)
             self.user_map[i] = user
 
@@ -47,7 +48,8 @@ class UserMatchClient:
             return False
         
         self.train_model()
-        target_vector = np.array(self._user_to_vector(target_user)).reshape(1, -1)
+        target_vector = np.array(target_user.to_vector()).reshape(1, -1)
+        # target_vector = np.array(self._user_to_vector(target_user)).reshape(1, -1)
         distances, indices = self.model.kneighbors(target_vector)
 
         group = [target_user]

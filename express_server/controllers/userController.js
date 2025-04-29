@@ -30,16 +30,30 @@ const getUserByUsername = async (req, res) => {
 
 const setupUser = async (req, res) => {
   try {
-    const { userName, firstName, lastName, dob, email, password } =
+    const { userName, firstName, lastName, email, password } =
       req.body;
+    // const { userName, firstName, lastName, dob, email, password } =
+    //   req.body;
 
     const checkUserEmail = await User.findOne({ email });
     const checkUserName = await User.findOne({ userName });
 
-    if (checkUserEmail || checkUserName) {
+    if (checkUserName) {
       return res
         .status(400)
-        .json({ message: "Username or email already taken" });
+        .json({ message: "Username already taken" });
+    }
+
+    if (checkUserEmail) {
+      return res
+        .status(400)
+        .json({ message: "Email already taken" });
+    }
+
+    if (!password) {
+      return res
+        .status(400)
+        .json({ message: "Password not provided" });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -48,7 +62,6 @@ const setupUser = async (req, res) => {
       userName,
       firstName,
       lastName,
-      dob,
       email,
       password: hashedPassword,
     });
