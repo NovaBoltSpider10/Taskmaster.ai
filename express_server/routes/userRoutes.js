@@ -1,12 +1,12 @@
 import { Router } from "express";
 import { parseSyllabus as parseClassSyllabus } from "../controllers/classController.js";
-
+import auth from '../Middleware/auth.js';
 import {
+  getUserByToken,
   getAllUsers,
-  getProfile,
-  updateProfile,
-  deleteUser,
+  getUserByUsername,
   setupUser,
+  deleteUser,
 } from "../controllers/userController.js";
 
 import multer from "multer";
@@ -24,13 +24,11 @@ const upload = multer({ storage: storage });
 
 const router = Router();
 
-router.get("/", getAllUsers);
+router.get("/", getAllUsers); //Don't use
 
-router.get("/:id", getProfile);
+router.get("/me", auth, getUserByToken); // Use for deciphering token
 
-router.patch("/:id", updateProfile);
-
-router.delete("/:id", deleteUser);
+router.get("/:userName", getUserByUsername); //Don;t use
 
 router.post(
   "/aisyllabus/:userId/api/upload",
