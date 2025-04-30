@@ -137,7 +137,16 @@ const FlashCards: React.FC = () => {
   }
 
   return (
-    <div className="w-full">
+    <div className="relative min-h-screen w-full overflow-hidden text-gray-900 dark:text-white">
+      {/* Header */}
+      <header className="relative z-10 bg-white/90 dark:bg-darkCard shadow-sm border-b border-gray-200 dark:border-gray-700">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
+            Flashcards
+          </h1>
+        </div>
+      </header>
+
       <main className="relative z-10 max-w-7xl mx-auto px-4 py-6">
         <h1 className="text-3xl font-bold text-emphasis mb-6">Flashcards & Testing</h1>
 

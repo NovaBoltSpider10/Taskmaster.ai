@@ -74,7 +74,7 @@ const Resources = () => {
     );
 
   return (
-    <div className="w-full">
+    <div className="relative min-h-screen w-full text-gray-900 dark:text-darkText transition">
       <div className="relative z-10 p-6 max-w-7xl mx-auto">
         <h2 className="text-2xl font-bold mb-4 text-center text-emphasis">
           Your Class Resources

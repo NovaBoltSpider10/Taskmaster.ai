@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { setTasks as setTasksStore } from "../components/tasksStore";
 
-interface TasksData {
+export interface TasksData {
   _id: string;
   deadline: string;
   topic: string;
@@ -12,6 +13,7 @@ interface TasksData {
   textbook: string | null;
   class: string;
   className?: string;
+  classLocation?: string;
 }
 
 export interface ClassData {
@@ -49,7 +51,7 @@ const Tasks = () => {
             const { data: ts } = await axios.get<TasksData[]>(
               `http://localhost:5000/tasks/classid/${c._id}`
             );
-            return ts.map((t) => ({ ...t, className: c.name }));
+            return ts.map((t) => ({ ...t, className: c.name, classLocation: c.location, }));
           })
         );
         const tasksData = all.flat();
@@ -65,6 +67,7 @@ const Tasks = () => {
         });
 
         setTasks(tasksData);
+        setTasksStore(tasksData); // Update the tasks store
         setLoading(false);
       } catch (err: unknown) {
         if (axios.isAxiosError(err)) {
@@ -129,7 +132,7 @@ const Tasks = () => {
     return <div className="text-center text-destructive">{String(error)}</div>;
 
   return (
-    <div className="w-full">
+    <div className="relative min-h-screen w-full text-gray-900 dark:text-darkText transition">
       <div className="relative z-10 p-6 max-w-7xl mx-auto">
         <div className="w-full space-y-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">

@@ -113,7 +113,8 @@ const Classes = () => {
   }
 
   return (
-    <div className="w-full">
+    <div className="relative min-h-screen w-full text-gray-900 dark:text-white px-6 py-10 overflow-hidden">
+      {/* Toast */}
       {toast.show && (
         <div
           className={`fixed top-5 right-5 z-50 px-4 py-3 rounded-md shadow-lg flex items-center gap-3 ${

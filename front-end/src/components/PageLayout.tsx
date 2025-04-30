@@ -1,11 +1,13 @@
 // import Header from "./Header";
 import Sidebar from "./Sidebar";
 import { Outlet } from "react-router-dom";
-import { motion } from "framer-motion";
-import { useTheme } from "../context/ThemeContext";
+import AnimatedBackground from "../components/AnimatedBackground";
 
 function PageLayout() {
-  const { theme } = useTheme();
+  return (
+    <div className="relative flex flex-col h-screen overflow-hidden">
+      {/* Animated Background Component */}
+      <AnimatedBackground />
 
   // Styling is now handled by CSS variables based on <html> class (light, dark, clean)
   return (

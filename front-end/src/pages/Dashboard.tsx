@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { useUser } from "../context/UserContext";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -35,7 +34,7 @@ const Dashboard = () => {
   );
 
   return (
-    <div className="w-full text-foreground">
+    <div className="relative min-h-screen w-full text-gray-900 dark:text-white px-6 py-10 overflow-hidden">
       <div className="relative z-10 w-full max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-6 gap-6 pb-10">
         <Card title="User Profile" link="/profile" className="md:col-span-2">
           {user ? (
