@@ -4,7 +4,6 @@ import * as z from "zod";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { X } from "lucide-react";
-import AnimatedBackground from "../components/AnimatedBackground";
 
 interface ClassData {
   _id: string;
@@ -115,8 +114,6 @@ const Classes = () => {
 
   return (
     <div className="relative min-h-screen w-full text-gray-900 dark:text-white px-6 py-10 overflow-hidden">
-      <AnimatedBackground />
-
       {/* Toast */}
       {toast.show && (
         <div

@@ -76,7 +76,6 @@ const Resources = () => {
 
   return (
     <div className="relative min-h-screen w-full text-gray-900 dark:text-darkText transition">
-      <AnimatedBackground />
       <div className="relative z-10 p-6 max-w-7xl mx-auto">
         <h2 className="text-2xl font-bold mb-4 text-center dark:text-white">
           Your Class Resources
