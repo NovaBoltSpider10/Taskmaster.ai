@@ -1,284 +1,207 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
-import * as z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { FieldValues, useForm } from "react-hook-form";
-import { motion } from "framer-motion";
+import NavBar from "../components/navbar";
+import AnimatedBackground from "../components/AnimatedBackground";
+import { motion, AnimatePresence } from "framer-motion";
 
-const signupSchema = z.object({
-  userName: z
-    .string()
-    .min(9, "Username should be at least 9 characters long")
-    .max(20, "Username should not exceed 20 characters"),
-  firstName: z.string().min(1, "Name must be at least 1 character"),
-  lastName: z.string().min(1, "Name must be at least 1 character"),
-  email: z.string().email("Invalid email address"),
-  password: z
-    .string()
-    .min(9, "Password must be at least 9 characters")
-    .max(20, "Password must not exceed 20 characters"),
-});
-type SignupFormData = z.infer<typeof signupSchema>;
+function SignUp() {
+  const [email, setEmail] = useState("");
+  const [userName, setUserName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [dob, setDob] = useState("");
+  const [password, setPassword] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
-function Signup() {
   const navigate = useNavigate();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<SignupFormData>({
-    resolver: zodResolver(signupSchema),
-  });
-  const [formError, setFormError] = useState(false);
 
-  const onSubmit = async (data: FieldValues) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:3000/user", data, {
-        headers: { "Content-Type": "application/json" },
+      console.log("Sending signup payload:", {
+        email,
+        password,
+        userName,
+        firstName,
+        lastName,
+        dob,
       });
-      const token = response.data;
-      if (token) {
-        localStorage.setItem("token", token);
-        navigate("/dashboard");
+      
+      const response = await fetch("http://localhost:3000/user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          password,
+          userName,
+          firstName,
+          lastName,
+          dob,
+        }),
+      });
+  
+      if (response.ok) {
+        setSuccessMessage("Account created successfully!");
+        setTimeout(() => {
+          navigate("/login");
+        }, 2000);
       } else {
-        console.error("No token received from the server.");
+        const errorData = await response.json();
+        alert(errorData.message || "Signup failed");
       }
-    } catch (error) {
-      console.error("Error submitting form: ", error);
-      setFormError(true);
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong");
     }
   };
+  
 
   return (
     <>
-      <div className="relative h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 overscroll-y-none">
-        {/* SVG Background */}
-        <svg
-          className="absolute inset-0 w-full h-full opacity-20"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 800 600"
-        >
-          <g fill="none" stroke="white" strokeWidth="0.5">
-            <circle cx="400" cy="300" r="200" />
-            <circle cx="400" cy="300" r="300" />
-            <circle cx="400" cy="300" r="400" />
-          </g>
-        </svg>
+      <NavBar />
+      <div className="relative h-screen flex items-center justify-center bg-skyLightest dark:bg-darkBg px-4 py-8">
+        <AnimatedBackground />
 
-        {/* Animated Blobs */}
-        <motion.div
-          className="absolute w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-70 top-[-4rem] left-[-3rem] z-[-1]"
-          animate={{
-            x: [0, 20, -20, 0],
-            y: [0, -30, 30, 0],
-            scale: [1, 1.1, 0.9, 1],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-        <motion.div
-          className="absolute w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-70 top-[6rem] right-[6rem] z-[-1]"
-          animate={{
-            x: [0, -20, 20, 0],
-            y: [0, 20, -20, 0],
-            scale: [1, 1.2, 0.8, 1],
-          }}
-          transition={{
-            duration: 12,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-
-        {/* Signup Form */}
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="w-[720px] bg-white shadow-lg rounded-lg p-8 space-y-6 z-10 relative overscroll-y-none"
-        >
-          <div className="text-center">
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Create an Account
-            </h2>
-            <p className="text-gray-500 mt-2">Sign up to get started</p>
-          </div>
-          {formError && (
-            <p className="text-red-500 text-sm mt-2">
-              Username or email is already taken
-            </p>
-          )}
-
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="grid grid-cols-2 gap-6"
-          >
+        <AnimatePresence>
+          {successMessage && (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute top-10 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg font-semibold"
             >
-              <label
-                htmlFor="userName"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
+              🎉 {successMessage}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <div className="w-[480px] bg-white dark:bg-darkCard shadow-lg rounded-2xl p-8 space-y-6 relative">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold text-gray-800 dark:text-white">Create Account</h2>
+            <p className="text-gray-500 dark:text-gray-300 mt-2">Sign up to get started</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Username */}
+            <div>
+              <label htmlFor="username" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Username
               </label>
               <input
                 type="text"
-                id="userName"
-                {...register("userName")}
+                id="username"
+                value={userName}
+                onChange={(e) => setUserName(e.target.value)}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                placeholder="Enter your username"
+                className="w-full px-3 py-2 border rounded-md bg-white dark:bg-darkAccent text-black dark:text-white"
+                placeholder="Enter username"
               />
-              {errors.userName && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.userName.message}
-                </p>
-              )}
-            </motion.div>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              <label
-                htmlFor="firstName"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
+            {/* First Name */}
+            <div>
+              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 First Name
               </label>
               <input
                 type="text"
                 id="firstName"
-                {...register("firstName")}
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                className="w-full px-3 py-2 border rounded-md bg-white dark:bg-darkAccent text-black dark:text-white"
                 placeholder="Enter your first name"
               />
-              {errors.firstName && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.firstName.message}
-                </p>
-              )}
-            </motion.div>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-            >
-              <label
-                htmlFor="lastName"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
+            {/* Last Name */}
+            <div>
+              <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Last Name
               </label>
               <input
                 type="text"
                 id="lastName"
-                {...register("lastName")}
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                className="w-full px-3 py-2 border rounded-md bg-white dark:bg-darkAccent text-black dark:text-white"
                 placeholder="Enter your last name"
               />
-              {errors.lastName && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.lastName.message}
-                </p>
-              )}
-            </motion.div>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
+            {/* Date of Birth */}
+            <div>
+              <label htmlFor="dob" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                Date of Birth
+              </label>
+              <input
+                type="date"
+                id="dob"
+                value={dob}
+                onChange={(e) => setDob(e.target.value)}
+                required
+                className="w-full px-3 py-2 border rounded-md bg-white dark:bg-darkAccent text-black dark:text-white"
+              />
+            </div>
+
+            {/* Email */}
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Email Address
               </label>
               <input
                 type="email"
                 id="email"
-                {...register("email")}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                className="w-full px-3 py-2 border rounded-md bg-white dark:bg-darkAccent text-black dark:text-white"
                 placeholder="you@example.com"
               />
-              {errors.email && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.email.message}
-                </p>
-              )}
-            </motion.div>
+            </div>
 
-            <motion.div
-              className="col-span-2"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.5 }}
-            >
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
+            {/* Password */}
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Password
               </label>
               <input
                 type="password"
                 id="password"
-                {...register("password")}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                placeholder="Enter your password"
+                className="w-full px-3 py-2 border rounded-md bg-white dark:bg-darkAccent text-black dark:text-white"
+                placeholder="Create a password"
               />
-              {errors.password && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.password.message}
-                </p>
-              )}
-            </motion.div>
+            </div>
 
-            <motion.button
+            {/* Submit Button */}
+            <button
               type="submit"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.6 }}
-              className="col-span-2 w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 rounded-md hover:from-blue-700 hover:to-purple-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+              className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md transition duration-300 font-semibold"
             >
               Sign Up
-            </motion.button>
-          </form>
+            </button>
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.8 }}
-            className="text-center mt-4"
-          >
-            <p className="text-sm text-gray-600">
-              Already have an account?{" "}
-              <Link
-                to="/login"
-                className="font-medium text-blue-600 hover:text-blue-500"
-              >
-                Log in
-              </Link>
-            </p>
-          </motion.div>
-        </motion.div>
+            {/* Link to Login */}
+            <div className="text-center mt-4">
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                Already have an account?{" "}
+                <Link
+                  to="/login"
+                  className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
+                >
+                  Log in
+                </Link>
+              </p>
+            </div>
+          </form>
+        </div>
       </div>
     </>
   );
 }
 
-export default Signup;
+export default SignUp;
