@@ -37,11 +37,11 @@ type FormData = z.infer<typeof schema>;
 const Classes = () => {
   // Original state variables
   const [uploading, setUploading] = useState(false);
-  const [toast, setToast] = useState({
-    message: "",
-    type: "success" as "success" | "error",
-    show: false,
-  });
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error";
+    show: boolean;
+  }>({ message: "", type: "success", show: false });
   const [userClasses, setUserClasses] = useState<ClassData[]>([]);
   const [loading, setLoading] = useState(false); // Combined loading state
   const [error, setError] = useState<string | null>(null); // Use string for error message

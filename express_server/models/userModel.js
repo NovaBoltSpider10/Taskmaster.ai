@@ -9,16 +9,13 @@ const userSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     pfp: String,
 
-    streak: Number,
-    lastTaskDate: Date,
-
-    preferences: preferencesSchema,
     classes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Class' }],
     calendar: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Calendar' }],
     gpa: Number,
     friendsList: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     tasks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Task' }],
     points: Number,
+    streak: Number,
     slcSessions: [String] 
 });
 

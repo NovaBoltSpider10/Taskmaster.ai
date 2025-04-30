@@ -1,30 +1,31 @@
 import User from '../models/userModel.js';
 import bcrypt from 'bcrypt';
 
-const getUserByToken = async (req, res) => {
-  const user = await User.findById(req.body.userId).select("-password");
-  res.send(user);
-};
-
+//Get all users
 const getAllUsers = async (req, res) => {
-  try {
-    const users = await User.find();
-    res.status(200).json(users);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+    try {
+        const users = await User.find({});
+        res.status(200).json(users);
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
 };
 
-const getUserByUsername = async (req, res) => {
-  try {
-    const user = await User.find(req.body.username);
-    if (!user) {
-      return res.status(404).json({ message: "User was not found" });
+
+//Get profile
+const getProfile = async (req, res) => {
+    try {
+        const user = await User.findOne({ sub: req.oidc.user.sub });
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        res.status(200).json(user);
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
-    return res.status(202).json(user);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
 };
 
 const createUser = async (req, res) => {
@@ -82,17 +83,19 @@ const updateProfile = async (req, res) => {
 
 //Delete user
 const deleteUser = async (req, res) => {
-  try {
-    const deleteUser = await User.findOneAndDelete({ userId: req.body.userId });
-    if (!deleteUser) {
-      return res.status(404).json({ message: "User not found" });
-    }
+    try {
+        const deleteUser = await User.findOneAndDelete({ sub: req.oidc.user.sub });
+        if (!deleteUser) {
+            return res.status(404).json({ message: "User mot found" });
+        }
 
-    res.status(200).json(deleteUser);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+        res.status(200).json(deleteUser);
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
 };
+
 
 export {
     getAllUsers,

@@ -1,7 +1,7 @@
 // import Header from "./Header";
 import Sidebar from "./Sidebar";
 import { Outlet } from "react-router-dom";
-import AnimatedBackground from "../components/AnimatedBackground";
+ // import AnimatedBackground from "../components/AnimatedBackground";
 
 function PageLayout() {
   return (

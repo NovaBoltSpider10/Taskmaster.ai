@@ -2,7 +2,7 @@ import { Router } from "express";
 import auth from '../middleware/auth.js'
 
 import { parseSyllabus as parseClassSyllabus } from "../controllers/classController.js";
-import auth from '../Middleware/auth.js';
+
 import {
     createUser,
     getUserByToken
