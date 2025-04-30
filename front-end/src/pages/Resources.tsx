@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import AnimatedBackground from "../components/AnimatedBackground";
+import React from "react";
 
 interface ResourceData {
   _id: string;

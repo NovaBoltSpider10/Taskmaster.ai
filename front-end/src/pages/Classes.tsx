@@ -4,6 +4,7 @@ import * as z from "zod";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { X } from "lucide-react";
+import React from "react";
 
 interface ClassData {
   _id: string;
