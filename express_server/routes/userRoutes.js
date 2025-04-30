@@ -21,7 +21,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-const router = Router();
+const router = Router(); 
 
 router.get("/me", auth, getUserByToken); //Use to decipher token
 
