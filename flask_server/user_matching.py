@@ -1,114 +1,118 @@
+'''
+Extrovert vs introvert: 
+    number from 0 to 1
+    0 for extrovert
+    1 for introvert
+
+Preferred time: number selection
+    0 for morning (before 12 pm)
+    1 for afternoon (before 4 pm)
+    2 for evening (before 8 pm) 
+    3 for night (after 8 pm)
+-> Different plots per time slot
+
+In person vs virtual: 
+    0 for online
+    1 for in person
+
+If in person:
+Public space vs private space: 
+    0 for public
+    1 for private
+'''
+
 import random
 from datetime import date
+
 from User import User
-import pandas as pd
-import numpy as np
-from sklearn.neighbors import NearestNeighbors
-import os
-
-os.environ["LOKY_MAX_CPU_COUNT"] = "8"
-
 
 class UserMatchClient:
     def __init__(self, users: list[User], min_filter_users=10) -> None:
         self.users: list[User] = users
-
-        for u in self.users:
-            if not u.preferences:
-                self.users.remove(u)
-
         self.unmatched_users: list[User] = self._populate_unmatched()
         self.min_filter_users: int = min_filter_users
-        self.model = None
-        self.feature_matrix = None
-        self.user_map = {}
+        
         self._stage: int = 0
 
     def _populate_unmatched(self) -> list[User]:
         return list(filter(lambda u: u.group_number == 0, self.users))
 
-    # def _user_to_vector(self, user: User):
-    #     return [user.personality,
-    #             user.preferred_time,
-    #             int(user.in_person),
-    #             int(user.private_space) if user.in_person else -1]
-    
-    def build_feature_matrix(self):
-        self.feature_matrix = []
-        self.user_map = {}
+    def _expand_time(self, filtered: list[User], user: User) -> list[User]:
+        while len(filtered) <= self.min_filter_users:
+            self._stage += 1
 
-        for i,user in enumerate(self.unmatched_users):
-            # toVectorObj = self._user_to_vector(user)
-            toVectorObj = user.to_vector()
-            self.feature_matrix.append(toVectorObj)
-            self.user_map[i] = user
+            match self._stage:
+                case 1:
+                    filtered = list(filter(
+                        lambda u: u.preferred_time in range(
+                            user.preferred_time - 1,
+                            user.preferred_time + 1,
+                        ), self.unmatched_users))
+                    break
 
-        self.feature_matrix = np.array(self.feature_matrix)
+                case 2:
+                    filtered = list(filter(lambda u: u.preferred_time in range(0, 4), self.unmatched_users))
+                    return filtered
 
-    def train_model(self):
-        self.build_feature_matrix()
-        n_neighbors = min(4, len(self.unmatched_users))
-        self.model = NearestNeighbors(n_neighbors=n_neighbors, metric='euclidean')
-        self.model.fit(self.feature_matrix)
+        return filtered
 
-    def match(self, target_user: User):
-        if len(self.unmatched_users) < 3:
-            return False
+    def match(self, user: User) -> bool:
+        filtered: list[User] = []
+
+        time_filter = list(filter(lambda u: u.preferred_time == user.preferred_time, self.unmatched_users))
+        location_filter = list(filter(lambda u: u.in_person == user.in_person, time_filter))
+
+        if user.in_person:
+            private_filter = list(filter(lambda u: u.private_space == user.private_space, location_filter))
+
+            if len(private_filter) > self.min_filter_users:
+                filtered = location_filter
+
+        if len(filtered) <= self.min_filter_users:
+            filtered = time_filter
+
+        # 0 ->-1, 0, 1  -> 0, 1, 2, 3
+        # 1 -> 0, 1, 2  -> 0, 1, 2, 3
+        # 2 -> 1, 2, 3  -> 0, 1, 2, 3
+        # 3 -> 2, 3, 4  -> 0, 1, 2, 3
+
+        filtered = self._expand_time(filtered, user)
         
-        self.train_model()
-        target_vector = np.array(target_user.to_vector()).reshape(1, -1)
-        # target_vector = np.array(self._user_to_vector(target_user)).reshape(1, -1)
-        distances, indices = self.model.kneighbors(target_vector)
-
-        group = [target_user]
-        group_number = random.randint(1, 1000)
-
-        for i in indices[0]:
-            matched_user = self.user_map[i]
-            if matched_user.userId != target_user.userId:
-                group.append(matched_user)
-
-                if len(group) == 3:
-                    for user in group:
-                        user.group_number = group_number
-                        if user in self.unmatched_users:
-                            self.unmatched_users.remove(user)
-
-                    print(f"Matched {[user.name for user in group]} in group {group_number}")
-                    return True
+        filtered.sort(key=lambda u: u.personality)
+        
+        user_index: int = filtered.index(user)
+        num_groups: int = len(filtered) // 4
+        
+        for i in range(num_groups):
+            if i * 4 > user_index:
+                user.group_number = i + 1
+                self.unmatched_users.remove(user)
+                print(user.group_number)
+                return True
+            
         return False
     
 
 def test():
-    users = []
-    for i in range(9):
-        u = User(sub=str(i))
-        u.personality = random.random()
-        u.preferred_time = random.randint(0, 3)
-        u.in_person = random.choice([True, False])
-        u.private_space = random.choice([True, False]) if u.in_person else False
-        users.append(u)
-        print(f"user {i} answers:")
-        print(f"Personality: {u.personality}")
-        print(f"Preferred study time: {u.preferred_time}")
-        print(f"In person or virtual: {u.in_person}")
-        if u.in_person:
-            print(f"Public or private study area: {u.private_space}")
-    client = UserMatchClient(users=users)
+    users: list[User] = []
+    for i in range(102):
+        users.append(User())
+        users[i].personality = random.random()
+        users[i].preferred_time = random.randint(0, 3)
+        users[i].in_person = random.randint(0, 1)
 
-    groups_formed = 0
-    max_groups = 3
+        if users[i].in_person:
+            users[i].private_space = random.randint(0, 1)
 
-    while groups_formed < max_groups and len(client.unmatched_users) >= 2:
-        matched = False
-        for user in client.unmatched_users[:]:  
-            if client.match(user):
-                groups_formed += 1
-                matched = True
-                break  
-        if not matched:
-            print("No more possible matches.")
-            break
+    matchClient = UserMatchClient(users=users)
+
+    matchClient.match(users[6])     # 2
+    matchClient.match(users[13])    # 4
+    matchClient.match(users[21])    # -1
+
+    # for i in users:
+    #     print(i.group_number)
+
 
 if __name__ == "__main__":
     test()

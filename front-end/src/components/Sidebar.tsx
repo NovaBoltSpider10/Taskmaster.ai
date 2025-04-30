@@ -39,18 +39,18 @@ function Sidebar() {
   ];
 
   return (
-    <div className="w-56 h-screen fixed top-0 left-0 bg-secondary shadow-xl flex flex-col justify-between z-20 transition-colors duration-300 font-sans">
+    <div className="w-56 h-screen fixed top-0 left-0 bg-white dark:bg-darkCard shadow-xl flex flex-col justify-between z-20 font-roboto font-medium text-base transition-colors">
       {/* Top Section */}
-      <div className="px-5 pt-8 pb-6">
-        <Link to="/" className="flex items-center gap-3 mb-10 px-1">
-          <img src="/school_work_1.svg" alt="Logo" className="w-6 h-6" />
-          <span className="text-lg font-bold text-foreground tracking-wide">
+      <div className="px-3 pt-4 pb-2">
+        <Link to="/" className="flex items-center gap-2 mb-6 px-1">
+          <img src="/school_work_1.svg" alt="Logo" className="w-8 h-8" />
+          <span className="text-lg font-extrabold text-violet-800 dark:text-lavenderAccent tracking-tight">
             TaskMasterAI
           </span>
         </Link>
 
         {/* Navigation */}
-        <nav className="space-y-3">
+        <nav className="space-y-5">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
@@ -58,15 +58,15 @@ function Sidebar() {
               <Link
                 key={item.name}
                 to={item.path}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full text-base font-medium
+                className={`flex items-center gap-4 px-2.5 py-2 rounded-md transition w-full
                 ${
                   isActive
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                    ? "bg-gradient-to-r from-violet-500 to-purple-600 text-white shadow-md"
+                    : "text-slate-700 dark:text-gray-200 hover:bg-slate-100 dark:hover:bg-gray-700"
                 }`}
               >
-                <Icon size={18} className="min-w-[18px] opacity-70" />
-                <span className="flex-1 truncate">{item.name}</span>
+                <Icon size={16} className="min-w-[16px]" />
+                <span className="flex-1">{item.name}</span>
               </Link>
             );
           })}
@@ -74,12 +74,12 @@ function Sidebar() {
       </div>
 
       {/* Bottom Logout Button */}
-      <div className="p-5 border-t border-border">
+      <div className="p-4">
         <button
           onClick={handleLogout}
-          className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 text-base font-semibold text-destructive-foreground bg-destructive hover:opacity-90 rounded-xl transition duration-200 focus:outline-none focus:ring-2 focus:ring-destructive focus:ring-offset-2 focus:ring-offset-secondary shadow-sm"
+          className="w-full flex items-center gap-2 px-4 py-2 text-white bg-pink-600 hover:bg-pink-700 rounded transition"
         >
-          <FaSignOutAlt size={16} />
+          <FaSignOutAlt />
           <span>Logout</span>
         </button>
       </div>

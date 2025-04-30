@@ -35,13 +35,13 @@ const Resources = () => {
       try {
         const userId = "google-oauth2|117092462712380430315";
         const classesRes = await axios.get<ClassData[]>(
-          `http://localhost:5000/class/user/${userId}`
+          `http://localhost:3000/class/user/${userId}`
         );
         setUserClasses(classesRes.data);
 
         const resourcesPromises = classesRes.data.map((cls) =>
           axios.get<ResourceData[]>(
-            `http://localhost:5000/resources/class/${cls._id}`
+            `http://localhost:3000/resources/class/${cls._id}`
           )
         );
         const resourcesResults = await Promise.all(resourcesPromises);
@@ -64,24 +64,24 @@ const Resources = () => {
   if (loading)
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-4 border-primary border-t-transparent"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"></div>
       </div>
     );
 
   if (error)
     return (
-      <div className="text-center text-destructive">{error}</div>
+      <div className="text-center text-red-500 dark:text-red-400">{error}</div>
     );
 
   return (
     <div className="relative min-h-screen w-full text-gray-900 dark:text-darkText transition">
       <div className="relative z-10 p-6 max-w-7xl mx-auto">
-        <h2 className="text-2xl font-bold mb-4 text-center text-emphasis">
+        <h2 className="text-2xl font-bold mb-4 text-center dark:text-white">
           Your Class Resources
         </h2>
 
         {userClasses.length === 0 ? (
-          <p className="text-center text-muted-foreground">
+          <p className="text-center text-gray-600 dark:text-gray-400">
             No classes found for your account.
           </p>
         ) : (
@@ -91,30 +91,30 @@ const Resources = () => {
               return (
                 <div
                   key={cls._id}
-                  className="bg-card text-card-foreground shadow-md rounded-md p-4 hover:shadow-lg transition-shadow duration-300 max-w-sm w-full mx-auto border border-border"
+                  className="bg-white dark:bg-darkCard shadow-md rounded-md p-4 hover:shadow-lg transition-shadow duration-300 max-w-sm w-full mx-auto border border-gray-200 dark:border-gray-700"
                 >
-                  <h3 className="text-lg font-semibold text-emphasis mb-1">
+                  <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-1">
                     {cls.name}
                   </h3>
-                  <p className="text-xs text-muted-foreground mb-2">
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
                     <strong>Professor:</strong> {cls.professor}
                   </p>
                   {res && res.urls.length > 0 ? (
                     <div>
-                      <h4 className="text-sm font-medium text-muted-foreground mb-1">
+                      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Resources:
                       </h4>
                       <div className="space-y-1">
                         {res.urls.map((url, i) => (
                           <div
                             key={i}
-                            className="border-b border-border pb-1"
+                            className="border-b border-gray-300 dark:border-gray-600 pb-1"
                           >
                             <a
                               href={url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-primary hover:underline block truncate text-sm"
+                              className="text-blue-600 hover:underline dark:text-blue-400 dark:hover:text-blue-300 block truncate"
                             >
                               {url}
                             </a>
@@ -123,7 +123,7 @@ const Resources = () => {
                       </div>
                     </div>
                   ) : (
-                    <p className="text-xs italic text-muted-foreground">
+                    <p className="text-xs italic text-gray-500 dark:text-gray-400">
                       No resources available.
                     </p>
                   )}

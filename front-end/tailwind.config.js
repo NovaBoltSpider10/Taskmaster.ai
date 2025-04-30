@@ -8,45 +8,29 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        // Define fonts using CSS variables or keep specific definitions
-        sans: ["var(--font-sans, Satoshi)", "Inter", "Roboto", "sans-serif"],
-        roboto: ["Roboto", "sans-serif"], // Keep roboto if used elsewhere
+        roboto: ["Roboto", "sans-serif"],
       },
       colors: {
-        // Define colors using CSS variables for theme switching
-        background: 'hsl(var(--background))',
-        foreground: 'hsl(var(--foreground))',
-        card: 'hsl(var(--card))',
-        'card-foreground': 'hsl(var(--card-foreground))',
-        popover: 'hsl(var(--popover))',
-        'popover-foreground': 'hsl(var(--popover-foreground))',
-        primary: 'hsl(var(--primary))',
-        'primary-foreground': 'hsl(var(--primary-foreground))',
-        secondary: 'hsl(var(--secondary))',
-        'secondary-foreground': 'hsl(var(--secondary-foreground))',
-        muted: 'hsl(var(--muted))',
-        'muted-foreground': 'hsl(var(--muted-foreground))',
-        accent: 'hsl(var(--accent))',
-        'accent-foreground': 'hsl(var(--accent-foreground))',
-        destructive: 'hsl(var(--destructive))',
-        'destructive-foreground': 'hsl(var(--destructive-foreground))',
-        border: 'hsl(var(--border))',
-        input: 'hsl(var(--input))',
-        ring: 'hsl(var(--ring))',
-      },
-      borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
-        // Keep specific px values if needed, but prefer variables
-        'xl': '0.75rem',
-        '2xl': '1.0rem',
-        '3xl': '1.5rem',
-        '4xl': '2.0rem',
-        'full': '9999px',
-      },
-      boxShadow: {
-        soft: 'var(--shadow-soft)', // Use CSS variable for soft shadow
+        // 🌤 Serene Sky (Light Theme)
+        skyPrimary: "#A4D7E1",
+        skySecondary: "#B2E0E6",
+        skyAccent: "#C4F1F4",
+        skySoft: "#E0F7FA",
+        skyLightest: "#E8F9FD",
+
+        // 💜 Luminous Lavender (Light Theme)
+        lavenderPrimary: "#E6D6E8",
+        lavenderSecondary: "#D1C4E9",
+        lavenderAccent: "#B3A1D9",
+        lavenderPink: "#E0B2E8",
+        lavenderLightest: "#F2E1F6",
+
+        // 🌙 Dark Theme
+        darkBg: "#121212",
+        darkCard: "#1E1E1E",
+        darkAccent: "#2A2A2A",
+        darkText: "#E0E0E0",
+        darkMuted: "#888888",
       },
       keyframes: {
         blob: {

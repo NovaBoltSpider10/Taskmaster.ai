@@ -9,11 +9,5 @@ client = MongoClient(uri, server_api=ServerApi('1'))
 try:
     client.admin.command('ping')
     print("Successfully connected to MongoDB")
-
-    # users = client['test']['users']
-    # userId = ObjectId("680b03222cc0abdad3af5683")
-    # print(users.find_one({"_id": userId}))
-                
-
 except Exception as e:
     print(e)

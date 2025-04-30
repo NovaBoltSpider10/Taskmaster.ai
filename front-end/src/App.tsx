@@ -12,35 +12,98 @@ import Tasks from "./pages/Tasks";
 import FlashCards from "./pages/FlashCards";
 import Resources from "./pages/Resources";
 import Profile from "./pages/Profile";
-import { ThemeProvider } from "./context/ThemeContext";
-import { UserProvider } from "./context/UserContext";
+import { AuthProvider } from "./context/AuthContext";
+import PrivateRoute from "./context/PrivateRoutes"; // <-- important!
+import ForgotPassword from "./pages/ForgotPassword"; 
 
 function App() {
   return (
-    <ThemeProvider>
-      <UserProvider>
-        <Router>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/" element={<SplashPage/>} />
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/" element={<SplashPage />} />
 
-            {/* Routes using shared layout */}
-            <Route element={<PageLayout />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/calendar" element={<Calendar />} />
-              <Route path="/classes" element={<Classes />} />
-              <Route path="/friends" element={<Friends />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/tasks" element={<Tasks />} />
-              <Route path="/flashcards" element={<FlashCards />} />
-              <Route path="/resources" element={<Resources />} />
-              <Route path="/profile" element={<Profile />} />
-            </Route>
-          </Routes>
-        </Router>
-      </UserProvider>
-    </ThemeProvider>
+          {/* Routes requiring authentication */}
+          <Route element={<PageLayout />}>
+            <Route
+              path="/dashboard"
+              element={
+                <PrivateRoute>
+                  <Dashboard />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/calendar"
+              element={
+                <PrivateRoute>
+                  <Calendar />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/classes"
+              element={
+                <PrivateRoute>
+                  <Classes />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/friends"
+              element={
+                <PrivateRoute>
+                  <Friends />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <PrivateRoute>
+                  <Settings />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/tasks"
+              element={
+                <PrivateRoute>
+                  <Tasks />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/flashcards"
+              element={
+                <PrivateRoute>
+                  <FlashCards />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/resources"
+              element={
+                <PrivateRoute>
+                  <Resources />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <PrivateRoute>
+                  <Profile />
+                </PrivateRoute>
+              }
+            />
+          </Route>
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 

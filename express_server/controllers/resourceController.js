@@ -16,7 +16,7 @@ const getAllResources = async (req, res) => {
 //Get resource by Id
 const getResourceById = async (req, res) => {
   try {
-    const resource = await Resource.findById(req.body.id);
+    const resource = await Resource.findById(req.params.id);
     if (!resource) {
       return res.status(404).json({ message: "Resource not found" });
     }
@@ -102,7 +102,8 @@ const getResourcesByClassId = async (req, res) => {
 //Create resource by class ID
 const createResourceByClassId = async (req, res) => {
   try {
-    const { urls, id } = req.body;
+    const { urls } = req.body;
+    const { id } = req.params.id;
 
     const newResource = new Resource({ urls, class: id });
     const savedResource = await newResource.save();

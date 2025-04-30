@@ -6,7 +6,7 @@ This document provides an overview of the API endpoints available on TaskMaster.
 
 The base URL for all API endpoints is:
 
-http://localhost:5000/
+http://localhost:3000/
 
 ## Error Handling
 

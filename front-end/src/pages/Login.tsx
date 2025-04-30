@@ -1,52 +1,91 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import Confetti from "react-confetti";
 import NavBar from "../components/navbar";
 import AnimatedBackground from "../components/AnimatedBackground";
+import { useAuth } from "../context/AuthContext";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showSuccess, setShowSuccess] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Login attempted", { email, password });
-    navigate("/dashboard");
+    try {
+      console.log("Login request payload:", { email, password });
+      const response = await fetch("http://localhost:3000/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
+        const token = await response.text();
+        login(token);
+        setShowSuccess(true);
+
+        setTimeout(() => {
+          setShowSuccess(false);
+          navigate("/dashboard");
+        }, 3000);
+      } else {
+        alert("Invalid credentials!");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong");
+    }
   };
 
   return (
     <>
       <NavBar />
-      <div className="relative h-screen overflow-hidden flex items-center justify-center bg-skyLightest dark:bg-darkBg px-4 py-8 transition-colors duration-500">
+      <div className="relative h-screen flex items-center justify-center bg-skyLightest dark:bg-darkBg px-4 py-8 overflow-hidden">
         <AnimatedBackground />
-        {/* Animated Blobs */}
-        <motion.div
-          className="absolute w-72 h-72 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl opacity-70 top-[-4rem] left-[-3rem] z-[-1]"
-          animate={{ x: [0, 20, -20, 0], y: [0, -30, 30, 0], scale: [1, 1.1, 0.9, 1] }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div
-          className="absolute w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-70 top-[6rem] left-[6rem] z-[-1]"
-          animate={{ x: [0, -20, 20, 0], y: [0, 20, -20, 0], scale: [1, 1.2, 0.8, 1] }}
-          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div
-          className="absolute w-72 h-72 bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-70 bottom-[-6rem] right-[-4rem] z-[-1]"
-          animate={{ x: [0, 30, -30, 0], y: [0, -10, 10, 0], scale: [1, 0.95, 1.05, 1] }}
-          transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
-        />
 
-        {/* Login Card */}
-        <div className="w-[480px] bg-white dark:bg-darkCard shadow-md rounded-lg p-8 space-y-6 z-10 relative transition">
+        <AnimatePresence>
+          {showSuccess && (
+            <>
+              <Confetti
+                width={window.innerWidth}
+                height={window.innerHeight}
+                recycle={false}
+                numberOfPieces={300}
+                gravity={0.3}
+              />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.7 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.7 }}
+                transition={{ duration: 0.5 }}
+                className="fixed top-16 mx-auto bg-purple-500 dark:bg-purple-600 text-white px-6 py-3 rounded-lg shadow-lg font-bold text-lg z-50"
+              >
+                Login Successful!
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
+
+        <div className="w-[480px] bg-white dark:bg-darkCard shadow-2xl rounded-lg p-8 space-y-6 relative">
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-gray-800 dark:text-white">Welcome Back</h2>
-            <p className="text-gray-500 dark:text-gray-300 mt-2">Sign in to your account</p>
+            <h2 className="text-3xl font-bold text-gray-800 dark:text-white">
+              Welcome Back
+            </h2>
+            <p className="text-gray-500 dark:text-gray-300 mt-2">
+              Sign in to your account
+            </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2"
+              >
                 Email Address
               </label>
               <input
@@ -55,13 +94,16 @@ function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-darkAccent text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border rounded-md shadow-sm bg-white dark:bg-darkAccent text-black dark:text-white"
                 placeholder="you@example.com"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2"
+              >
                 Password
               </label>
               <input
@@ -70,40 +112,34 @@ function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-darkAccent text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border rounded-md shadow-sm bg-white dark:bg-darkAccent text-black dark:text-white"
                 placeholder="Enter your password"
               />
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="remember-me"
-                  className="h-4 w-4 text-blue-600 dark:text-violet-400 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900 dark:text-gray-300">
-                  Remember me
-                </label>
-              </div>
-              <div className="text-sm">
-                <a href="#" className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300">
-                  Forgot password?
-                </a>
-              </div>
-            </div>
-
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+              className="w-full bg-purple-500 hover:bg-purple-600 text-white py-2 rounded-md transition duration-300 font-bold"
             >
               Sign In
             </button>
 
+            <div className="text-center mt-3">
+              <Link
+                to="/forgot-password"
+                className="text-sm font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
+              >
+                Forgot your password?
+              </Link>
+            </div>
+
             <div className="text-center mt-4">
               <p className="text-sm text-gray-600 dark:text-gray-300">
                 Don't have an account?{" "}
-                <Link to="/signup" className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300">
+                <Link
+                  to="/signup"
+                  className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
+                >
                   Sign up
                 </Link>
               </p>
