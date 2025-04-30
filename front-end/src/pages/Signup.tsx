@@ -18,13 +18,22 @@ function SignUp() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
+      console.log("Sending signup payload:", {
+        email,
+        password,
+        userName,
+        firstName,
+        lastName,
+        dob,
+      });
+      
       const response = await fetch("http://localhost:3000/user", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email,
           password,
-          username: userName, 
+          userName,
           firstName,
           lastName,
           dob,

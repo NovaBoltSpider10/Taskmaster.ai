@@ -30,6 +30,7 @@ const getUserByUsername = async (req, res) => {
 
 const setupUser = async (req, res) => {
   try {
+    console.log("Received data:", req.body);
     const { userName, firstName, lastName, dob, email, password } = req.body;
 
     const checkUserEmail = await User.findOne({ email });
@@ -45,7 +46,7 @@ const setupUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const newUser = new User({
-      username: userName,
+      userName,
       firstName,
       lastName,     
       dob,
@@ -58,6 +59,7 @@ const setupUser = async (req, res) => {
 
     return res.header("x-auth-token", token).status(201).send(token);
   } catch (error) {
+    console.error("Signup error:", error);
     res.status(500).json({ message: error.message });
   }
 };

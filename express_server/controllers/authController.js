@@ -5,21 +5,34 @@ import bcrypt from "bcrypt";
 const authUser = async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log("Login attempt:", { email, password });
 
     const user = await User.findOne({ email });
-    if (!user)
+    if (!user) {
+      console.log("No user found with email:", email);
       return res.status(400).json({ message: "Invalid email" });
+    }
 
     const validPassword = await bcrypt.compare(password, user.password);
-    if (!validPassword)
+    console.log("Password valid:", validPassword);
+
+    if (!validPassword) {
+      console.log("Password mismatch for user:", email);
       return res.status(400).json({ message: "Invalid password" });
+    }
+
+    console.log("Password match, generating token...");
 
     const token = user.generateAuthToken();
+    console.log("Token generated:", token);
+
     res.send(token);
   } catch (error) {
+    console.error("Login error:", error);
     res.status(500).json({ message: error.message });
   }
 };
+
 
 const resetPassword = async (req, res) => {
   try {
