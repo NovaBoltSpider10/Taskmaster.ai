@@ -5,7 +5,6 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FieldValues, useForm } from "react-hook-form";
 import { motion } from "framer-motion";
-import NavBar from "../components/navbar";
 
 const signupSchema = z.object({
   userName: z
