@@ -16,7 +16,7 @@ const getAllTask = async(req, res) => {
 //Get task
 const getTaskById = async(req, res) => {
     try {
-        const task = await Task.findById(req.params.id);
+        const task = await Task.findById(req.body.id);
         if (!task)
         {
             return res.status(404).json({ message: "Task not found" });
@@ -36,7 +36,7 @@ const updateTask = async(req, res) => {
     console.log("Called patch");
     try {
         const {deadline, topic, title, resources, status, points, textbook} = req.body;
-        const updatedTask = await Task.findByIdAndUpdate(req.params.id, {deadline, topic, title, resources, status, points, textbook}, {new: true});
+        const updatedTask = await Task.findByIdAndUpdate(req.body.id, {deadline, topic, title, resources, status, points, textbook}, {new: true});
 
         if (!updatedTask)
         {
@@ -54,7 +54,7 @@ const updateTask = async(req, res) => {
 //Delete task
 const deleteTask = async(req, res) => {
     try {
-        const deletedTask = await Task.findByIdAndDelete(req.params.id);
+        const deletedTask = await Task.findByIdAndDelete(req.body.id);
         if (!deletedTask)
         {
             return res.status(404).json({message: "Task not found"});
@@ -69,7 +69,7 @@ const deleteTask = async(req, res) => {
 //Get task by class ID
 const getTaskByClassId = async(req, res) => {
     try {
-        const tasks = await Task.find({class: req.params.classid});
+        const tasks = await Task.find({class: req.body.classid});
         
         if (!tasks)
         {
@@ -87,13 +87,13 @@ const getTaskByClassId = async(req, res) => {
 const createTaskByClassId = async(req, res) => {
     try {
         const {deadline, topic, title, resources, status, points, textbook} = req.body;
-        const classId = req.params.id;
+        const classId = req.body.id;
 
         if(!classId)
         {
             return res.status(404).json({message: "Class ID is required"});
         }
-
+        
         const newTask = new Task({deadline, topic, title, resources, status, points, textbook, class: classId});
 
         const savedTask = await newTask.save();
