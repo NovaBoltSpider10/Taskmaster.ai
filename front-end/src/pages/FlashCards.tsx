@@ -46,10 +46,10 @@ const FlashCards: React.FC = () => {
   useEffect(() => {
     const fetchClasses = async () => {
       setLoading(true);
-      const userId = "google-oauth2|117092462712380430315";
+      const userId = "680b03222cc0abdad3af5683";
       try {
         const res = await axios.get<ClassData[]>(
-          `http://localhost:5000/class/user/${userId}`
+          `http://localhost:3000/class/user/${userId}`
         );
         setClasses(res.data);
       } catch (err) {
@@ -69,7 +69,7 @@ const FlashCards: React.FC = () => {
     setError(null);
     try {
       const res = await axios.get<FlashcardsData[]>(
-        `http://localhost:5000/cards/class/${classId}`
+        `http://localhost:3000/cards/class/${classId}`
       );
       setFlashcards(res.data || []);
       setCurrentCardIndex(0);

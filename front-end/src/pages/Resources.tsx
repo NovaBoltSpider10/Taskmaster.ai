@@ -33,15 +33,15 @@ const Resources = () => {
       setError(null);
 
       try {
-        const userId = "google-oauth2|117092462712380430315";
+        const userId = "680b03222cc0abdad3af5683";
         const classesRes = await axios.get<ClassData[]>(
-          `http://localhost:5000/class/user/${userId}`
+          `http://localhost:3000/class/user/${userId}`
         );
         setUserClasses(classesRes.data);
 
         const resourcesPromises = classesRes.data.map((cls) =>
           axios.get<ResourceData[]>(
-            `http://localhost:5000/resources/class/${cls._id}`
+            `http://localhost:3000/resources/class/${cls._id}`
           )
         );
         const resourcesResults = await Promise.all(resourcesPromises);

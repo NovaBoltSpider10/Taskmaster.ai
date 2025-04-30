@@ -22,7 +22,6 @@ interface UserContextProps {
   logout: () => void;
   // Add login function if needed
   personalityData: PersonalityData | null; // Add personality state
-  updatePersonalityData: (data: Partial<PersonalityData>) => void; // Add update function
   isPersonalityComplete: boolean; // Add completion flag
 }
 
@@ -157,7 +156,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   return (
-    <UserContext.Provider value={{ user, setUserProfile, logout, personalityData, updatePersonalityData, isPersonalityComplete }}>
+    <UserContext.Provider value={{ user, setUserProfile, logout, personalityData, isPersonalityComplete }}>
       {children}
     </UserContext.Provider>
   );
