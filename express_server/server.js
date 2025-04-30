@@ -2,6 +2,8 @@ import express, { response } from "express";
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
 import cors from "cors";
+
+
 // Routes files
 import taskRoutes from './routes/taskRoutes.js';
 import resourcesRoutes from './routes/resourceRoutes.js';
@@ -15,7 +17,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 const app = express();
 
 app.use(cors());
