@@ -1,5 +1,4 @@
 import { Dialog } from "@headlessui/react";
-import React from "react";
 import { Fragment } from "react";
 
 interface MyEvent {

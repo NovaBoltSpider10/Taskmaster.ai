@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import React from "react";
 
 const itemVariants = {
   hidden: { opacity: 0, y: 30 },

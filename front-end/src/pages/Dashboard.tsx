@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import React from "react";
 
 const Dashboard = () => {
   const navigate = useNavigate();

@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
-import AnimatedBackground from "../components/AnimatedBackground";
-import React from "react";
 
 interface ClassData {
   _id: string;

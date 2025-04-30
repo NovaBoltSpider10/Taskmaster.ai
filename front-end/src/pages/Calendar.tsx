@@ -1,4 +1,3 @@
-import AnimatedBackground from "../components/AnimatedBackground";
 import {
   Calendar as BigCalendar,
   dateFnsLocalizer,
@@ -12,7 +11,6 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { getTasks } from "../components/tasksStore";
 import AddEventModal from "../components/AddEventModal";
-import React from "react";
 
 interface MyEvent {
   id: string;

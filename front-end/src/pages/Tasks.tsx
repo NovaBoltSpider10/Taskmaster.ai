@@ -2,7 +2,6 @@ import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { setTasks as setTasksStore } from "../components/tasksStore";
-import React from "react";
 
 export interface TasksData {
   _id: string;
