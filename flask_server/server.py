@@ -4,9 +4,11 @@ from mongo import *
 
 from flask import Flask, jsonify, request, make_response
 from flask_restful import Resource, Api
+from flask_cors import CORS
 from bson.objectid import ObjectId
 
 app = Flask(__name__)
+CORS(app, resources={r'/*': {'origins': '*'}}, supports_credentials=True)
 api = Api(app)
 
 
@@ -63,6 +65,7 @@ class SetPreferences(Resource):
                 }
             }}
         )
+        
         return 200
 
 
@@ -75,4 +78,4 @@ api.add_resource(MatchRequest, "/match")
 api.add_resource(SetPreferences, "/set")
 
 if __name__ == "__main__":
-    app.run(host="localhost", port=6000, debug=True)
+    app.run(host="localhost", port=6005, debug=True)
