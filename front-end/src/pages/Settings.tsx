@@ -22,6 +22,12 @@ interface ToggleSwitchProps {
   enabled: boolean;
   onChange: (enabled: boolean) => void;
 }
+
+interface UserData {
+  _id: string;
+}
+
+
 const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ label, enabled, onChange }) => (
   <div className="flex items-center justify-between p-3 bg-card rounded-md shadow-sm border border-border">
     <label className="text-sm font-medium text-card-foreground">{label}</label>
@@ -42,7 +48,7 @@ const Settings = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>("Profile");
   const { theme, setTheme } = useTheme(); // Use theme and setTheme from context
   const { user, setUserProfile, personalityData, isPersonalityComplete } = useUser();
-
+  const token = localStorage.getItem("token");
   // Local state for form inputs, initialized from context
   const [formData, setFormData] = useState({
     username: user?.username || '',
@@ -141,7 +147,7 @@ const Settings = () => {
     setPersonalityForm(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSavePersonality = () => {
+  const handleSavePersonality = async () => {
     console.log("Saving Personality Data:", personalityForm);
 
     let interactionType;
@@ -149,7 +155,7 @@ const Settings = () => {
 
     if (personalityForm.interactionType === "In Person") {
       interactionType = 1;
-      
+
       if (personalityForm.preferredSpace === "Public") {
         preferredSpace = 1;
       }
@@ -162,23 +168,28 @@ const Settings = () => {
       preferredSpace = 0;
     }
 
+    const userResp = await axios.get<UserData>(
+      "http://localhost:3000/user/me", // Use port 3000
+      { headers: { "x-auth-token": token } }
+    );
+
+    const userId = userResp.data._id;
+
     const preferencesSend = {
-      "userId": "681185fae55bd6f1f76e33f5",
+      "userId": userId,
       "personality": personalityForm.introversionExtroversion / 100,
       "preferred_time": Number(personalityForm.preferredTime),
       "in_person": interactionType,
       "private_space": preferredSpace,
     };
 
-    axios.post('http://localhost:6005/set', preferencesSend)
+    await axios.post('http://localhost:6005/set', preferencesSend)
       .then((response) => {
         console.log(response);
       })
       .catch((err) => {
         console.error(err);
       });
-
-    alert("Personality settings saved!"); // Simple feedback
   };
 
   const handlePrivacyToggle = (key: keyof typeof privacySettings) => {

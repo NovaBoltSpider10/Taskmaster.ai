@@ -63,7 +63,7 @@ const Tasks = () => {
       try {
         // 1) Get user ID from /me endpoint
         const userRes = await axios.get<UserData>(
-          "http://localhost:5000/user/me", // Use port 5000
+          "http://localhost:3000/user/me", // Use port 3000
           { headers: { "x-auth-token": token } }
         );
         const userId = userRes.data._id;
@@ -71,7 +71,7 @@ const Tasks = () => {
         // 2) Fetch classes for that user
         // Assume token needed here too
         const { data: classes } = await axios.get<ClassData[]>(
-          `http://localhost:5000/class/user/${userId}`, // Use port 5000 and dynamic userId
+          `http://localhost:3000/class/user/${userId}`, // Use port 3000 and dynamic userId
           { headers: { "x-auth-token": token } }
         );
 
@@ -87,7 +87,7 @@ const Tasks = () => {
         const taskRequests = classes.map(async (c) => {
             try {
                 const { data: ts } = await axios.get<TasksData[]>(
-                  `http://localhost:5000/tasks/classid/${c._id}`, // Use port 5000
+                  `http://localhost:3000/tasks/classid/${c._id}`, // Use port 3000
                   { headers: { "x-auth-token": token } }
                 );
                 // Add className and classLocation from the class data
@@ -108,7 +108,7 @@ const Tasks = () => {
           .map((t) => {
             // Assume token needed for patching tasks
              return axios.patch(
-                `http://localhost:5000/tasks/${t._id}`, // Use port 5000
+                `http://localhost:3000/tasks/${t._id}`, // Use port 3000
                 { status: "overdue" },
                 { headers: { "x-auth-token": token } }
              ).then(() => {
@@ -158,9 +158,9 @@ const Tasks = () => {
           return; // Prevent update without token
       }
       try {
-        // Use port 5000 and add token header
+        // Use port 3000 and add token header
         await axios.patch(
-            `http://localhost:5000/tasks/${taskId}`, // Use port 5000
+            `http://localhost:3000/tasks/${taskId}`, // Use port 3000
             { status: newStatus },
             { headers: { "x-auth-token": token } }
         );

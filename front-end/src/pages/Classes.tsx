@@ -79,14 +79,14 @@ const Classes = () => {
     try {
       // 1. Get user ID from /me endpoint
       const userResp = await axios.get<UserData>(
-        "http://localhost:5000/user/me", // Use port 5000
+        "http://localhost:3000/user/me", // Use port 3000
         { headers: { "x-auth-token": token } }
       );
       const userId = userResp.data._id;
       setUserData(userResp.data); // Store user data if needed elsewhere
 
       // 2. Upload the file using the fetched user ID
-      const uploadUrl = `http://localhost:5000/user/aisyllabus/${userId}/api/upload`; // Use port 5000
+      const uploadUrl = `http://localhost:3000/user/aisyllabus/${userId}/api/upload`; // Use port 3000
       await axios.post(uploadUrl, formData, {
         headers: {
             "Content-Type": "multipart/form-data",
@@ -136,7 +136,7 @@ const Classes = () => {
       try {
         // 1. Get user ID from /me endpoint
         const userResp = await axios.get<UserData>(
-          "http://localhost:5000/user/me", // Use port 5000
+          "http://localhost:3000/user/me", // Use port 3000
           { headers: { "x-auth-token": token } }
         );
         const userId = userResp.data._id;
@@ -145,7 +145,7 @@ const Classes = () => {
         // 2. Fetch classes using the obtained user ID
         // Assuming token might be needed for this endpoint too
         const classResp = await axios.get<ClassData[]>(
-          `http://localhost:5000/class/user/${userId}`, // Use port 5000 and fetched userId
+          `http://localhost:3000/class/user/${userId}`, // Use port 3000 and fetched userId
           { headers: { "x-auth-token": token } }
         );
         setUserClasses(classResp.data);

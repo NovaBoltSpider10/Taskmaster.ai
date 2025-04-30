@@ -34,6 +34,7 @@ function Signup() {
 
   const onSubmit = async (data: FieldValues) => {
     try {
+      console.log(data);
       const response = await axios.post("http://localhost:3000/user", data, {
         headers: { "Content-Type": "application/json" },
       });

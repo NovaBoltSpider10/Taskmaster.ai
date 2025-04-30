@@ -72,14 +72,14 @@ const FlashCards: React.FC = () => {
       try {
         // 1) Get user ID
         const userRes = await axios.get<UserData>(
-          "http://localhost:5000/user/me", // Use port 5000
+          "http://localhost:3000/user/me", // Use port 3000
           { headers: { "x-auth-token": token } }
         );
         const userId = userRes.data._id;
 
         // 2) Fetch classes for that user
         const res = await axios.get<ClassData[]>(
-          `http://localhost:5000/class/user/${userId}`, // Use port 5000 and dynamic userId
+          `http://localhost:3000/class/user/${userId}`, // Use port 3000 and dynamic userId
           { headers: { "x-auth-token": token } } // Assuming token needed here too
         );
         setClasses(res.data);
@@ -108,7 +108,7 @@ const FlashCards: React.FC = () => {
       // Note: Assuming no token needed for this endpoint based on second snippet
       // If token is required, add: { headers: { "x-auth-token": token } } as second arg
       const res = await axios.get<FlashcardsData[]>(
-        `http://localhost:5000/cards/class/${classId}` // Use port 5000
+        `http://localhost:3000/cards/class/${classId}` // Use port 3000
       );
       setFlashcards(res.data || []); // Ensure flashcards is an array
       // Reset states relevant to displaying cards
@@ -134,7 +134,7 @@ const FlashCards: React.FC = () => {
     try {
         // Note: Assuming no token needed based on second snippet. Add if required.
         // If token is needed: headers: { "x-auth-token": token }
-        await axios.post(`http://localhost:5000/cards/${classId}`); // Use port 5000
+        await axios.post(`http://localhost:3000/cards/${classId}`); // Use port 3000
         console.log("Flashcard generation started successfully");
         // Provide feedback that generation is in progress
         setError("Flashcard generation initiated. Please wait a few minutes and refresh or re-select the class.");

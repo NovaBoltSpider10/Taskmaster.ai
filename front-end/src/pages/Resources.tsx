@@ -52,9 +52,9 @@ const Resources = () => {
         }
 
         // 1) Fetch current user to get real userId
-        // Use port 5000 and add token header
+        // Use port 3000 and add token header
         const userRes = await axios.get<UserData>(
-          "http://localhost:5000/user/me",
+          "http://localhost:3000/user/me",
           {
             headers: { "x-auth-token": token },
           }
@@ -62,9 +62,9 @@ const Resources = () => {
         const userId = userRes.data._id;
 
         // 2) Fetch classes for that user
-        // Use port 5000, dynamic userId, and add token header
+        // Use port 3000, dynamic userId, and add token header
         const classesRes = await axios.get<ClassData[]>(
-          `http://localhost:5000/class/user/${userId}`,
+          `http://localhost:3000/class/user/${userId}`,
           {
             headers: { "x-auth-token": token },
           }
@@ -79,10 +79,10 @@ const Resources = () => {
         }
 
         // 3) Fetch resources for each class in parallel
-        // Use port 5000 and add token header
+        // Use port 3000 and add token header
         const resourcesPromises = classesRes.data.map((cls) =>
           axios.get<ResourceData[]>( // Assuming endpoint returns an array of resources per class
-            `http://localhost:5000/resources/class/${cls._id}`,
+            `http://localhost:3000/resources/class/${cls._id}`,
             {
               headers: { "x-auth-token": token },
             }

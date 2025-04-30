@@ -63,7 +63,7 @@ const Dashboard = () => {
       try {
         // 1. Fetch User Data
         const userRes = await axios.get<UserData>(
-          "http://localhost:5000/user/me",
+          "http://localhost:3000/user/me",
           { headers: { "x-auth-token": token } }
         );
         setUserData(userRes.data);
@@ -71,7 +71,7 @@ const Dashboard = () => {
 
         // 2. Fetch Classes
         const classesRes = await axios.get<ClassData[]>(
-          `http://localhost:5000/class/user/${userId}`,
+          `http://localhost:3000/class/user/${userId}`,
           { headers: { "x-auth-token": token } }
         );
         setUserClasses(classesRes.data);
@@ -81,7 +81,7 @@ const Dashboard = () => {
           const classIds = classesRes.data.map(c => c._id);
 
           const resourcePromises = classIds.map(id =>
-            axios.get<ResourceData[]>(`http://localhost:5000/resources/class/${id}`, { headers: { "x-auth-token": token } })
+            axios.get<ResourceData[]>(`http://localhost:3000/resources/class/${id}`, { headers: { "x-auth-token": token } })
               .then(res => res.data.flatMap(r => r.urls)) // Extract URLs directly
               .catch(err => {
                 console.warn(`Failed fetching resources for class ${id}:`, err.message);
@@ -90,7 +90,7 @@ const Dashboard = () => {
           );
 
           const taskPromises = classesRes.data.map(c => // Use full class data here
-            axios.get<TasksData[]>(`http://localhost:5000/tasks/classid/${c._id}`, { headers: { "x-auth-token": token } })
+            axios.get<TasksData[]>(`http://localhost:3000/tasks/classid/${c._id}`, { headers: { "x-auth-token": token } })
               .then(res => res.data.map(t => ({ ...t, className: c.name }))) // Add class name
               .catch(err => {
                 console.warn(`Failed fetching tasks for class ${c._id}:`, err.message);

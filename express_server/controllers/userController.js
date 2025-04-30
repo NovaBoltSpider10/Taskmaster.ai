@@ -55,6 +55,7 @@ const createUser = async (req, res) => {
     const token = savedUser.generateAuthToken();
     return res.header("x-auth-token", token).status(201).send(token);
   } catch (error) {
+    console.log(error.message);
     res.status(500).json({ message: error.message });
   }
 };
@@ -105,7 +106,6 @@ const deleteUser = async (req, res) => {
 
 export {
   getAllUsers,
-  getProfile,
   updateProfile,
   deleteUser,
   createUser,
