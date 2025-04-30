@@ -47,7 +47,7 @@ const setupUser = async (req, res) => {
     const newUser = new User({
       username: userName,
       firstName,
-      lastName,
+      lastName,     
       dob,
       email,
       password: hashedPassword,
