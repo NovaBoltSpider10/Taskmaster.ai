@@ -7,4 +7,6 @@ const calendarSchema = new mongoose.Schema({
     events: [String] // Events sourced from Outlook
 });
 
+
+
 export default mongoose.model('Calendar', calendarSchema);
