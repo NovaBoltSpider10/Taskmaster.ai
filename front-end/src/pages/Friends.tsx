@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import FriendCard from '../components/FriendCard';
 import FriendDetailsPanel from '../components/FriendDetailsPanel';
 
