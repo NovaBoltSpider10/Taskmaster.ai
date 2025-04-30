@@ -43,13 +43,13 @@ const Tasks = () => {
       try {
         const userid = "google-oauth2|117092462712380430315";
         const { data: classes } = await axios.get<ClassData[]>(
-          `http://localhost:3000/class/user/${userid}`
+          `http://localhost:5000/class/user/${userid}`
         );
 
         const all = await Promise.all(
           classes.map(async (c) => {
             const { data: ts } = await axios.get<TasksData[]>(
-              `http://localhost:3000/tasks/classid/${c._id}`
+              `http://localhost:5000/tasks/classid/${c._id}`
             );
             return ts.map((t) => ({ ...t, className: c.name, classLocation: c.location, }));
           })
@@ -59,7 +59,7 @@ const Tasks = () => {
         const now = new Date();
         tasksData.forEach((t) => {
           if (t.status === "pending" && new Date(t.deadline) < now) {
-            axios.patch(`http://localhost:3000/tasks/${t._id}`, {
+            axios.patch(`http://localhost:5000/tasks/${t._id}`, {
               status: "overdue",
             });
             t.status = "overdue";
@@ -85,7 +85,7 @@ const Tasks = () => {
     taskId: string,
     newStatus: TasksData["status"]
   ) => {
-    await axios.patch(`http://localhost:3000/tasks/${taskId}`, {
+    await axios.patch(`http://localhost:5000/tasks/${taskId}`, {
       status: newStatus,
     });
     setTasks((prev) =>
@@ -110,9 +110,9 @@ const Tasks = () => {
     );
   };
 
-  const statusLabel = (t: TasksData) => {
-    if (t.status === "completed") return "Complete";
-    if (t.status === "overdue") return "Warning: Past Due";
+  const statusLabel = (status: TasksData["status"]) => {
+    if (status === "completed") return "Completed";
+    if (status === "overdue") return "Overdue";
     return "Pending";
   };
 
@@ -124,28 +124,28 @@ const Tasks = () => {
   if (loading)
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-4 border-primary border-t-transparent"></div>
       </div>
     );
 
   if (error)
-    return <div className="text-center text-red-500">{String(error)}</div>;
+    return <div className="text-center text-destructive">{String(error)}</div>;
 
   return (
-    <div className="relative min-h-screen w-full text-gray-900 dark:text-darkText transition">
+    <div className="w-full">
       <div className="relative z-10 p-6 max-w-7xl mx-auto">
         <div className="w-full space-y-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold mb-4 md:mb-0">Tasks</h1>
+            <h1 className="text-2xl font-bold mb-4 md:mb-0 text-emphasis">Tasks</h1>
             <div className="flex items-center gap-3">
-              <label htmlFor="filter" className="text-sm font-medium">
+              <label htmlFor="filter" className="text-sm font-medium text-foreground">
                 Filter by Status:
               </label>
               <select
                 id="filter"
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className="px-3 py-1 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-darkAccent text-gray-800 dark:text-white"
+                className="px-3 py-1 rounded-md border border-input bg-input text-foreground focus:outline-none focus:ring-2 focus:ring-ring appearance-none"
               >
                 <option value="all">All</option>
                 <option value="pending">Pending</option>
@@ -155,53 +155,45 @@ const Tasks = () => {
             </div>
           </div>
 
-          {/* Task Cards */}
           {filteredTasks.length === 0 ? (
-            <p>No tasks match the selected filter.</p>
+            <p className="text-muted-foreground">No tasks match the selected filter.</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-12">
               {filteredTasks.map((task, i) => {
                 const due = new Date(task.deadline);
-                const bgClass =
+                const statusBorderClass =
                   task.status === "completed"
-                    ? "bg-green-200 dark:bg-green-900/60"
+                    ? "border-green-500"
                     : task.status === "overdue"
-                    ? "bg-red-200 dark:bg-red-900/60"
-                    : "bg-yellow-200 dark:bg-yellow-800/60";
-
-                const textClass =
-                  task.status === "completed"
-                    ? "text-green-900 dark:text-green-100"
-                    : task.status === "overdue"
-                    ? "text-red-900 dark:text-red-100"
-                    : "text-yellow-900 dark:text-yellow-100";
+                    ? "border-destructive"
+                    : "border-primary";
 
                 return (
                   <motion.div
                     key={task._id}
-                    className={`${bgClass} rounded-lg shadow-md p-4 hover:shadow-lg transition duration-300 cursor-pointer`}
+                    className={`bg-card text-card-foreground rounded-lg shadow-md p-4 hover:shadow-lg transition duration-300 cursor-pointer border-l-4 ${statusBorderClass}`}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: i * 0.1 }}
                     onClick={() => setSelectedTask(task)}
                   >
-                    <h3 className={`text-md font-medium ${textClass}`}>
+                    <h3 className="text-md font-medium text-foreground">
                       {task.title}
                     </h3>
-                    <p className={`text-sm ${textClass}`}>
+                    <p className="text-sm text-muted-foreground">
                       <strong>Class:</strong> {task.className}
                     </p>
-                    <p className={`text-sm ${textClass}`}>
+                    <p className="text-sm text-muted-foreground">
                       <strong>Topic:</strong> {task.topic}
                     </p>
-                    <p className={`text-sm ${textClass}`}>
+                    <p className="text-sm text-muted-foreground">
                       <strong>Deadline:</strong> {due.toLocaleString()}
                     </p>
-                    <p className={`text-sm ${textClass}`}>
-                      <strong>Status:</strong> {statusLabel(task)}
+                    <p className="text-sm text-muted-foreground">
+                      <strong>Status:</strong> {statusLabel(task.status)}
                     </p>
-                    <p className={`text-sm ${textClass}`}>
-                      <strong>Points:</strong> {task.points}
+                    <p className="text-sm text-muted-foreground">
+                      <strong>Points:</strong> {task.points ?? 'N/A'}
                     </p>
                   </motion.div>
                 );
@@ -211,32 +203,31 @@ const Tasks = () => {
         </div>
       </div>
 
-      {/* Task Modal */}
       {selectedTask && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-darkCard text-gray-800 dark:text-white rounded-lg p-6 w-96 shadow-lg">
-            <h2 className="text-lg font-bold mb-4">Update Task Status</h2>
-            <p className="mb-2">
-              <strong>Task:</strong> {selectedTask.title}
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-card text-foreground rounded-lg p-6 w-full max-w-sm shadow-lg">
+            <h2 className="text-lg font-bold mb-4 text-emphasis">Update Task Status</h2>
+            <p className="mb-2 text-muted-foreground">
+              <strong>Task:</strong> <span className="text-foreground">{selectedTask.title}</span>
             </p>
-            <p className="mb-4">
-              <strong>Class:</strong> {selectedTask.className}
+            <p className="mb-4 text-muted-foreground">
+              <strong>Class:</strong> <span className="text-foreground">{selectedTask.className}</span>
             </p>
             <div className="space-y-2">
               <button
-                className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700"
+                className="w-full bg-primary text-primary-foreground py-2 rounded hover:bg-primary/90 transition"
                 onClick={handleComplete}
               >
                 Mark as Completed
               </button>
               <button
-                className="w-full bg-yellow-500 text-white py-2 rounded hover:bg-yellow-600"
+                className="w-full bg-secondary text-secondary-foreground py-2 rounded hover:bg-secondary/90 transition"
                 onClick={handlePending}
               >
-                Mark as Pending
+                Mark as Pending/Overdue
               </button>
               <button
-                className="w-full bg-gray-300 dark:bg-gray-600 text-black dark:text-white py-2 rounded hover:bg-gray-400 dark:hover:bg-gray-700"
+                className="w-full bg-muted text-muted-foreground py-2 rounded hover:bg-accent hover:text-accent-foreground transition"
                 onClick={() => setSelectedTask(null)}
               >
                 Cancel
