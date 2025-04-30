@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useTheme, Theme } from "../context/ThemeContext"; // Import useTheme and Theme type
 import { useUser } from "../context/UserContext"; // Import useUser
 import { motion } from "framer-motion"; // Uncomment if Framer Motion is installed
+import { PersonalityData } from "../context/UserContext"; // Import PersonalityData type
 
 // Import existing components or comment out if they don't exist
 // import ProfileSettings from '../settings_pages/ProfileSettings';
@@ -12,7 +13,7 @@ import { motion } from "framer-motion"; // Uncomment if Framer Motion is install
 
 // Remove unused theme/tab types if local state is removed
 // type Theme = "light" | "dark" | "clean";
-type ActiveTab = "Profile" | "Personalization" | "Notifications" | "Account" | "Privacy";
+type ActiveTab = "Profile" | "Personalization" | "Notifications" | "Account" | "Privacy" | "Personality";
 
 // Simple Toggle Switch Component (can be moved to a separate file)
 interface ToggleSwitchProps {
@@ -41,7 +42,7 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ label, enabled, onChange })
 const Settings = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>("Profile");
   const { theme, setTheme } = useTheme(); // Use theme and setTheme from context
-  const { user, setUserProfile } = useUser(); // Get user state and updater
+  const { user, setUserProfile, personalityData, updatePersonalityData, isPersonalityComplete } = useUser();
 
   // Local state for form inputs, initialized from context
   const [formData, setFormData] = useState({
@@ -55,6 +56,16 @@ const Settings = () => {
       emailPublic: false, // Default: false. Load from user data later.
       discordPublic: false,
       socialMediaPublic: false,
+  });
+
+  // Local state for Personality form inputs, initialized from context or defaults
+  const [personalityForm, setPersonalityForm] = useState<PersonalityData>(() => {
+      return personalityData || {
+          introversionExtroversion: 50,
+          preferredTime: null,
+          interactionType: null,
+          preferredSpace: null,
+      };
   });
 
   // Local state for image preview
@@ -75,11 +86,66 @@ const Settings = () => {
         //    socialMediaPublic: user.privacy?.socialMediaPublic || false,
         // });
     }
-  }, [user]);
+    // Update local personality form if context changes
+    if (personalityData) {
+        setPersonalityForm(personalityData);
+    } else {
+        // Reset form if personality data is cleared (e.g., logout)
+         setPersonalityForm({
+            introversionExtroversion: 50,
+            preferredTime: null,
+            interactionType: null,
+            preferredSpace: null,
+        });
+    }
+  }, [user, personalityData]);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       const { name, value } = event.target;
       setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handlePersonalityInputChange = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = event.target;
+    let processedValue: string | number | null = value;
+
+    // Convert slider value to number
+    if (name === 'introversionExtroversion') {
+        processedValue = parseInt(value, 10);
+    }
+    // Handle null selection from dropdown
+    if ((name === 'preferredTime' || name === 'interactionType') && value === "") {
+        processedValue = null;
+    }
+
+
+    setPersonalityForm(prev => {
+        const newState = { ...prev, [name]: processedValue };
+        // Reset preferredSpace if interactionType is not 'In Person'
+        if (name === 'interactionType' && value !== 'In Person') {
+            newState.preferredSpace = null;
+        }
+         // Ensure preferredSpace is null initially if interactionType is not 'In Person'
+        if (newState.interactionType !== 'In Person') {
+            newState.preferredSpace = null;
+        }
+        return newState;
+    });
+  };
+
+   const handlePersonalityRadioChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const { name, value } = event.target;
+    setPersonalityForm(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSavePersonality = () => {
+      console.log("Saving Personality Data:", personalityForm);
+      updatePersonalityData(personalityForm); // Update context
+      alert("Personality settings saved!"); // Simple feedback
   };
 
   const handlePrivacyToggle = (key: keyof typeof privacySettings) => {
@@ -136,7 +202,7 @@ const Settings = () => {
     }
   };
 
-  const tabs: ActiveTab[] = ["Profile", "Personalization", "Notifications", "Account", "Privacy"];
+  const tabs: ActiveTab[] = ["Profile", "Personalization", "Notifications", "Account", "Privacy", "Personality"];
 
   const renderContent = () => {
     // Restore original content structure
@@ -332,6 +398,116 @@ const Settings = () => {
             </div>
           </div>
          );
+      case "Personality":
+        return (
+          <div>
+             <h2 className="text-xl font-semibold mb-4 text-emphasis">Personality Quiz</h2>
+             <p className="text-sm text-muted-foreground mb-6">Tell us a bit about your preferences to help tailor your experience.</p>
+
+             {/* Validation Status */}
+             {!isPersonalityComplete && (
+                <div className="mb-4 p-3 bg-destructive/10 text-destructive border border-destructive/30 rounded-md text-sm">
+                    Please complete all questions to enable related features.
+                </div>
+             )}
+
+             <div className="space-y-8">
+
+                {/* 1. Introversion/Extroversion Slider */}
+                <div className="space-y-2">
+                    <label htmlFor="introversionExtroversion" className="block text-sm font-medium text-foreground">How introverted or extroverted are you?</label>
+                     <div className="flex items-center space-x-4">
+                        <span className="text-xs text-muted-foreground">Introverted</span>
+                        <input
+                            id="introversionExtroversion"
+                            name="introversionExtroversion"
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={personalityForm.introversionExtroversion}
+                            onChange={handlePersonalityInputChange}
+                            className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+                        />
+                         <span className="text-xs text-muted-foreground">Extroverted</span>
+                    </div>
+                    <div className="text-center text-sm font-semibold text-emphasis">{personalityForm.introversionExtroversion}</div>
+                </div>
+
+                {/* 2. Preferred Time Dropdown */}
+                <div className="space-y-2">
+                    <label htmlFor="preferredTime" className="block text-sm font-medium text-foreground">When are you most active?</label>
+                    <select
+                        id="preferredTime"
+                        name="preferredTime"
+                        value={personalityForm.preferredTime || ""} // Handle null state for default option
+                        onChange={handlePersonalityInputChange}
+                        className="mt-1 block w-full rounded-md border border-input bg-input text-foreground p-2 shadow-sm focus:border-primary focus:ring focus:ring-primary/50"
+                    >
+                        <option value="">Select...</option>
+                        <option value="Morning">Morning</option>
+                        <option value="Afternoon">Afternoon</option>
+                        <option value="Evening">Evening</option>
+                    </select>
+                </div>
+
+                {/* 3. Interaction Type Radio */}
+                <div className="space-y-2">
+                     <label className="block text-sm font-medium text-foreground">Preferred Interaction Type?</label>
+                     <div className="flex space-x-4 mt-1">
+                         {(['In Person', 'Virtual'] as const).map(type => (
+                            <label key={type} className="flex items-center space-x-2 cursor-pointer">
+                                <input
+                                    type="radio"
+                                    name="interactionType"
+                                    value={type}
+                                    checked={personalityForm.interactionType === type}
+                                    onChange={handlePersonalityRadioChange}
+                                    className="form-radio h-4 w-4 text-primary border-border focus:ring-primary/50"
+                                />
+                                <span className="text-sm text-foreground">{type}</span>
+                            </label>
+                         ))}
+                     </div>
+                </div>
+
+
+                {/* 4. Conditional Preferred Space Radio (Only if 'In Person' is selected) */}
+                {personalityForm.interactionType === 'In Person' && (
+                    <div className="space-y-2 pl-4 border-l-2 border-border ml-2">
+                        <label className="block text-sm font-medium text-foreground">Preferred meeting space?</label>
+                         <div className="flex space-x-4 mt-1">
+                            {(['Public', 'Private'] as const).map(space => (
+                                <label key={space} className="flex items-center space-x-2 cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        name="preferredSpace"
+                                        value={space}
+                                        checked={personalityForm.preferredSpace === space}
+                                        onChange={handlePersonalityRadioChange}
+                                        className="form-radio h-4 w-4 text-primary border-border focus:ring-primary/50"
+                                    />
+                                     <span className="text-sm text-foreground">{space} space</span>
+                                </label>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Save Button */}
+                <div className="mt-8 pt-6 border-t border-border">
+                     <button
+                        onClick={handleSavePersonality}
+                        className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:opacity-90 transition duration-300 text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                        // Optionally disable button if !isPersonalityComplete (though user might want to save partially)
+                        // disabled={!isPersonalityComplete}
+                    >
+                        Save Personality Preferences
+                    </button>
+                </div>
+
+             </div>
+          </div>
+        );
       default:
         return null;
     }
