@@ -10,6 +10,7 @@ import {
 import { SiFuturelearn } from "react-icons/si";
 import { GrResources } from "react-icons/gr";
 import type { IconType } from "react-icons";
+import ThemeLogo from './ThemeLogo';
 
 interface NavItem {
   name: string;
@@ -33,40 +34,49 @@ export default function Sidebar() {
   const navigate = useNavigate();
 
   return (
-    <aside className="flex flex-col justify-between h-screen w-64 bg-[#0A1F44]">
-      {/* Top: Logo + Nav */}
-      <div>
-        {/* Brand */}
-        <div className="flex items-center px-6 py-5">
-          {/* Replace src with your real logo */}
-          <img className="mr-4 cursor-pointer" onClick={() => navigate("")} src="school_work_1.svg" alt="Logo" width={30} height={30}/>
-          <span className="text-white text-xl font-bold cursor-pointer" onClick={() => navigate("")}>TaskMaster.ai</span>
-        </div>
+    <div className="w-56 h-screen fixed top-0 left-0 bg-secondary shadow-xl flex flex-col justify-between z-20 transition-colors duration-300 font-sans">
+      {/* Top Section */}
+      <div className="px-5 pt-8 pb-6">
+        <Link to="/" className="flex items-center gap-3 mb-10 px-1">
+          <ThemeLogo width={40} height={40} />
+          <span className="text-lg font-bold text-foreground tracking-wide">
+            TaskMasterAI
+          </span>
+        </Link>
 
-        {/* Nav Links */}
-        <nav className="mt-3">
+        {/* Navigation */}
+        <nav className="space-y-3">
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
             return (
               <Link
                 key={item.name}
                 to={item.path}
-                className={`
-                  flex items-center px-6 py-3 mx-1 mb-1 rounded-lg transition-colors
-                  ${isActive
-                    ? "bg-[#300dc9] text-white"
-                    : "text-gray-300 hover:bg-[#152648] hover:text-white"}
-                `}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full text-base font-medium
+                ${
+                  isActive
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                }`}
               >
-                <item.icon className="w-5 h-5 mr-3" />
-                <span className="font-medium">{item.name}</span>
+                <Icon size={18} className="min-w-[18px] opacity-70" />
+                <span className="flex-1 truncate">{item.name}</span>
               </Link>
             );
           })}
         </nav>
       </div>
 
-      
-    </aside>
+      {/* Bottom Logout Button */}
+      <div className="p-5 border-t border-border">
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 text-base font-semibold text-destructive-foreground bg-destructive hover:opacity-90 rounded-xl transition duration-200 focus:outline-none focus:ring-2 focus:ring-destructive focus:ring-offset-2 focus:ring-offset-secondary shadow-sm"
+        >
+          <FaSignOutAlt size={16} />
+          <span>Logout</span>
+        </button>
+      </div>
+    </div>
   );
 }

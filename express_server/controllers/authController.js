@@ -1,5 +1,6 @@
 import User from "../models/userModel.js";
 import bcrypt from "bcrypt";
+import dotenv from 'dotenv';
 
 //Use for login portal
 const authUser = async (req, res) => {

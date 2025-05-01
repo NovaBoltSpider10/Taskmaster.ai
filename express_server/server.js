@@ -18,7 +18,9 @@ dotenv.config();
 const PORT = process.env.PORT || 5000;
 const app = express();
 
-app.use(cors());
+// Explicitly configure CORS to allow only the frontend origin
+// Ensure this is the very first middleware
+app.use(cors({ origin: 'http://localhost:5173' }));
 
 mongoose
     .connect(process.env.DB_URL)

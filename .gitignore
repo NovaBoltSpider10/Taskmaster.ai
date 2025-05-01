@@ -1,6 +1,6 @@
-node_modules
-.env
-.gitignore
-.venv
+node_modules/
 uploads/
+.env
+.venv
 __pycache__/
+/flask_server/__pycache__

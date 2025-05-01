@@ -1,13 +1,10 @@
 import { Router } from "express";
-import { parseSyllabus as parseClassSyllabus } from "../controllers/classController.js";
+import auth from '../middleware/auth.js'
 
+import { parseSyllabus as parseClassSyllabus } from "../controllers/classController.js";
 import {
-  getUserByToken,
-  getAllUsers,
-  getUserByUsername,
-  setupUser,
-  updateProfile,
-  deleteUser,
+    createUser,
+    getUserByToken
 } from "../controllers/userController.js";
 
 import multer from "multer";
@@ -23,17 +20,9 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-const router = Router();
+const router = Router(); 
 
-router.get("/", getAllUsers);
-
-router.get("/id", getUserID);
-
-router.get("/:id", getProfile);
-
-router.patch("/:id", updateProfile);
-
-router.delete("/:id", deleteUser);
+router.get("/me", auth, getUserByToken); //Use to decipher token
 
 router.post(
   "/aisyllabus/:userId/api/upload",
@@ -51,6 +40,6 @@ router.post(
   }
 );
 
-router.post("/setup", setupUser);
+router.post("/", createUser);
 
 export default router;

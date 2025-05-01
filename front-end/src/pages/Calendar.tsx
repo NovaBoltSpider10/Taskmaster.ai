@@ -14,16 +14,50 @@ import {
 } from "date-fns";
 import { enUS } from "date-fns/locale/en-US";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import { useState, ReactNode } from "react";
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { getTasks } from "../components/tasksStore";
 import AddEventModal from "../components/AddEventModal";
 
 // Final event type
 interface MyEvent {
-  title: string | ReactNode;
+  id: string;
+  title: string;
   start: Date;
   end: Date;
   description?: string;
+  location?: string;
+  allDay?: boolean;
 }
+
+const style = document.createElement("style");
+style.innerHTML = `
+  .dark .rbc-month-view {
+    background-color: #2a2a2a !important;
+  }
+  .dark .rbc-off-range {
+    background-color: #333 !important;
+    color: #999 !important;
+  }
+  .dark .rbc-today {
+    background-color: rgba(139, 92, 246, 0.15) !important;
+  }
+  .rbc-event {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    border-radius: 0.5rem !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .rbc-event-content {
+    white-space: normal !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    height: 100%;
+  }
+`;
+document.head.appendChild(style);
 
 const localizer = dateFnsLocalizer({
   format,
@@ -33,11 +67,19 @@ const localizer = dateFnsLocalizer({
   locales: { "en-US": enUS },
 });
 
-// ✅ Fix: use actual event type for ToolbarProps
-const CustomToolbar: React.FC<ToolbarProps<MyEvent, object>> = ({ label }) => {
+const CustomToolbar: React.FC<ToolbarProps<MyEvent, object>> = ({ label }) => (
+  <div className="text-center text-xl font-bold py-3 text-emphasis">
+    {label}
+  </div>
+);
+
+const EventComponent = ({ event }: { event: MyEvent }) => {
   return (
-    <div className="text-center text-lg font-semibold py-2 text-gray-700">
-      {label}
+    <div className="w-full h-full px-2 py-1 text-white text-sm truncate flex items-center gap-1">
+      <span className="font-bold">{event.title}</span>
+      {event.location && (
+        <span className="text-xs opacity-80 truncate">({event.location})</span>
+      )}
     </div>
   );
 };
@@ -49,132 +91,153 @@ const Calendar = () => {
   const [events, setEvents] = useState<MyEvent[]>([]);
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [newEvent, setNewEvent] = useState<MyEvent>({
-    title: "",
-    start: new Date(),
-    end: new Date(),
-    description: "",
-  });
+  const [newEvent, setNewEvent] = useState<MyEvent | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<MyEvent | null>(null);
 
-  const handleNavigate = (action: "TODAY" | "PREV" | "NEXT") => {
-    const baseDate = new Date(currentDate);
-    const delta = view === "month" ? 30 : 7;
+  useEffect(() => {
+    const tasks = getTasks();
+    const taskEvents = tasks.map((task) => {
+      const deadline = new Date(task.deadline);
+      const start = new Date(deadline.getTime() - 1 * 60 * 60 * 1000); // 1 hour before
+      return {
+        id: task._id,
+        title: task.title,
+        start,
+        end: deadline,
+        description: task.topic || "",
+        location: task.classLocation || "",
+        allDay: false,
+      };
+    });
+    setEvents(taskEvents);
+  }, []);
 
-    if (action === "TODAY") {
-      setCurrentDate(new Date());
-    } else if (action === "NEXT") {
-      setCurrentDate(addDays(baseDate, delta));
-    } else if (action === "PREV") {
-      setCurrentDate(subDays(baseDate, delta));
-    }
+  const handleNavigate = (action: "TODAY" | "PREV" | "NEXT") => {
+    const base = new Date(currentDate);
+    const delta = view === "month" ? 30 : view === "week" ? 7 : 1;
+    if (action === "TODAY") setCurrentDate(new Date());
+    if (action === "NEXT") setCurrentDate(addDays(base, delta));
+    if (action === "PREV") setCurrentDate(subDays(base, delta));
   };
 
   return (
-    <div className="p-6">
-      <div className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center mb-4">
-        <h1 className="text-2xl font-bold">Task Calendar</h1>
-        <div className="flex flex-wrap gap-2">
-          <button
-            className="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300"
-            onClick={() => handleNavigate("TODAY")}
-          >
-            Today
-          </button>
-          <button
-            className="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300"
-            onClick={() => handleNavigate("PREV")}
-          >
-            Back
-          </button>
-          <button
-            className="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300"
-            onClick={() => handleNavigate("NEXT")}
-          >
-            Next
-          </button>
-          <select
-            value={view}
-            onChange={(e) => setView(e.target.value as View)}
-            className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
-          >
-            <option value="month">Month View</option>
-            <option value="week">Week View</option>
-            <option value="day">Day View</option>
-          </select>
-          <button
-            className="bg-green-600 text-white px-4 py-2 rounded"
-            onClick={() => {
-              const now = new Date();
-              setNewEvent({
-                title: "",
-                start: now,
-                end: new Date(now.getTime() + 60 * 60 * 1000),
-                description: "",
-              });
-              setSelectedEvent(null);
+    <div className="relative min-h-screen px-4 py-10 text-gray-900 dark:text-white">
+      <div className="relative z-10 w-full max-w-screen-xl mx-auto space-y-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <h1 className="text-4xl font-extrabold tracking-tight text-emphasis">Your Calendar</h1>
+          <div className="flex flex-wrap gap-3">
+            <button
+              onClick={() => handleNavigate("TODAY")}
+              className="bg-pink-400 hover:bg-pink-500 text-white font-semibold px-4 py-2 rounded-md"
+            >
+              Today
+            </button>
+            <button
+              onClick={() => handleNavigate("PREV")}
+              className="bg-purple-500 hover:bg-purple-600 text-white font-semibold px-4 py-2 rounded-md"
+            >
+              Back
+            </button>
+            <button
+              onClick={() => handleNavigate("NEXT")}
+              className="bg-purple-500 hover:bg-purple-600 text-white font-semibold px-4 py-2 rounded-md"
+            >
+              Next
+            </button>
+            <select
+              value={view}
+              onChange={(e) => setView(e.target.value as View)}
+              className="px-4 py-2 rounded-md text-white bg-pink-400 hover:bg-pink-500 font-semibold"
+            >
+              <option value="month">Month</option>
+              <option value="week">Week</option>
+              <option value="day">Day</option>
+            </select>
+            <button
+              className="px-5 py-2 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-md transition"
+              onClick={() => {
+                const now = new Date();
+                const blankEvent: MyEvent = {
+                  id: crypto.randomUUID(),
+                  title: "",
+                  start: now,
+                  end: now,
+                  description: "",
+                  location: "",
+                };
+                setNewEvent(blankEvent);
+                setSelectedEvent(null);
+                setModalOpen(true);
+              }}
+            >
+              + Add Event
+            </button>
+          </div>
+        </div>
+
+        <motion.div
+          key={`${view}-${currentDate.toDateString()}`}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -12 }}
+          transition={{ duration: 0.4, ease: "easeInOut" }}
+          className="w-full h-[750px] bg-card rounded-2xl shadow-soft overflow-hidden border border-border"
+        >
+          <BigCalendar
+            localizer={localizer}
+            events={events}
+            startAccessor="start"
+            endAccessor="end"
+            date={currentDate}
+            onNavigate={(date) => setCurrentDate(date)}
+            view={view}
+            onView={(v) => setView(v)}
+            views={["month", "week", "day"]}
+            components={{
+              toolbar: CustomToolbar,
+              event: (props) => <EventComponent {...props} />,
+            }}
+            onSelectEvent={(event) => {
+              setSelectedEvent(event as MyEvent);
+              setNewEvent(event as MyEvent);
               setModalOpen(true);
             }}
-          >
-            + Add Event
-          </button>
-        </div>
+            step={60}
+            timeslots={1}
+          />
+        </motion.div>
       </div>
 
-      <div className="bg-white rounded shadow p-4">
-        <BigCalendar
-          localizer={localizer}
-          events={events}
-          startAccessor="start"
-          endAccessor="end"
-          date={currentDate}
-          onNavigate={(date) => setCurrentDate(date)}
-          view={view}
-          onView={(newView: View) => setView(newView)}
-          views={["month", "week", "day"]}
-          components={{ toolbar: CustomToolbar }}
-          onSelectEvent={(event) => {
-            setSelectedEvent(event as MyEvent);
-            setNewEvent({
-              ...event,
-              title: String(event.title ?? ""),
-            } as MyEvent);
-            setModalOpen(true);
-          }}
-          style={{ height: 600 }}
-        />
-      </div>
-
-      <AddEventModal
-        isOpen={modalOpen}
-        onClose={() => {
-          setModalOpen(false);
-          setSelectedEvent(null);
-        }}
-        onSave={(updatedEvent) => {
-          if (selectedEvent) {
-            setEvents((prev) =>
-              prev.map((event) =>
-                event === selectedEvent ? updatedEvent : event
-              )
-            );
-          } else if (updatedEvent.title) {
-            setEvents((prev) => [...prev, updatedEvent]);
-          }
-          setModalOpen(false);
-          setSelectedEvent(null);
-        }}
-        onDelete={() => {
-          if (selectedEvent) {
-            setEvents((prev) => prev.filter((e) => e !== selectedEvent));
+      {newEvent && (
+        <AddEventModal
+          isOpen={modalOpen}
+          onClose={() => {
             setModalOpen(false);
             setSelectedEvent(null);
-          }
-        }}
-        isEditing={!!selectedEvent}
-        eventData={newEvent}
-        setEventData={setNewEvent}
-      />
+          }}
+          onSave={(updatedEvent) => {
+            if (selectedEvent) {
+              setEvents((prev) =>
+                prev.map((e) => (e.id === updatedEvent.id ? updatedEvent : e))
+              );
+            } else {
+              setEvents((prev) => [...prev, updatedEvent]);
+            }
+            setModalOpen(false);
+            setSelectedEvent(null);
+          }}
+          onDelete={() => {
+            if (selectedEvent) {
+              setEvents((prev) => prev.filter((e) => e.id !== selectedEvent.id));
+              setModalOpen(false);
+              setSelectedEvent(null);
+            }
+          }}
+          isEditing={!!selectedEvent}
+          eventData={newEvent}
+          setEventData={setNewEvent}
+        />
+      )}
     </div>
   );
 };

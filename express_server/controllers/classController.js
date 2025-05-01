@@ -18,7 +18,7 @@ const getAllClasses = async(req, res) => {
 //Get class by ID
 const getClassById = async(req, res) => {
     try {
-        const classes = await Class.findById(req.params.id);
+        const classes = await Class.findById(req.body.id);
         if (!classes)
         {
             return res.status(404).json({ message: "Class not found" });
@@ -67,7 +67,7 @@ const updateClass = async(req, res) => {
 //Delete class
 const deleteClass = async(req, res) => {
     try {
-        const deletedClass = await Class.findByIdAndDelete(req.params.id);
+        const deletedClass = await Class.findByIdAndDelete(req.body.id);
         if (!deletedClass)
         {
             return res.status(404).json({message: "Class not found"});
@@ -99,7 +99,7 @@ const parseSyllabus = async (req, res, next) => {
 
 const getAllClassesbyUserid = async (req, res) => {
     try {
-        const classes = await Class.find({user: req.params.userid});
+        const classes = await Class.find({user: req.body.userid});
         if (!classes)
         {
             return res.status(404).json({ message: "Class not found by userId" });

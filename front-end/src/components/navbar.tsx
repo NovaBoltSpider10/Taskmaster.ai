@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import ThemeLogo from './ThemeLogo';
 
 function NavBar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,10 +13,10 @@ function NavBar() {
     <nav className="bg-white shadow-lg sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
-          {/* Logo */}
+          {/* Logo - Updated to use ThemeLogo */}
           <div className="flex items-center">
             <Link to="/" className="flex-shrink-0 flex items-center">
-              <img className="h-8 w-auto" src="/school_work_1.svg" alt="Logo" />
+              <ThemeLogo width={40} height={40} />
             </Link>
           </div>
 

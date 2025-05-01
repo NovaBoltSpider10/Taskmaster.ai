@@ -1,9 +1,9 @@
-import User from '../models/userModel.js';
-import jwt from "jsonwebtoken";
-import crypto from 'crypto';
+import User from "../models/userModel.js";
+import crypto from "crypto";
+import bcrypt from "bcrypt";
 
 const getUserByToken = async (req, res) => {
-  const user = await User.findById(req.body.userId).select('-password');
+  const user = await User.findById(req.body.userId).select("-password");
   res.send(user);
 };
 
@@ -28,16 +28,19 @@ const getUserByUsername = async (req, res) => {
   }
 };
 
-const setupUser = async (req, res) => {
+const createUser = async (req, res) => {
   try {
-    const { username, firstName, lastName, email, dob } = req.body;
+    const { userName, firstName, lastName, dob, email, password } =
+      req.body;
 
     if (await User.findOne({ email })) {
       return res.status(400).json({ message: "Email already taken" });
     }
 
-    if (await User.findOne({ userName })) {
-      return res.status(400).json({ message: "Email already taken" });
+    if (checkUserEmail || checkUserName) {
+      return res
+        .status(400)
+        .json({ message: "Username or email already taken" });
     }
 
     const newUserId = crypto.randomBytes(8).toString("hex");
@@ -45,11 +48,11 @@ const setupUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const newUser = new User({
-      userId: newUserId,
-      username: username,
-      firstName: firstName,
-      lastName: lastName,
-      email: email,
+      userName,
+      firstName,
+      lastName,
+      dob,
+      email,
       password: hashedPassword,
       dob: dob,
     });
@@ -59,8 +62,7 @@ const setupUser = async (req, res) => {
     const token = jwt.sign({ id: newUserId }, "secretstring1234");
 
     return res.header("x-auth-token", token).status(201).send(token);
-  }
-  catch (err) {
+  } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
@@ -82,10 +84,8 @@ const deleteUser = async (req, res) => {
 
 
 export {
-  getUserByToken,
   getAllUsers,
   getUserByUsername,
   setupUser,
-  updateProfile,
   deleteUser,
-}
+};
