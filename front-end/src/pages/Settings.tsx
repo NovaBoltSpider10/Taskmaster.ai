@@ -24,9 +24,10 @@ interface ToggleSwitchProps {
 }
 
 interface UserData {
+  userName: string;
+  email: string;
   _id: string;
 }
-
 
 const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ label, enabled, onChange }) => (
   <div className="flex items-center justify-between p-3 bg-card rounded-md shadow-sm border border-border">
@@ -78,31 +79,35 @@ const Settings = () => {
 
   // Update local form state if user context changes (e.g., after login)
   useEffect(() => {
-    if (user) {
-      setFormData({
-        username: user.username,
-        email: user.email,
-      });
-      setProfilePreview(user.profileImageUrl);
-      // TODO: Load actual privacy settings from user data
-      // setPrivacySettings({
-      //    emailPublic: user.privacy?.emailPublic || false,
-      //    discordPublic: user.privacy?.discordPublic || false,
-      //    socialMediaPublic: user.privacy?.socialMediaPublic || false,
-      // });
-    }
-    // Update local personality form if context changes
-    if (personalityData) {
-      setPersonalityForm(personalityData);
-    } else {
-      // Reset form if personality data is cleared (e.g., logout)
-      setPersonalityForm({
-        introversionExtroversion: 50,
-        preferredTime: null,
-        interactionType: null,
-        preferredSpace: null,
-      });
-    }
+    const setUserData = async () => {
+      const userResp = await axios.get<UserData>(
+        "http://localhost:3000/user/me", // Use port 3000
+        { headers: { "x-auth-token": token } }
+      );
+      
+      if (user) {
+        setFormData({
+          username: userResp.data.userName,
+          email: userResp.data.email,
+        });
+  
+        setProfilePreview(user.profileImageUrl);
+      }
+      // Update local personality form if context changes
+      if (personalityData) {
+        setPersonalityForm(personalityData);
+      } else {
+        // Reset form if personality data is cleared (e.g., logout)
+        setPersonalityForm({
+          introversionExtroversion: 50,
+          preferredTime: null,
+          interactionType: null,
+          preferredSpace: null,
+        });
+      }
+    };
+
+    setUserData();
   }, [user, personalityData]);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -152,6 +157,17 @@ const Settings = () => {
 
     let interactionType;
     let preferredSpace;
+    let preferredTime;
+
+    if (personalityForm.preferredTime == "Morning") {
+      preferredTime = 1;
+    }
+    if (personalityForm.preferredTime == "Afternoon") {
+      preferredTime = 2;
+    }
+    if (personalityForm.preferredTime == "Evening") {
+      preferredTime = 3;
+    }
 
     if (personalityForm.interactionType === "In Person") {
       interactionType = 1;
@@ -168,17 +184,10 @@ const Settings = () => {
       preferredSpace = 0;
     }
 
-    const userResp = await axios.get<UserData>(
-      "http://localhost:3000/user/me", // Use port 3000
-      { headers: { "x-auth-token": token } }
-    );
-
-    const userId = userResp.data._id;
-
     const preferencesSend = {
-      "userId": userId,
+      // "userId": userData._id,
       "personality": personalityForm.introversionExtroversion / 100,
-      "preferred_time": Number(personalityForm.preferredTime),
+      "preferred_time": preferredTime,
       "in_person": interactionType,
       "private_space": preferredSpace,
     };
@@ -478,7 +487,7 @@ const Settings = () => {
 
               {/* 2. Preferred Time Dropdown */}
               <div className="space-y-2">
-                <label htmlFor="preferredTime" className="block text-sm font-medium text-foreground">When are you most active?</label>
+                <label htmlFor="preferredTime" className="block text-sm font-medium text-foreground">What is your preferred study time period?</label>
                 <select
                   id="preferredTime"
                   name="preferredTime"
@@ -487,9 +496,9 @@ const Settings = () => {
                   className="mt-1 block w-full rounded-md border border-input bg-input text-foreground p-2 shadow-sm focus:border-primary focus:ring focus:ring-primary/50"
                 >
                   <option value="">Select...</option>
-                  <option value="1">Morning</option>
-                  <option value="2">Afternoon</option>
-                  <option value="3">Evening</option>
+                  <option value="Morning">Morning</option>
+                  <option value="Afternoon">Afternoon</option>
+                  <option value="Evening">Evening</option>
                 </select>
               </div>
 
