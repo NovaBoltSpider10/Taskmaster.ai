@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
-
 uri = os.environ['DB_URL']
 
 client = MongoClient(uri, server_api=ServerApi('1'))
