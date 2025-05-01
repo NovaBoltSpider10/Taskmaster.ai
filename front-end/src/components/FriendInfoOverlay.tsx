@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 
 // Re-using the Friend interface (ensure it's imported or defined if needed)

@@ -89,7 +89,7 @@ const Profile = () => {
           </label>
 
           <div className="text-center">
-            <h3 className="text-xl font-bold text-emphasis">{user?.username || 'Username'}</h3>
+            <h3 className="text-xl font-bold text-emphasis">{user?.userName || 'Username'}</h3>
             <p className="text-sm text-muted-foreground">
               {user?.email || 'email@example.com'}
             </p>
