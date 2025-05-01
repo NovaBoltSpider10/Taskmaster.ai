@@ -1,9 +1,9 @@
-import User from "../models/userModel.js";
-import crypto from "crypto";
-import bcrypt from "bcrypt";
+import User from '../models/userModel.js';
+import jwt from "jsonwebtoken";
+import crypto from 'crypto';
 
 const getUserByToken = async (req, res) => {
-  const user = await User.findById(req.body.userId).select("-password");
+  const user = await User.findById(req.body.userId).select('-password');
   res.send(user);
 };
 
@@ -30,33 +30,37 @@ const getUserByUsername = async (req, res) => {
 
 const setupUser = async (req, res) => {
   try {
-    const { userName, firstName, lastName, dob, email, password } =
-      req.body;
+    const { username, firstName, lastName, email, dob } = req.body;
 
-    const checkUserEmail = await User.findOne({ email });
-    const checkUserName = await User.findOne({ userName });
-
-    if (checkUserEmail || checkUserName) {
-      return res
-        .status(400)
-        .json({ message: "Username or email already taken" });
+    if (await User.findOne({ email })) {
+      return res.status(400).json({ message: "Email already taken" });
     }
 
+    if (await User.findOne({ userName })) {
+      return res.status(400).json({ message: "Email already taken" });
+    }
+
+    const newUserId = crypto.randomBytes(8).toString("hex");
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-    const newUser = new User({
-      userName,
-      firstName,
-      lastName,
-      dob,
-      email,
-      password: hashedPassword,
-    });
-    const savedUser = await newUser.save();
 
-    const token = savedUser.generateAuthToken();
+    const newUser = new User({
+      userId: newUserId,
+      username: username,
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      password: hashedPassword,
+      dob: dob,
+    });
+
+    newUser.save();
+
+    const token = jwt.sign({ id: newUserId }, "secretstring1234");
+
     return res.header("x-auth-token", token).status(201).send(token);
-  } catch (error) {
+  }
+  catch (err) {
     res.status(500).json({ message: error.message });
   }
 };
@@ -70,15 +74,18 @@ const deleteUser = async (req, res) => {
     }
 
     res.status(200).json(deleteUser);
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 export {
   getUserByToken,
   getAllUsers,
   getUserByUsername,
   setupUser,
+  updateProfile,
   deleteUser,
-};
+}

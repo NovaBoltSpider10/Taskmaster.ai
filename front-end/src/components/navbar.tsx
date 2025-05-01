@@ -15,11 +15,7 @@ function NavBar() {
           {/* Logo */}
           <div className="flex items-center">
             <Link to="/" className="flex-shrink-0 flex items-center">
-              <img
-                className="h-8 w-auto"
-                src="/school_work_1.svg"
-                alt="Logo"
-              />
+              <img className="h-8 w-auto" src="/school_work_1.svg" alt="Logo" />
             </Link>
           </div>
 
@@ -32,11 +28,17 @@ function NavBar() {
               Get Started
             </Link>
             <Link
-              to="/login"
+              to="/dashboard"
               className="text-gray-800 hover:bg-gray-200 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
             >
               Login
-            </Link>
+            </Link> 
+            <a
+              href="http://localhost:5000/login"
+              className="text-gray-800 hover:bg-gray-200 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+            >
+              Login
+            </a>
           </div>
 
           {/* Mobile Menu Button */}

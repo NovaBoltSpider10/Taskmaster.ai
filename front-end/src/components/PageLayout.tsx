@@ -50,7 +50,7 @@ function PageLayout() {
       {/* Sidebar and Page Content */}
       <div className="flex flex-1 overflow-hidden">
         <Sidebar />
-        <main className="ml-56 flex-grow overflow-y-auto px-6 py-4 z-10 relative">
+        <main className="flex-grow overflow-y-auto px-6 py-4 z-10 relative">
           <Outlet />
         </main>
       </div>

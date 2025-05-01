@@ -1,83 +1,130 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import NavBar from "../components/navbar";
-import AnimatedBackground from "../components/AnimatedBackground";
+// import NavBar from "../components/navbar";
+import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import axios from 'axios';
 
-function SignUp() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+// Define Zod schema for validation
+const signupSchema = z.object({
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  username: z.string().min(3, "Username must be at least 3 characters"),
+  // dob: z.string().refine((date) => {
+  //   const dob = new Date(date);
+  //   const today = new Date();
+  //   return dob < today;
+  // }, "Date of birth must be in the past"),
+});
+
+type SignupFormData = z.infer<typeof signupSchema>;
+
+function Signup() {
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.log("Sign up attempted", { email, password });
-    navigate("/login");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignupFormData>({
+    resolver: zodResolver(signupSchema),
+  });
+
+  const onSubmit = (data: SignupFormData) => {
+    console.log("Signup Data:", data);
+
+    
+
+    navigate("/dashboard");
   };
 
   return (
     <>
-      <NavBar />
-      <div className="h-screen flex flex-col bg-skyLightest dark:bg-darkBg transition-colors duration-500">
-        <AnimatedBackground />
-        <div className="flex-grow flex items-center justify-center px-4 overflow-y-auto py-8">
-          <div className="w-[480px] bg-white dark:bg-darkCard shadow-md rounded-lg p-8 space-y-6">
+      <div className="h-screen flex flex-col">
+        {/* <NavBar /> */}
+        <div className="flex-grow flex items-center justify-center bg-gray-100 px-4 overflow-y-auto py-8">
+          {/* Added `pt-16` to account for the navbar height */}
+          <div className="w-[600px] bg-white shadow-md rounded-lg p-8 space-y-6 mt-16">
             <div className="text-center">
-              <h2 className="text-3xl font-bold text-gray-800 dark:text-white">Create Account</h2>
-              <p className="text-gray-500 dark:text-gray-300 mt-2">Sign up to get started</p>
+              <h2 className="text-3xl font-bold text-gray-800">Create an Account</h2>
+              <p className="text-gray-500 mt-2">Sign up to get started</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Email Input */}
+            <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* First Name */}
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                  Email Address
+                <label
+                  htmlFor="firstName"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  First Name
                 </label>
                 <input
-                  type="email"
-                  id="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-darkAccent text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="you@example.com"
+                  type="text"
+                  id="firstName"
+                  {...register("firstName")}
+                  className={`w-full px-3 py-2 border ${
+                    errors.firstName ? "border-red-500" : "border-gray-300"
+                  } rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+                  placeholder="John"
                 />
+                {errors.firstName && (
+                  <p className="text-red-500 text-sm mt-1">{errors.firstName.message}</p>
+                )}
               </div>
 
-              {/* Password Input */}
+              {/* Last Name */}
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                  Password
+                <label
+                  htmlFor="lastName"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Last Name
                 </label>
                 <input
-                  type="password"
-                  id="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-darkAccent text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Create a password"
+                  type="text"
+                  id="lastName"
+                  {...register("lastName")}
+                  className={`w-full px-3 py-2 border ${
+                    errors.lastName ? "border-red-500" : "border-gray-300"
+                  } rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+                  placeholder="Doe"
                 />
+                {errors.lastName && (
+                  <p className="text-red-500 text-sm mt-1">{errors.lastName.message}</p>
+                )}
+              </div>
+
+              {/* Username */}
+              <div>
+                <label
+                  htmlFor="username"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Username
+                </label>
+                <input
+                  type="text"
+                  id="username"
+                  {...register("username")}
+                  className={`w-full px-3 py-2 border ${
+                    errors.username ? "border-red-500" : "border-gray-300"
+                  } rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+                  placeholder="johndoe123"
+                />
+                {errors.username && (
+                  <p className="text-red-500 text-sm mt-1">{errors.username.message}</p>
+                )}
               </div>
 
               {/* Submit Button */}
-              <button
-                type="submit"
-                className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
-              >
-                Sign Up
-              </button>
-
-              {/* Login Link */}
-              <div className="text-center mt-4">
-                <p className="text-sm text-gray-600 dark:text-gray-300">
-                  Already have an account?{" "}
-                  <Link
-                    to="/login"
-                    className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
-                  >
-                    Log in
-                  </Link>
-                </p>
+              <div className="md:col-span-2">
+                <button
+                  type="submit"
+                  className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                >
+                  Sign Up
+                </button>
               </div>
             </form>
           </div>
@@ -87,4 +134,4 @@ function SignUp() {
   );
 }
 
-export default SignUp;
+export default Signup;
