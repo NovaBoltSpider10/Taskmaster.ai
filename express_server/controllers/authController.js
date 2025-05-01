@@ -1,6 +1,5 @@
 import User from "../models/userModel.js";
 import bcrypt from "bcrypt";
-import dotenv from 'dotenv';
 
 //Use for login portal
 const authUser = async (req, res) => {
@@ -9,10 +8,10 @@ const authUser = async (req, res) => {
 
     const user = await User.findOne({ email });
     if (!user)
-      return res.status(400).json({ message: "Invalid email" });
+      return res.status(400).json({ message: "Invalid email or password" });
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword)
-      return res.status(400).json({ message: "Invalid password" });
+      return res.status(400).json({ message: "Invalid email or password" });
 
     const token = user.generateAuthToken();
     res.send(token);

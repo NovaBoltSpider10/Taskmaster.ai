@@ -4,7 +4,11 @@ import auth from '../middleware/auth.js'
 import { parseSyllabus as parseClassSyllabus } from "../controllers/classController.js";
 import {
     createUser,
-    getUserByToken
+    getUserByToken,
+    getUserbyEmail,
+    updateProfile,
+    getUserbyId
+
 } from "../controllers/userController.js";
 
 import multer from "multer";
@@ -24,6 +28,10 @@ const router = Router();
 
 router.get("/me", auth, getUserByToken); //Use to decipher token
 
+router.get("/friends/:userid", getUserbyId); //Use to get friends details by userid
+
+router.get("/email/:email", getUserbyEmail); //Use to GET user by email
+
 router.post(
   "/aisyllabus/:userId/api/upload",
   upload.single("file"),
@@ -41,5 +49,7 @@ router.post(
 );
 
 router.post("/", createUser);
+
+router.patch("/:userid", updateProfile);
 
 export default router;
