@@ -556,7 +556,7 @@ const Settings = () => {
                   onClick={handleSavePersonality}
                   className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:opacity-90 transition duration-300 text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                   // Optionally disable button if !isPersonalityComplete (though user might want to save partially)
-                  disabled={!isPersonalityComplete}
+                  
                 >
                   Save Personality Preferences
                 </button>
