@@ -1,8 +1,17 @@
 import { useNavigate } from "react-router-dom";
 import NavBar from "../components/navbar";
 import { motion } from "framer-motion";
+import { useEffect } from "react";
+import { useTheme } from "../context/ThemeContext";
 
 function SplashPage() {
+  const { setTheme } = useTheme();
+
+  useEffect(() => {
+    setTheme("light");
+    localStorage.setItem("appTheme", "light");
+  }, [setTheme]);
+  
   const navigate = useNavigate();
 
   const handleSignup = () => {
@@ -110,7 +119,7 @@ function SplashPage() {
               transition={{ duration: 0.8 }}
               className="text-5xl md:text-7xl font-bold text-gray-900 dark:text-white mb-6"
             >
-              Taskmaster AI
+              TaskMasterAI
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
@@ -372,4 +381,4 @@ function SplashPage() {
   );
 }
 
-export default SplashPage;
+export default SplashPage; 
