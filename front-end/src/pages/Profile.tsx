@@ -1,18 +1,21 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import AnimatedBackground from "../components/AnimatedBackground";
+import { useUser } from "../context/UserContext";
+import { useTheme } from "../context/ThemeContext";
 
 const defaultImage = "/user.png";
 
-const mockUser = {
-  name: "John Doe",
-  username: "johnnyD",
-  email: "john@example.com",
-  xp: 320,
-  xpMax: 500,
-};
-
 const Profile = () => {
-  const [profilePic, setProfilePic] = useState<string>(defaultImage);
+  const { user, setUserProfile } = useUser();
+  const { theme } = useTheme();
+  
+  const [profilePic, setProfilePic] = useState<string>(user?.profileImageUrl || defaultImage);
+  
+  const mockXP = {
+    current: 320,
+    max: 500,
+  };
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -20,7 +23,10 @@ const Profile = () => {
       const reader = new FileReader();
       reader.onloadend = () => {
         if (reader.result) {
-          setProfilePic(reader.result as string);
+          const imageDataUrl = reader.result as string;
+          setProfilePic(imageDataUrl);
+          
+          setUserProfile({ profileImageUrl: imageDataUrl });
         }
       };
       reader.readAsDataURL(file);
@@ -31,28 +37,30 @@ const Profile = () => {
     setProfilePic(defaultImage);
   };
 
-  const xpPercent = Math.min((mockUser.xp / mockUser.xpMax) * 100, 100);
+  const xpPercent = Math.min((mockXP.current / mockXP.max) * 100, 100);
 
   return (
-    <div className="relative min-h-screen w-full text-gray-800 dark:text-white px-6 py-10">
-      <div className="relative z-10 max-w-xl mx-auto bg-white/80 dark:bg-[#2a2633] rounded-2xl p-8 shadow-xl space-y-8">
+    <div className="min-h-screen w-full bg-background text-foreground px-6 py-10">
+      <AnimatedBackground />
+
+      <div className="relative z-10 max-w-xl mx-auto bg-card text-card-foreground rounded-2xl p-8 shadow-lg border border-border space-y-8">
         {/* Page Title */}
-        <h1 className="text-3xl font-bold text-center text-purple-700 dark:text-lavenderAccent">
+        <h1 className="text-3xl font-bold text-center text-emphasis">
           Profile
         </h1>
 
         {/* XP Bar */}
         <div>
-          <h2 className="text-lg font-semibold mb-2">XP Progress</h2>
-          <div className="relative w-full h-6 bg-gray-300 dark:bg-gray-700 rounded-full overflow-hidden">
+          <h2 className="text-lg font-semibold mb-2 text-emphasis">XP Progress</h2>
+          <div className="relative w-full h-6 bg-muted rounded-full overflow-hidden">
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${xpPercent}%` }}
               transition={{ duration: 1 }}
-              className="h-full bg-gradient-to-r from-purple-400 to-purple-600 rounded-full"
+              className="h-full bg-primary"
             />
-            <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-gray-900 dark:text-gray-100">
-              {mockUser.xp} / {mockUser.xpMax} XP
+            <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-primary-foreground">
+              {mockXP.current} / {mockXP.max} XP
             </span>
           </div>
         </div>
@@ -67,10 +75,10 @@ const Profile = () => {
             onError={handleImageError}
             src={profilePic}
             alt="Profile"
-            className="w-32 h-32 rounded-full border-4 border-purple-400 shadow-lg bg-white object-cover"
+            className="w-32 h-32 rounded-full border-4 border-input shadow-lg bg-background object-cover"
           />
 
-          <label className="cursor-pointer inline-block mt-2 px-4 py-2 text-sm font-semibold text-white bg-purple-600 rounded-full hover:bg-purple-700 transition">
+          <label className="cursor-pointer inline-block mt-2 px-4 py-2 text-sm font-semibold bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition">
             Upload Image
             <input
               type="file"
@@ -81,13 +89,24 @@ const Profile = () => {
           </label>
 
           <div className="text-center">
-            <h3 className="text-xl font-bold">{mockUser.name}</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-300">
-              @{mockUser.username}
+            <h3 className="text-xl font-bold text-emphasis">{user?.username || 'Username'}</h3>
+            <p className="text-sm text-muted-foreground">
+              {user?.email || 'email@example.com'}
             </p>
-            <p className="text-sm text-gray-600 dark:text-gray-300">
-              {mockUser.email}
-            </p>
+            {(user?.firstName || user?.lastName) && (
+              <p className="text-sm text-muted-foreground mt-1">
+                {user?.firstName} {user?.lastName}
+              </p>
+            )}
+          </div>
+          
+          {/* Current Theme Information */}
+          <div className="mt-6 p-4 bg-muted/50 rounded-lg w-full">
+            <h3 className="text-sm font-medium text-emphasis mb-2">Current Theme</h3>
+            <div className="flex items-center space-x-2">
+              <div className={`w-4 h-4 rounded-full bg-primary`}></div>
+              <span className="text-sm capitalize">{theme === 'clean' ? 'Beige' : theme}</span>
+            </div>
           </div>
         </div>
       </div>

@@ -11,6 +11,7 @@ import {
 import { SiFuturelearn } from "react-icons/si";
 import { GrResources } from "react-icons/gr";
 import type { IconType } from "react-icons";
+import ThemeLogo from './ThemeLogo';
 
 interface NavItem {
   name: string;
@@ -43,7 +44,7 @@ function Sidebar() {
       {/* Top Section */}
       <div className="px-5 pt-8 pb-6">
         <Link to="/" className="flex items-center gap-3 mb-10 px-1">
-          <img src="/school_work_1.svg" alt="Logo" className="w-6 h-6" />
+          <ThemeLogo width={40} height={40} />
           <span className="text-lg font-bold text-foreground tracking-wide">
             TaskMasterAI
           </span>
