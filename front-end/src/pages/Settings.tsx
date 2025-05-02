@@ -562,7 +562,6 @@ const Settings = () => {
                       )
                     )
                   }
-                  
                 >
                   Save Personality Preferences
                 </button>
