@@ -71,6 +71,9 @@ class SetPreferences(Resource):
             }}
         )
         
+        if not user_object:
+            return 400
+
         return 200
 
 
