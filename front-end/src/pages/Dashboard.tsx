@@ -36,12 +36,46 @@ interface TasksData {
   className?: string; // Added during fetch
 }
 
+// interface PersonalityProfile {
+//   personality: number;
+//   preferred_time: number;
+//   in_person: number;
+//   private_space: number;
+// }
+
 interface Friend {
   id: string;
   username: string;
   isOnline: boolean;
-  commonCourses: string[];
 }
+
+
+const realisticUsernames = [
+  "alex_m",
+  "jane.doe23",
+  "ron_techie",
+  "maria.writes",
+  "kevin.codes",
+  "chris_dev99",
+  "laura_physics",
+  "sunny_day7",
+  "nina.draws",
+  "mark.runner",
+  "violet.art",
+  "khalid_math",
+  "emma.reader",
+  "toby_travel",
+  "liam_bio"
+];
+
+const pick = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
+
+const generateRandomFriend = (id: string): Friend => ({
+  id,
+  username: pick(realisticUsernames),
+  isOnline: Math.random() < 0.6,
+});
+
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -54,7 +88,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const token = localStorage.getItem("token");
-  const [friends, setFriends] = useState<Friend[]>([]);
+  const [dummyFriends, setDummyFriends] = useState<Friend[]>([]);
 
   // --- Fetching Logic ---
   useEffect(() => {
@@ -83,6 +117,11 @@ const Dashboard = () => {
         );
         setUserClasses(classesRes.data);
 
+        const generated = Array.from({ length: 3 }, (_, i) =>
+          generateRandomFriend(i.toString())
+        );
+        setDummyFriends(generated);
+
         // 3. Fetch Resources & Tasks in Parallel (only if classes exist)
         if (classesRes.data.length > 0) {
           const classIds = classesRes.data.map((c) => c._id);
@@ -104,11 +143,12 @@ const Dashboard = () => {
           );
 
           // 4. Fetch Friends
-          const friendsRes = await axios.get<Friend[]>(
-            `http://localhost:3000/user/friends/${userId}`,
-            { headers: { "x-auth-token": token } }
-          );
-          setFriends(friendsRes.data);
+
+          // const friendsRes = await axios.get<Friend[]>(
+          //   `http://localhost:3000/user/friends/${userId}`,
+          //   { headers: { "x-auth-token": token } }
+          // );
+          // setFriends(friendsRes.data);
 
           const taskPromises = classesRes.data.map(
             (
@@ -278,8 +318,8 @@ const Dashboard = () => {
         {/* Friends Card - Kept Hardcoded */}
         <Card title="Friends" link="/friends" className="md:col-span-2">
           <div className="space-y-2">
-            {friends.length > 0 ? (
-              friends.slice(0, 3).map((friend) => (
+            {dummyFriends.length > 0 ? (
+              dummyFriends.map((friend) => (
                 <div
                   key={friend.id}
                   className="flex justify-between items-center bg-muted px-3 py-2 rounded-md"

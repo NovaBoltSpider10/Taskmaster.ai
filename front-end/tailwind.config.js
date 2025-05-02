@@ -78,6 +78,7 @@ export default {
         "animation-delay-2000": "blob 7s infinite 2s",
         "animation-delay-4000": "blob 7s infinite 4s",
       },
+      fadeIn: 'fadeIn 0.5s ease-in-out',
     },
   },
   plugins: [],

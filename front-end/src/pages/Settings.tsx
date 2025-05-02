@@ -117,7 +117,7 @@ const Settings = () => {
           username: userResp.data.userName,
           email: userResp.data.email,
         });
-  
+
         // setProfilePreview(user.profileImageUrl);
       }
       // Update local personality form if context changes
@@ -129,11 +129,9 @@ const Settings = () => {
 
         if (userResp.data.preferences.time === 1) {
           preferredTimeSet = "Morning";
-        }
-        else if (userResp.data.preferences.time === 2) {
+        } else if (userResp.data.preferences.time === 2) {
           preferredTimeSet = "Afternoon";
-        }
-        else if (userResp.data.preferences.time === 3) {
+        } else if (userResp.data.preferences.time === 3) {
           preferredTimeSet = "Evening";
         }
 
@@ -142,12 +140,10 @@ const Settings = () => {
 
           if (userResp.data.preferences.privateSpace === 0) {
             privateSpaceSet = "Private";
-          }
-          else {
+          } else {
             privateSpaceSet = "Public";
           }
-        }
-        else if (userResp.data.preferences.inPerson === 0) {
+        } else if (userResp.data.preferences.inPerson === 0) {
           inPersonSet = "Virtual";
           privateSpaceSet = null;
         }
@@ -156,7 +152,7 @@ const Settings = () => {
           introversionExtroversion: personalitySet,
           preferredTime: preferredTimeSet,
           interactionType: inPersonSet,
-          preferredSpace: privateSpaceSet
+          preferredSpace: privateSpaceSet,
         });
       } else {
         // Reset form if personality data is cleared (e.g., logout)
@@ -195,9 +191,9 @@ const Settings = () => {
       processedValue = null;
     }
 
-    setPersonalityForm(prev => {
+    setPersonalityForm((prev) => {
       const newState = { ...prev, [name]: processedValue };
-      if (name === 'interactionType' && value !== 'In Person') {
+      if (name === "interactionType" && value !== "In Person") {
         newState.preferredSpace = null;
       }
       // Ensure preferredSpace is null initially if interactionType is not 'In Person'
@@ -235,27 +231,22 @@ const Settings = () => {
       preferredSpace = 0;
     }
 
-    const userResp = await axios.get<UserData>(
-      "http://localhost:3000/user/me", // Use port 3000
-      { headers: { "x-auth-token": token } }
-    );
-        
     const preferencesSend = {
-      "userId": userResp.data._id,
-      "personality": personalityForm.introversionExtroversion / 100,
-      "preferred_time": preferredTime,
-      "in_person": interactionType,
-      "private_space": preferredSpace,
+      personality: personalityForm.introversionExtroversion / 100,
+      preferred_time: preferredTime,
+      in_person: interactionType,
+      private_space: preferredSpace,
     };
 
-    await axios
-      .post("http://localhost:6005/set", preferencesSend)
-      .then((response) => {
-        // console.log(response);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+    try {
+      await axios.post("http://localhost:6005/set", preferencesSend);
+      setShowPersonalityConfirmation(true); // Show confirmation
+
+      // Hide after 3 seconds
+      setTimeout(() => setShowPersonalityConfirmation(false), 3000);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handlePrivacyToggle = (key: keyof typeof privacySettings) => {
@@ -775,7 +766,7 @@ const Settings = () => {
                   Save Personality Preferences
                 </button>
                 {showPersonalityConfirmation && (
-                  <p className="text-sm text-green-600 mt-4 animate-fade-in">
+                  <p className="text-sm text-green-600 mt-4 animate-fadeIn">
                     Preferences saved successfully!
                   </p>
                 )}
