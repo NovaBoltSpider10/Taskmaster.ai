@@ -1,4 +1,4 @@
-// FriendsPage.tsx - Fully revamped with modal-based friend matching and random friend pool
+// FriendsPage.tsx
 
 import React, { useState, useEffect, useMemo } from "react";
 import { AnimatePresence } from "framer-motion";
@@ -6,6 +6,7 @@ import FriendCard from "../components/FriendCard";
 import FriendDetailsPanel from "../components/FriendDetailsPanel";
 import FriendInfoOverlay from "../components/FriendInfoOverlay";
 import { useUser } from "../context/UserContext";
+import axios from "axios";
 
 interface PersonalityProfile {
   personality: number;
@@ -25,35 +26,78 @@ interface Friend {
   personalityProfile: PersonalityProfile;
 }
 
-const generateRandomFriend = (id: string): Friend => {
-  const usernames = [
-    "NebulaFox",
-    "PixelBlaze",
-    "QuantumLlama",
-    "CrimsonNova",
-    "ZetaWave",
-  ];
+interface UserData {
+  _id: string;
+}
+
+const realisticUsernames = [
+  "alex_m",
+  "jane.doe23",
+  "ron_techie",
+  "maria.writes",
+  "kevin.codes",
+  "chris_dev99",
+  "laura_physics",
+  "sunny_day7",
+  "nina.draws",
+  "mark.runner",
+  "violet.art",
+  "khalid_math",
+  "emma.reader",
+  "toby_travel",
+  "liam_bio"
+];
+
+const generateRandomFriend = (id: string, username?: string): Friend => {
   const courses = [
     "Cybersecurity",
     "Astrophysics",
     "Game Design",
     "Philosophy",
-    "Machine Learning",
+    "Machine Learning"
   ];
   const pick = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
 
   return {
     id,
-    username: pick(usernames) + Math.floor(Math.random() * 1000),
+    username: username ?? pick(realisticUsernames),
     isOnline: Math.random() < 0.6,
     commonCourses: [pick(courses), pick(courses)],
     personalityProfile: {
       personality: Math.random(),
       preferred_time: Math.floor(Math.random() * 3) + 1,
       in_person: Math.random() < 0.5 ? 0 : 1,
-      private_space: Math.random() < 0.5 ? 0 : 1,
-    },
+      private_space: Math.random() < 0.5 ? 0 : 1
+    }
   };
+};
+
+const getMatchedFriends = async (): Promise<string[]> => {
+  const token = localStorage.getItem("token");
+
+  try {
+    const userResp = await axios.get<UserData>("http://localhost:3000/user/me", {
+      headers: { "x-auth-token": token }
+    });
+
+    const response = await axios.post("http://localhost:6005/match", {
+      userId: userResp.data._id
+    });
+
+    const users = response.data.users;
+
+    if (Array.isArray(users)) {
+      return users.map((u) => String(u));
+    } else if (typeof users === "string") {
+      return users.split(",").map((u: string) => u.trim());
+    } else {
+      console.warn("Unexpected user format from /match:", users);
+      return [];
+    }
+  } catch (err) {
+    console.error("Error fetching matched friends:", err);
+    return [];
+  }
 };
 
 const FriendsPage: React.FC = () => {
@@ -63,23 +107,16 @@ const FriendsPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState<"all" | "online" | "offline">("all");
   const [overlayFriendId, setOverlayFriendId] = useState<string | null>(null);
-  const [chatTargetFriendId, setChatTargetFriendId] = useState<string | null>(
-    null
-  );
+  const [chatTargetFriendId, setChatTargetFriendId] = useState<string | null>(null);
   const [showMatchedMessage, setShowMatchedMessage] = useState(false);
   const [isMatchModalOpen, setIsMatchModalOpen] = useState(false);
   const [selectedToAdd, setSelectedToAdd] = useState<Friend | null>(null);
 
   useEffect(() => {
-    // Load 5 friends initially
     const initialFriends = Array.from({ length: 5 }, (_, i) =>
       generateRandomFriend(i.toString())
     );
-    const poolFriends = Array.from({ length: 10 }, (_, i) =>
-      generateRandomFriend((i + 100).toString())
-    );
     setFriends(initialFriends);
-    setRandomPool(poolFriends);
   }, []);
 
   const filteredFriends = useMemo(() => {
@@ -102,6 +139,15 @@ const FriendsPage: React.FC = () => {
     () => friends.find((f) => f.id === chatTargetFriendId) || null,
     [friends, chatTargetFriendId]
   );
+
+  const handleMatchClick = async () => {
+    const matchedUsernames = await getMatchedFriends();
+    const newPool = matchedUsernames.map((username, i) =>
+      generateRandomFriend(`match-${i}`, username)
+    );
+    setRandomPool(newPool);
+    setIsMatchModalOpen(true);
+  };
 
   return (
     <div className="w-full min-h-screen bg-background text-foreground">
@@ -136,7 +182,7 @@ const FriendsPage: React.FC = () => {
                   ))}
                 </div>
                 <button
-                  onClick={() => setIsMatchModalOpen(true)}
+                  onClick={handleMatchClick}
                   className="px-3 py-1 rounded-md text-xs font-medium bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition-colors"
                 >
                   Match Friends

@@ -45,7 +45,8 @@ class MatchRequest(Resource):
                 matched_usernames = []
                 for u2 in match_client.users:
                     if u.group_number == u2.group_number:
-                        matched_usernames.append(u2.name)
+                        if u2.userId != ObjectId(userId):
+                            matched_usernames.append(u2.name)
 
                 return make_response(jsonify({"users": matched_usernames}), 200)
 
