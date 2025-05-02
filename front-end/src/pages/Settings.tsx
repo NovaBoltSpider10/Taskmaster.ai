@@ -229,7 +229,13 @@ const Settings = () => {
       preferredSpace = 0;
     }
 
+    const userResp = await axios.get<UserData>(
+      "http://localhost:3000/user/me", // Use port 3000
+      { headers: { "x-auth-token": token } }
+    );
+
     const preferencesSend = {
+      userId: userResp.data._id,
       personality: personalityForm.introversionExtroversion / 100,
       preferred_time: preferredTime,
       in_person: interactionType,
