@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import axios from "axios";
 import AnimatedBackground from "../components/AnimatedBackground";
 import { useUser } from "../context/UserContext";
 import { useTheme } from "../context/ThemeContext";
@@ -7,15 +8,40 @@ import { useTheme } from "../context/ThemeContext";
 const defaultImage = "/user.png";
 
 const Profile = () => {
-  const { user, setUserProfile } = useUser();
+  const { user, setUserProfile, setUserState } = useUser();
   const { theme } = useTheme();
-  
+
   const [profilePic, setProfilePic] = useState<string>(user?.profileImageUrl || defaultImage);
-  
+
   const mockXP = {
     current: 320,
     max: 500,
   };
+
+  const xpPercent = Math.min((mockXP.current / mockXP.max) * 100, 100);
+
+  // Fetch user data from DB on load
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      try {
+        const res = await axios.get("http://localhost:3000/user/me", {
+          headers: { "x-auth-token": token },
+        });
+
+        setUserState(res.data);
+        if (res.data.profileImageUrl) {
+          setProfilePic(res.data.profileImageUrl);
+        }
+      } catch (err) {
+        console.error("Failed to fetch user data:", err);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -25,8 +51,8 @@ const Profile = () => {
         if (reader.result) {
           const imageDataUrl = reader.result as string;
           setProfilePic(imageDataUrl);
-          
           setUserProfile({ profileImageUrl: imageDataUrl });
+          // Optional: upload imageDataUrl to backend here
         }
       };
       reader.readAsDataURL(file);
@@ -37,19 +63,14 @@ const Profile = () => {
     setProfilePic(defaultImage);
   };
 
-  const xpPercent = Math.min((mockXP.current / mockXP.max) * 100, 100);
-
   return (
     <div className="min-h-screen w-full bg-background text-foreground px-6 py-10">
       <AnimatedBackground />
 
       <div className="relative z-10 max-w-xl mx-auto bg-card text-card-foreground rounded-2xl p-8 shadow-lg border border-border space-y-8">
-        {/* Page Title */}
-        <h1 className="text-3xl font-bold text-center text-emphasis">
-          Profile
-        </h1>
+        <h1 className="text-3xl font-bold text-center text-emphasis">Profile</h1>
 
-        {/* XP Bar */}
+        {/* XP Progress Bar */}
         <div>
           <h2 className="text-lg font-semibold mb-2 text-emphasis">XP Progress</h2>
           <div className="relative w-full h-6 bg-muted rounded-full overflow-hidden">
@@ -65,7 +86,7 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Profile Image & Info */}
+        {/* Profile Section */}
         <div className="flex flex-col items-center space-y-4">
           <motion.img
             key={profilePic}
@@ -89,9 +110,9 @@ const Profile = () => {
           </label>
 
           <div className="text-center">
-            <h3 className="text-xl font-bold text-emphasis">{user?.userName || 'Username'}</h3>
+            <h3 className="text-xl font-bold text-emphasis">{user?.userName || "Username"}</h3>
             <p className="text-sm text-muted-foreground">
-              {user?.email || 'email@example.com'}
+              {user?.email || "email@example.com"}
             </p>
             {(user?.firstName || user?.lastName) && (
               <p className="text-sm text-muted-foreground mt-1">
@@ -99,13 +120,14 @@ const Profile = () => {
               </p>
             )}
           </div>
-          
-          {/* Current Theme Information */}
+
           <div className="mt-6 p-4 bg-muted/50 rounded-lg w-full">
             <h3 className="text-sm font-medium text-emphasis mb-2">Current Theme</h3>
             <div className="flex items-center space-x-2">
-              <div className={`w-4 h-4 rounded-full bg-primary`}></div>
-              <span className="text-sm capitalize">{theme === 'clean' ? 'Beige' : theme}</span>
+              <div className="w-4 h-4 rounded-full bg-primary"></div>
+              <span className="text-sm capitalize">
+                {theme === "clean" ? "Beige" : theme}
+              </span>
             </div>
           </div>
         </div>
