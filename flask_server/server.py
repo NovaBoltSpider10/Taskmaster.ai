@@ -73,7 +73,7 @@ class SetPreferences(Resource):
         
         if not user_object:
             return 400
-
+        print (userId)
         return 200
 
 
