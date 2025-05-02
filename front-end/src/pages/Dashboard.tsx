@@ -226,9 +226,9 @@ const Dashboard = () => {
         {/* Friends Card - Kept Hardcoded */}
         <Card title="Friends" link="/friends" className="md:col-span-2">
           <div className="space-y-1">
-            <p>👩 Alice Johnson</p>
-            <p>👨 Bob Smith</p>
-            <p>🧑 Charlie Brown</p>
+            <p>Alice Wonder</p>
+            <p>Charlie Chap</p>
+            <p>Ethan Hunt</p>
           </div>
         </Card>
 

@@ -24,16 +24,32 @@ interface MyEvent {
 
 const style = document.createElement("style");
 style.innerHTML = `
-  .dark .rbc-month-view {
+  .dark .rbc-month-view,
+  .dark .rbc-time-view,
+  .dark .rbc-agenda-view,
+  .dark .rbc-time-header,
+  .dark .rbc-timeslot-group,
+  .dark .rbc-time-content,
+  .dark .rbc-day-slot,
+  .dark .rbc-time-slot,
+  .dark .rbc-time-gutter,
+  .dark .rbc-time-column,
+  .dark .rbc-row,
+  .dark .rbc-date-cell {
+    background-color: #1e1e1e !important;
+    color: #f5f5f5 !important;
+  }
+
+  .dark .rbc-off-range,
+  .dark .rbc-off-range-bg {
     background-color: #2a2a2a !important;
+    color: #888 !important;
   }
-  .dark .rbc-off-range {
-    background-color: #333 !important;
-    color: #999 !important;
-  }
+
   .dark .rbc-today {
     background-color: rgba(139, 92, 246, 0.15) !important;
   }
+
   .rbc-event {
     width: 100% !important;
     box-sizing: border-box !important;
@@ -42,6 +58,7 @@ style.innerHTML = `
     padding: 0 !important;
     margin: 0 !important;
   }
+
   .rbc-event-content {
     white-space: normal !important;
     padding: 0 !important;
@@ -49,6 +66,8 @@ style.innerHTML = `
     height: 100%;
   }
 `;
+
+
 document.head.appendChild(style);
 
 const localizer = dateFnsLocalizer({

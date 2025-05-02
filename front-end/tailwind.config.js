@@ -11,6 +11,7 @@ export default {
         // Define fonts using CSS variables or keep specific definitions
         sans: ["var(--font-sans, Satoshi)", "Inter", "Roboto", "sans-serif"],
         roboto: ["Roboto", "sans-serif"], // Keep roboto if used elsewhere
+        ptsans: ["PT Sans", "sans-serif"], // Keep PT Sans if used elsewhere
       },
       colors: {
         // Define colors using CSS variables for theme switching

@@ -4,6 +4,7 @@ interface Friend {
   id: string;
   username: string;
   isOnline: boolean;
+  matched?: boolean;
 }
 
 interface FriendCardProps {
@@ -22,10 +23,24 @@ const FriendCard: React.FC<FriendCardProps> = ({ friend, isSelected, onClick }) 
           : 'hover:bg-muted/50 dark:hover:bg-muted/30 border border-transparent'
       }`}
     >
-      <span className={`w-2.5 h-2.5 rounded-full ${friend.isOnline ? 'bg-green-500' : 'bg-red-500'}`}></span>
-      <span className="text-sm font-medium text-foreground truncate">{friend.username}</span>
+      {/* Online status dot */}
+      <span
+        className={`w-2.5 h-2.5 rounded-full ${
+          friend.isOnline ? 'bg-green-500' : 'bg-red-500'
+        }`}
+      ></span>
+
+      {/* Username and match icon */}
+      <div className="flex items-center gap-1 text-sm font-medium text-foreground truncate">
+        <span>{friend.username}</span>
+        {friend.matched && (
+          <span className="text-yellow-400" title="Matched Friend">
+            ⭐
+          </span>
+        )}
+      </div>
     </div>
   );
 };
 
-export default FriendCard; 
+export default FriendCard;

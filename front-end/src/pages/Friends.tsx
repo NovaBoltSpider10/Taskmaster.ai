@@ -1,10 +1,18 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import FriendCard from '../components/FriendCard';
 import FriendDetailsPanel from '../components/FriendDetailsPanel';
 import FriendInfoOverlay from '../components/FriendInfoOverlay';
+import { useUser } from '../context/UserContext';
 
-// Mock data - replace with actual API call
+// Define personality profile type
+interface PersonalityProfile {
+  personality: number;        // 0 to 1
+  preferred_time: number;     // 1 = Morning, 2 = Afternoon, 3 = Evening
+  in_person: number;          // 0 = Virtual, 1 = In Person
+  private_space: number;      // 0 = Public, 1 = Private
+}
+
 interface Friend {
   id: string;
   username: string;
@@ -13,39 +21,111 @@ interface Friend {
   notes?: string;
   streak?: number;
   xpAvailable?: boolean;
+  matched?: boolean;
+  personalityProfile: PersonalityProfile;
 }
 
 const MOCK_FRIENDS: Friend[] = [
-  { id: '1', username: 'AliceWonder', isOnline: true, commonCourses: ['Quantum Physics', 'Creative Writing'], notes: 'Met at the library study group.', streak: 15, xpAvailable: true },
-  { id: '2', username: 'BobTheBuilder', isOnline: false, commonCourses: ['Civil Engineering 101'], notes: 'Great at fixing things.', streak: 5 },
-  { id: '3', username: 'CharlieChap', isOnline: true, commonCourses: ['Film History', 'Advanced Calculus'], xpAvailable: false },
-  { id: '4', username: 'DianaPrince', isOnline: false, commonCourses: ['Ancient History', 'Combat Training'], notes: 'Seems mysterious.', streak: 90, xpAvailable: true },
-  { id: '5', username: 'EthanHunt', isOnline: true, commonCourses: ['Espionage Techniques'], streak: 2, xpAvailable: false },
-   { id: '6', username: 'FionaApple', isOnline: true, commonCourses: ['Music Theory', 'Poetry'], notes: 'Loves cats.', streak: 30 },
-   { id: '7', username: 'GeorgeCostanza', isOnline: false, commonCourses: ['Architecture (Failed)', 'Marine Biology (Claimed)'], notes: 'Always has a scheme.', streak: 1 },
+  {
+    id: '1',
+    username: 'AliceWonder',
+    isOnline: true,
+    commonCourses: ['Quantum Physics'],
+    personalityProfile: { personality: 0.7, preferred_time: 2, in_person: 1, private_space: 0 },
+  },
+  {
+    id: '2',
+    username: 'BobTheBuilder',
+    isOnline: false,
+    commonCourses: ['Engineering'],
+    personalityProfile: { personality: 0.2, preferred_time: 1, in_person: 0, private_space: 0 },
+  },
+  {
+    id: '3',
+    username: 'CharlieChap',
+    isOnline: true,
+    commonCourses: ['Film History'],
+    personalityProfile: { personality: 0.5, preferred_time: 3, in_person: 1, private_space: 1 },
+  },
+  {
+    id: '4',
+    username: 'DianaPrince',
+    isOnline: false,
+    commonCourses: ['Ancient History', 'Combat Training'],
+    personalityProfile: { personality: 0.6, preferred_time: 2, in_person: 1, private_space: 1 },
+  },
+  {
+    id: '5',
+    username: 'EthanHunt',
+    isOnline: true,
+    commonCourses: ['Espionage Techniques'],
+    personalityProfile: { personality: 0.3, preferred_time: 3, in_person: 0, private_space: 0 },
+  },
+  {
+    id: '6',
+    username: 'FionaApple',
+    isOnline: true,
+    commonCourses: ['Music Theory', 'Poetry'],
+    personalityProfile: { personality: 0.8, preferred_time: 1, in_person: 1, private_space: 1 },
+  },
+  {
+    id: '7',
+    username: 'GeorgeCostanza',
+    isOnline: false,
+    commonCourses: ['Architecture (Failed)', 'Marine Biology (Claimed)'],
+    personalityProfile: { personality: 0.1, preferred_time: 2, in_person: 0, private_space: 0 },
+  },
 ];
 
 const FriendsPage: React.FC = () => {
+  const { personalityData } = useUser();
   const [friends, setFriends] = useState<Friend[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filter, setFilter] = useState<'all' | 'online' | 'offline'>('all');
+  const [filter, setFilter] = useState<'all' | 'online' | 'offline' | 'matched'>('all');
   const [overlayFriendId, setOverlayFriendId] = useState<string | null>(null);
   const [chatTargetFriendId, setChatTargetFriendId] = useState<string | null>(null);
 
   useEffect(() => {
-    setFriends(MOCK_FRIENDS);
-    // Optionally set a default chat target
-    if (MOCK_FRIENDS.length > 0 && !chatTargetFriendId) {
-      setChatTargetFriendId(MOCK_FRIENDS[0].id);
+    if (!personalityData) {
+      setFriends(MOCK_FRIENDS);
+      return;
     }
-  }, [chatTargetFriendId]);
+
+    const userProfile = {
+      personality: personalityData.introversionExtroversion / 100,
+      preferred_time:
+        personalityData.preferredTime === 'Morning' ? 1 :
+        personalityData.preferredTime === 'Afternoon' ? 2 :
+        personalityData.preferredTime === 'Evening' ? 3 : 0,
+      in_person: personalityData.interactionType === 'In Person' ? 1 : 0,
+      private_space: personalityData.preferredSpace === 'Private' ? 1 : 0,
+    };
+
+    const scoredFriends = MOCK_FRIENDS.map(friend => {
+      const f = friend.personalityProfile;
+      const distance = Math.sqrt(
+        Math.pow(f.personality - userProfile.personality, 2) +
+        Math.pow(f.preferred_time - userProfile.preferred_time, 2) +
+        Math.pow(f.in_person - userProfile.in_person, 2) +
+        Math.pow(f.private_space - userProfile.private_space, 2)
+      );
+
+      return {
+        ...friend,
+        matched: friend.isOnline && distance < 2.2,
+      };
+    });
+
+    setFriends(scoredFriends);
+  }, [personalityData]);
 
   const filteredFriends = useMemo(() => {
     return friends
       .filter(friend => {
         if (filter === 'online') return friend.isOnline;
         if (filter === 'offline') return !friend.isOnline;
-        return true; // 'all'
+        if (filter === 'matched') return friend.matched;
+        return true;
       })
       .filter(friend =>
         friend.username.toLowerCase().includes(searchTerm.toLowerCase())
@@ -60,91 +140,59 @@ const FriendsPage: React.FC = () => {
     return friends.find(f => f.id === chatTargetFriendId) || null;
   }, [friends, chatTargetFriendId]);
 
-  const handleSelectOverlayFriend = (id: string) => {
-    setOverlayFriendId(id);
-  };
-
-  const handleCloseOverlay = () => {
-    setOverlayFriendId(null);
-  };
-
-  // Function to handle Message button click from overlay
-  const handleMessageFromOverlay = (friendId: string) => {
-    // Set this friend as the chat target
-    setChatTargetFriendId(friendId);
-    // Close the overlay
-    setOverlayFriendId(null);
-  };
-
   return (
-    <div className="w-full min-h-screen bg-background text-foreground" style={{ fontFamily: "'Satoshi', 'Inter', sans-serif" }}>
+    <div className="w-full min-h-screen bg-background text-foreground">
       <main className="max-w-7xl mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-emphasis mb-6">Friends</h1>
 
-        <div className="relative bg-card text-card-foreground rounded-2xl shadow-sm border border-border overflow-hidden" style={{ minHeight: '70vh' }}>
+        <div className="bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
           <div className="flex h-full">
-            <div className="w-full md:w-1/3 border-r border-border p-4 flex flex-col">
-               <div className="relative mb-4">
-                    <input
-                        type="text"
-                        placeholder="Search friends..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 border border-input bg-input rounded-md focus:outline-none focus:ring-1 focus:ring-ring text-sm"
-                    />
-                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                    </svg>
-                </div>
-
-              <div className="flex space-x-2 mb-4">
-                {(['all', 'online', 'offline'] as const).map(f => (
+            <div className="w-full md:w-1/3 border-r border-border p-4">
+              <input
+                type="text"
+                placeholder="Search friends..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full mb-4 px-4 py-2 border rounded-md text-sm"
+              />
+              <div className="flex gap-2 mb-4">
+                {(['all', 'online', 'offline', 'matched'] as const).map(type => (
                   <button
-                    key={f}
-                    onClick={() => setFilter(f)}
+                    key={type}
+                    onClick={() => setFilter(type)}
                     className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
-                      filter === f
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                      filter === type
+                        ? 'bg-primary text-white'
+                        : 'bg-muted text-muted-foreground'
                     }`}
                   >
-                    {f.charAt(0).toUpperCase() + f.slice(1)}
+                    {type.charAt(0).toUpperCase() + type.slice(1)}
                   </button>
                 ))}
               </div>
-
-              <div className="flex-grow space-y-1 overflow-y-auto pr-1">
-                {filteredFriends.length > 0 ? (
-                  filteredFriends.map(friend => (
-                    <FriendCard
-                      key={friend.id}
-                      friend={friend}
-                      isSelected={overlayFriendId === friend.id}
-                      onClick={() => handleSelectOverlayFriend(friend.id)}
-                    />
-                  ))
-                ) : (
-                  <p className="text-sm text-muted-foreground text-center py-4">No friends found.</p>
-                )}
+              <div className="space-y-2 overflow-y-auto">
+                {filteredFriends.map(friend => (
+                  <FriendCard
+                    key={friend.id}
+                    friend={friend}
+                    isSelected={overlayFriendId === friend.id}
+                    onClick={() => setOverlayFriendId(friend.id)}
+                  />
+                ))}
               </div>
             </div>
-
-            <div className="flex-1 flex flex-col bg-background">
-              <FriendDetailsPanel
-                friend={chatTargetFriend}
-              />
+            <div className="flex-1">
+              <FriendDetailsPanel friend={chatTargetFriend} />
             </div>
           </div>
-
           <AnimatePresence>
-             {overlayFriend && (
-               <FriendInfoOverlay
-                 key={overlayFriend.id}
-                 friend={overlayFriend}
-                 onClose={handleCloseOverlay}
-                 onMessageButtonClick={handleMessageFromOverlay}
-               />
-             )}
+            {overlayFriend && (
+              <FriendInfoOverlay
+                friend={overlayFriend}
+                onClose={() => setOverlayFriendId(null)}
+                onMessageButtonClick={(id) => setChatTargetFriendId(id)}
+              />
+            )}
           </AnimatePresence>
         </div>
       </main>
