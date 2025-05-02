@@ -50,14 +50,12 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
     <label className="text-sm font-medium text-card-foreground">{label}</label>
     <button
       onClick={() => onChange(!enabled)}
-      className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary ${
-        enabled ? "bg-primary" : "bg-muted"
-      }`}
+      className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary ${enabled ? "bg-primary" : "bg-muted"
+        }`}
     >
       <span
-        className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform duration-200 ease-in-out ${
-          enabled ? "translate-x-6" : "translate-x-1"
-        }`}
+        className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform duration-200 ease-in-out ${enabled ? "translate-x-6" : "translate-x-1"
+          }`}
       />
     </button>
   </div>
@@ -239,11 +237,12 @@ const Settings = () => {
     };
 
     try {
-      await axios.post("http://localhost:6005/set", preferencesSend);
-      setShowPersonalityConfirmation(true); // Show confirmation
-
-      // Hide after 3 seconds
-      setTimeout(() => setShowPersonalityConfirmation(false), 3000);
+      await axios.post("http://localhost:6005/set", preferencesSend)
+        .then((response) => {
+          setShowPersonalityConfirmation(true); // Show confirmation
+          console.log(response);
+          setTimeout(() => setShowPersonalityConfirmation(false), 3000);
+        });
     } catch (err) {
       console.error(err);
     }
@@ -426,11 +425,10 @@ const Settings = () => {
                       // Removed console log for clarity now
                       setTheme(themeOption);
                     }}
-                    className={`px-4 py-2 rounded-md border transition duration-300 text-sm font-medium capitalize ${
-                      theme === themeOption
+                    className={`px-4 py-2 rounded-md border transition duration-300 text-sm font-medium capitalize ${theme === themeOption
                         ? "bg-primary text-primary-foreground border-primary/50 ring-2 ring-primary"
                         : "bg-secondary text-secondary-foreground hover:bg-accent hover:text-accent-foreground border-border"
-                    }`}
+                      }`}
                   >
                     {themeOption === "clean" ? "Beige" : themeOption}
                   </button>
@@ -660,11 +658,9 @@ const Settings = () => {
                   <div
                     className="absolute text-xs font-semibold text-emphasis pointer-events-none"
                     style={{
-                      left: `calc(${
-                        personalityForm.introversionExtroversion
-                      }% - ${
-                        0.15 * personalityForm.introversionExtroversion
-                      }px)`,
+                      left: `calc(${personalityForm.introversionExtroversion
+                        }% - ${0.15 * personalityForm.introversionExtroversion
+                        }px)`,
                       top: "1.5rem",
                       maxWidth: "100%",
                       whiteSpace: "nowrap",
@@ -761,7 +757,7 @@ const Settings = () => {
                 <button
                   onClick={handleSavePersonality}
                   className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:opacity-90 transition duration-300 text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-                  // Optionally disable button if !isPersonalityComplete (though user might want to save partially)
+                // Optionally disable button if !isPersonalityComplete (though user might want to save partially)
                 >
                   Save Personality Preferences
                 </button>
@@ -796,10 +792,9 @@ const Settings = () => {
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`w-full text-left px-4 py-2 rounded-md transition duration-300 text-sm font-medium
-                  ${
-                    activeTab === tab
-                      ? "bg-primary text-primary-foreground" // Active tab style using theme vars
-                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground" // Inactive tab style using theme vars
+                  ${activeTab === tab
+                    ? "bg-primary text-primary-foreground" // Active tab style using theme vars
+                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground" // Inactive tab style using theme vars
                   }`}
               >
                 {tab}
