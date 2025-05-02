@@ -31,19 +31,23 @@ class MatchRequest(Resource):
             if not matched:
                 print("No more possible matches.")
                 break
-
-        for u in match_client.users:
-            if u.userId != ObjectId(userId):
-                continue
+        
+        # for u in match_client.users:
+        #     users.update_one(
+        #         {"_id": ObjectId(u.userId)},
+        #         {"$set": {
+        #             "groupNumber": u.group_number,
+        #         }},
+        #     )
             
-            # users.update_one(
-            #     {"_id": ObjectId(u.userId)},
-            #     {"$set": {
-            #         "groupNumber": u.group_number,
-            #     }},
-            # )
+        for u in match_client.users:
+            if u.userId == ObjectId(userId):
+                matched_usernames = []
+                for u2 in match_client.users:
+                    if u.group_number == u2.group_number:
+                        matched_usernames.append(u2.name)
 
-            return make_response(jsonify({"group_number": u.group_number}), 200)
+                return make_response(jsonify({"users": matched_usernames}), 200)
 
         return make_response(jsonify({"message": "Error grouping user"}), 404)
 

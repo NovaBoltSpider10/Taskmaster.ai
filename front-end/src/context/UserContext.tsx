@@ -17,6 +17,12 @@ interface UserData {
   username?: string; // Optional username (Corrected from userName)
   email: string; // Email should ideally always be present
   profileImageUrl?: string; // Optional profile image URL
+  preferences?: {
+    personality: number;
+    inPerson: number;
+    privateSpace: number;
+    time: number;
+  };
 }
 
 // Define the structure for personality data (remains the same)

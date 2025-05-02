@@ -10,7 +10,7 @@ class User:
 
         self.userId = userObject.get("_id")
         self.preferences = userObject.get("preferences")
-        self.name = userObject.get("username")
+        self.name = userObject.get("userName")
         self.points = userObject.get("points") if userObject.get("points") else 0
         self.streak = userObject.get("streak") if userObject.get("streak") else 0
         self.last_task_date = userObject.get("lastTaskDate")

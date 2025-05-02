@@ -27,6 +27,12 @@ interface UserData {
   userName: string;
   email: string;
   _id: string;
+  preferences?: {
+    personality: number;
+    inPerson: number;
+    privateSpace: number;
+    time: number;
+  };
 }
 
 const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ label, enabled, onChange }) => (
@@ -84,7 +90,7 @@ const Settings = () => {
         "http://localhost:3000/user/me", // Use port 3000
         { headers: { "x-auth-token": token } }
       );
-      
+
       if (user) {
         setFormData({
           username: userResp.data.userName,
@@ -94,8 +100,43 @@ const Settings = () => {
         // setProfilePreview(user.profileImageUrl);
       }
       // Update local personality form if context changes
-      if (personalityData) {
-        setPersonalityForm(personalityData);
+      if (userResp.data.preferences) {
+        const personalitySet = userResp.data.preferences.personality * 100;
+        let preferredTimeSet = null;
+        let inPersonSet = null;
+        let privateSpaceSet = null;
+
+        if (userResp.data.preferences.time === 1) {
+          preferredTimeSet = "Morning";
+        }
+        else if (userResp.data.preferences.time === 2) {
+          preferredTimeSet = "Afternoon";
+        }
+        else if (userResp.data.preferences.time === 3) {
+          preferredTimeSet = "Evening";
+        }
+
+        if (userResp.data.preferences.inPerson === 1) {
+          inPersonSet = "In Person";
+
+          if (userResp.data.preferences.privateSpace === 0) {
+            privateSpaceSet = "Private";
+          }
+          else {
+            privateSpaceSet = "Public";
+          }
+        }
+        else if (userResp.data.preferences.inPerson === 0) {
+          inPersonSet = "Virtual";
+          privateSpaceSet = null;
+        }
+
+        setPersonalityForm({
+          introversionExtroversion: personalitySet,
+          preferredTime: preferredTimeSet,
+          interactionType: inPersonSet,
+          preferredSpace: privateSpaceSet
+        });
       } else {
         // Reset form if personality data is cleared (e.g., logout)
         setPersonalityForm({
@@ -130,10 +171,8 @@ const Settings = () => {
       processedValue = null;
     }
 
-
     setPersonalityForm(prev => {
       const newState = { ...prev, [name]: processedValue };
-      // Reset preferredSpace if interactionType is not 'In Person'
       if (name === 'interactionType' && value !== 'In Person') {
         newState.preferredSpace = null;
       }
@@ -141,6 +180,7 @@ const Settings = () => {
       if (newState.interactionType !== 'In Person') {
         newState.preferredSpace = null;
       }
+
       return newState;
     });
   };
@@ -199,7 +239,7 @@ const Settings = () => {
 
     await axios.post('http://localhost:6005/set', preferencesSend)
       .then((response) => {
-        console.log(response);
+        // console.log(response);
       })
       .catch((err) => {
         console.error(err);
