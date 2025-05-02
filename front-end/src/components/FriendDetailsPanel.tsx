@@ -164,7 +164,6 @@ const FriendDetailsPanel: React.FC<ChatInterfaceProps> = ({ friend }) => {
       <div className="flex-1 p-4 space-y-4 overflow-y-auto flex flex-col">
         {/* Only show chat content if a friend is selected */}
         {friend ? (
-          isPersonalityComplete ? (
             <>
               {/* Message list */}
               <div className="flex-grow bg-muted/30 rounded-md p-3 overflow-y-auto border border-input flex flex-col space-y-2 min-h-[200px]">
@@ -215,17 +214,7 @@ const FriendDetailsPanel: React.FC<ChatInterfaceProps> = ({ friend }) => {
                 </button>
               </div>
             </>
-          ) : (
-            // Message if personality quiz is not complete (but friend is selected)
-            <div className="flex-grow flex items-center justify-center">
-              <div className="text-center p-4 bg-warning/10 border border-warning/30 rounded-md">
-                <p className="text-sm text-warning-foreground font-medium">
-                  Complete your personality preferences in <a href="/settings" className="underline hover:text-warning">Settings</a> to unlock chat with {friend.username}.
-                </p>
-              </div>
-            </div>
-          )
-        ) : (
+          ) :  (
           // Placeholder when no chat target is selected
           <div className="flex-grow flex items-center justify-center">
             <p className="text-muted-foreground">Select a friend from the list to start chatting.</p>

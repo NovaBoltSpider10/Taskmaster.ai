@@ -48,7 +48,7 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ label, enabled, onChange })
 const Settings = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>("Profile");
   const { theme, setTheme } = useTheme(); // Use theme and setTheme from context
-  const { user, setUserProfile, personalityData, isPersonalityComplete } = useUser();
+  const { user, setUserState, personalityData } = useUser();
   const token = localStorage.getItem("token");
   // Local state for form inputs, initialized from context
   const [formData, setFormData] = useState({
@@ -91,7 +91,7 @@ const Settings = () => {
           email: userResp.data.email,
         });
   
-        setProfilePreview(user.profileImageUrl);
+        // setProfilePreview(user.profileImageUrl);
       }
       // Update local personality form if context changes
       if (personalityData) {
@@ -241,7 +241,7 @@ const Settings = () => {
   const handleSaveChanges = () => {
     if (!user) return; // Should not happen if logged in
     // Update user context with form data
-    setUserProfile({
+    setUserState({
       username: formData.username,
       email: formData.email,
       // Update firstName, lastName if they are part of the form

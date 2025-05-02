@@ -21,7 +21,6 @@ const app = express();
 // Explicitly configure CORS to allow only the frontend origin
 // Ensure this is the very first middleware
 app.use(cors({ origin: 'http://localhost:5173' }));
-
 mongoose
     .connect(process.env.DB_URL)
     .then(() => console.log("Connected to MongoDB"))
