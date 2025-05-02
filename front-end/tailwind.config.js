@@ -64,6 +64,14 @@ export default {
             transform: "translate(0px, 0px) scale(1)",
           },
         },
+        fadeIn: {
+          "0%": {
+            opacity: 0,
+          },
+          "100%": {
+            opacity: 1,
+          },
+        }
       },
       animation: {
         blob: "blob 7s infinite",
