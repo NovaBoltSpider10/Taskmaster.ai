@@ -123,7 +123,15 @@ const Tasks = () => {
         await Promise.all(patchCalls);
 
         // Sort tasks by deadline (earliest first)
-        const sortedTasks = tasksData.sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime());
+        const sortedTasks = tasksData.sort((a, b) => {
+          // First, push completed to the end
+          if (a.status === "completed" && b.status !== "completed") return 1;
+          if (a.status !== "completed" && b.status === "completed") return -1;
+        
+          // If both are the same status (or both not completed), sort by deadline
+          return new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
+        });
+        
 
         setTasks(sortedTasks); // Set the potentially updated and sorted tasks
         setTasksStore(sortedTasks); // Update the tasks store
@@ -211,9 +219,16 @@ const Tasks = () => {
 
   // Filter logic remains the same
   const filteredTasks =
-    filterStatus === "all"
-      ? tasks
-      : tasks.filter((task) => task.status === filterStatus);
+  filterStatus === "all"
+    ? [...tasks].sort((a, b) => {
+        // Push completed to bottom
+        if (a.status === "completed" && b.status !== "completed") return 1;
+        if (a.status !== "completed" && b.status === "completed") return -1;
+        // Sort by deadline otherwise
+        return new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
+      })
+    : tasks.filter((task) => task.status === filterStatus);
+
 
 
   // --- Original JSX Structure and Styling (Unaltered) ---
