@@ -96,6 +96,9 @@ const Settings = () => {
     user?.profileImageUrl || null
   );
 
+  const [showPersonalityConfirmation, setShowPersonalityConfirmation] =
+    useState(false);
+
   // Update local form state if user context changes (e.g., after login)
   useEffect(() => {
     const setUserData = async () => {
@@ -180,45 +183,34 @@ const Settings = () => {
     let preferredSpace;
     let preferredTime;
 
-    if (personalityForm.preferredTime == "Morning") {
-      preferredTime = 1;
-    }
-    if (personalityForm.preferredTime == "Afternoon") {
-      preferredTime = 2;
-    }
-    if (personalityForm.preferredTime == "Evening") {
-      preferredTime = 3;
-    }
+    if (personalityForm.preferredTime == "Morning") preferredTime = 1;
+    if (personalityForm.preferredTime == "Afternoon") preferredTime = 2;
+    if (personalityForm.preferredTime == "Evening") preferredTime = 3;
 
     if (personalityForm.interactionType === "In Person") {
       interactionType = 1;
-
-      if (personalityForm.preferredSpace === "Public") {
-        preferredSpace = 1;
-      } else {
-        preferredSpace = 0;
-      }
+      preferredSpace = personalityForm.preferredSpace === "Public" ? 1 : 0;
     } else {
       interactionType = 0;
       preferredSpace = 0;
     }
 
     const preferencesSend = {
-      // "userId": userData._id,
       personality: personalityForm.introversionExtroversion / 100,
       preferred_time: preferredTime,
       in_person: interactionType,
       private_space: preferredSpace,
     };
 
-    await axios
-      .post("http://localhost:6005/set", preferencesSend)
-      .then((response) => {
-        console.log(response);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+    try {
+      await axios.post("http://localhost:6005/set", preferencesSend);
+      setShowPersonalityConfirmation(true); // Show confirmation
+
+      // Hide after 3 seconds
+      setTimeout(() => setShowPersonalityConfirmation(false), 3000);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handlePrivacyToggle = (key: keyof typeof privacySettings) => {
@@ -299,10 +291,10 @@ const Settings = () => {
               Profile Settings
             </h2>
             {/* <ProfileSettings handleProfileUpload={handleProfileUpload} /> */}
-            <p className="text-muted-foreground italic text-sm">
+            {/* <p className="text-muted-foreground italic text-sm">
               Profile Settings component missing. Implement in
               /settings_pages/ProfileSettings.tsx
-            </p>
+            </p> */}
             {/* Placeholder Content */}
             <div className="space-y-6 mt-4">
               <div className="flex items-center space-x-4">
@@ -431,10 +423,10 @@ const Settings = () => {
               Notifications
             </h2>
             {/* <NotificationSettings toggleNotificationSetting={toggleNotificationSetting} /> */}
-            <p className="text-muted-foreground italic text-sm">
+            {/* <p className="text-muted-foreground italic text-sm">
               Notification Settings component missing. Implement in
               /settings_pages/NotificationSettings.tsx
-            </p>
+            </p> */}
             {/* Placeholder Content - Using theme variables */}
             <div className="space-y-4 mt-4">
               <div className="flex items-center justify-between p-3 bg-card rounded-md shadow-sm border border-border">
@@ -490,10 +482,10 @@ const Settings = () => {
               Account
             </h2>
             {/* <AccountSettings /> */}
-            <p className="text-muted-foreground italic text-sm">
+            {/* <p className="text-muted-foreground italic text-sm">
               Account Settings component missing. Implement in
               /settings_pages/AccountSettings.tsx
-            </p>
+            </p> */}
             {/* Placeholder Content - Using theme variables */}
             <div className="space-y-6 mt-4">
               <div>
@@ -537,10 +529,10 @@ const Settings = () => {
               Privacy
             </h2>
             {/* <PrivacySettings /> */}
-            <p className="text-muted-foreground italic text-sm mb-6">
+            {/* <p className="text-muted-foreground italic text-sm mb-6">
               Privacy settings component missing. Implement in
               /settings_pages/PrivacySettings.tsx
-            </p>
+            </p> */}
 
             {/* --- New Contact Information Sharing Section --- */}
             <div className="space-y-4 border-t border-border pt-6">
@@ -737,6 +729,11 @@ const Settings = () => {
                 >
                   Save Personality Preferences
                 </button>
+                {showPersonalityConfirmation && (
+                  <p className="text-sm text-green-600 mt-4 animate-fade-in">
+                    Preferences saved successfully!
+                  </p>
+                )}
               </div>
             </div>
           </div>
