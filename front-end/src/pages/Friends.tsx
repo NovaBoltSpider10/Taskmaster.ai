@@ -1,16 +1,17 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { AnimatePresence } from 'framer-motion';
-import FriendCard from '../components/FriendCard';
-import FriendDetailsPanel from '../components/FriendDetailsPanel';
-import FriendInfoOverlay from '../components/FriendInfoOverlay';
-import { useUser } from '../context/UserContext';
+// FriendsPage.tsx - Fully revamped with modal-based friend matching and random friend pool
 
-// Define personality profile type
+import React, { useState, useEffect, useMemo } from "react";
+import { AnimatePresence } from "framer-motion";
+import FriendCard from "../components/FriendCard";
+import FriendDetailsPanel from "../components/FriendDetailsPanel";
+import FriendInfoOverlay from "../components/FriendInfoOverlay";
+import { useUser } from "../context/UserContext";
+
 interface PersonalityProfile {
-  personality: number;        // 0 to 1
-  preferred_time: number;     // 1 = Morning, 2 = Afternoon, 3 = Evening
-  in_person: number;          // 0 = Virtual, 1 = In Person
-  private_space: number;      // 0 = Public, 1 = Private
+  personality: number;
+  preferred_time: number;
+  in_person: number;
+  private_space: number;
 }
 
 interface Friend {
@@ -21,124 +22,86 @@ interface Friend {
   notes?: string;
   streak?: number;
   xpAvailable?: boolean;
-  matched?: boolean;
   personalityProfile: PersonalityProfile;
 }
 
-const MOCK_FRIENDS: Friend[] = [
-  {
-    id: '1',
-    username: 'AliceWonder',
-    isOnline: true,
-    commonCourses: ['Quantum Physics'],
-    personalityProfile: { personality: 0.7, preferred_time: 2, in_person: 1, private_space: 0 },
-  },
-  {
-    id: '2',
-    username: 'BobTheBuilder',
-    isOnline: false,
-    commonCourses: ['Engineering'],
-    personalityProfile: { personality: 0.2, preferred_time: 1, in_person: 0, private_space: 0 },
-  },
-  {
-    id: '3',
-    username: 'CharlieChap',
-    isOnline: true,
-    commonCourses: ['Film History'],
-    personalityProfile: { personality: 0.5, preferred_time: 3, in_person: 1, private_space: 1 },
-  },
-  {
-    id: '4',
-    username: 'DianaPrince',
-    isOnline: false,
-    commonCourses: ['Ancient History', 'Combat Training'],
-    personalityProfile: { personality: 0.6, preferred_time: 2, in_person: 1, private_space: 1 },
-  },
-  {
-    id: '5',
-    username: 'EthanHunt',
-    isOnline: true,
-    commonCourses: ['Espionage Techniques'],
-    personalityProfile: { personality: 0.3, preferred_time: 3, in_person: 0, private_space: 0 },
-  },
-  {
-    id: '6',
-    username: 'FionaApple',
-    isOnline: true,
-    commonCourses: ['Music Theory', 'Poetry'],
-    personalityProfile: { personality: 0.8, preferred_time: 1, in_person: 1, private_space: 1 },
-  },
-  {
-    id: '7',
-    username: 'GeorgeCostanza',
-    isOnline: false,
-    commonCourses: ['Architecture (Failed)', 'Marine Biology (Claimed)'],
-    personalityProfile: { personality: 0.1, preferred_time: 2, in_person: 0, private_space: 0 },
-  },
-];
+const generateRandomFriend = (id: string): Friend => {
+  const usernames = [
+    "NebulaFox",
+    "PixelBlaze",
+    "QuantumLlama",
+    "CrimsonNova",
+    "ZetaWave",
+  ];
+  const courses = [
+    "Cybersecurity",
+    "Astrophysics",
+    "Game Design",
+    "Philosophy",
+    "Machine Learning",
+  ];
+  const pick = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
+
+  return {
+    id,
+    username: pick(usernames) + Math.floor(Math.random() * 1000),
+    isOnline: Math.random() < 0.6,
+    commonCourses: [pick(courses), pick(courses)],
+    personalityProfile: {
+      personality: Math.random(),
+      preferred_time: Math.floor(Math.random() * 3) + 1,
+      in_person: Math.random() < 0.5 ? 0 : 1,
+      private_space: Math.random() < 0.5 ? 0 : 1,
+    },
+  };
+};
 
 const FriendsPage: React.FC = () => {
   const { personalityData } = useUser();
   const [friends, setFriends] = useState<Friend[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filter, setFilter] = useState<'all' | 'online' | 'offline' | 'matched'>('all');
+  const [randomPool, setRandomPool] = useState<Friend[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filter, setFilter] = useState<"all" | "online" | "offline">("all");
   const [overlayFriendId, setOverlayFriendId] = useState<string | null>(null);
-  const [chatTargetFriendId, setChatTargetFriendId] = useState<string | null>(null);
+  const [chatTargetFriendId, setChatTargetFriendId] = useState<string | null>(
+    null
+  );
+  const [showMatchedMessage, setShowMatchedMessage] = useState(false);
+  const [isMatchModalOpen, setIsMatchModalOpen] = useState(false);
+  const [selectedToAdd, setSelectedToAdd] = useState<Friend | null>(null);
 
   useEffect(() => {
-    if (!personalityData) {
-      setFriends(MOCK_FRIENDS);
-      return;
-    }
-
-    const userProfile = {
-      personality: personalityData.introversionExtroversion / 100,
-      preferred_time:
-        personalityData.preferredTime === 'Morning' ? 1 :
-        personalityData.preferredTime === 'Afternoon' ? 2 :
-        personalityData.preferredTime === 'Evening' ? 3 : 0,
-      in_person: personalityData.interactionType === 'In Person' ? 1 : 0,
-      private_space: personalityData.preferredSpace === 'Private' ? 1 : 0,
-    };
-
-    const scoredFriends = MOCK_FRIENDS.map(friend => {
-      const f = friend.personalityProfile;
-      const distance = Math.sqrt(
-        Math.pow(f.personality - userProfile.personality, 2) +
-        Math.pow(f.preferred_time - userProfile.preferred_time, 2) +
-        Math.pow(f.in_person - userProfile.in_person, 2) +
-        Math.pow(f.private_space - userProfile.private_space, 2)
-      );
-
-      return {
-        ...friend,
-        matched: friend.isOnline && distance < 2.2,
-      };
-    });
-
-    setFriends(scoredFriends);
-  }, [personalityData]);
+    // Load 5 friends initially
+    const initialFriends = Array.from({ length: 5 }, (_, i) =>
+      generateRandomFriend(i.toString())
+    );
+    const poolFriends = Array.from({ length: 10 }, (_, i) =>
+      generateRandomFriend((i + 100).toString())
+    );
+    setFriends(initialFriends);
+    setRandomPool(poolFriends);
+  }, []);
 
   const filteredFriends = useMemo(() => {
     return friends
-      .filter(friend => {
-        if (filter === 'online') return friend.isOnline;
-        if (filter === 'offline') return !friend.isOnline;
-        if (filter === 'matched') return friend.matched;
+      .filter((friend) => {
+        if (filter === "online") return friend.isOnline;
+        if (filter === "offline") return !friend.isOnline;
         return true;
       })
-      .filter(friend =>
+      .filter((friend) =>
         friend.username.toLowerCase().includes(searchTerm.toLowerCase())
       );
   }, [friends, searchTerm, filter]);
 
-  const overlayFriend = useMemo(() => {
-    return friends.find(f => f.id === overlayFriendId) || null;
-  }, [friends, overlayFriendId]);
-
-  const chatTargetFriend = useMemo(() => {
-    return friends.find(f => f.id === chatTargetFriendId) || null;
-  }, [friends, chatTargetFriendId]);
+  const overlayFriend = useMemo(
+    () => friends.find((f) => f.id === overlayFriendId) || null,
+    [friends, overlayFriendId]
+  );
+  const chatTargetFriend = useMemo(
+    () => friends.find((f) => f.id === chatTargetFriendId) || null,
+    [friends, chatTargetFriendId]
+  );
 
   return (
     <div className="w-full min-h-screen bg-background text-foreground">
@@ -155,23 +118,39 @@ const FriendsPage: React.FC = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full mb-4 px-4 py-2 border rounded-md text-sm"
               />
-              <div className="flex gap-2 mb-4">
-                {(['all', 'online', 'offline', 'matched'] as const).map(type => (
-                  <button
-                    key={type}
-                    onClick={() => setFilter(type)}
-                    className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
-                      filter === type
-                        ? 'bg-primary text-white'
-                        : 'bg-muted text-muted-foreground'
-                    }`}
-                  >
-                    {type.charAt(0).toUpperCase() + type.slice(1)}
-                  </button>
-                ))}
+
+              <div className="flex justify-between items-center mb-4">
+                <div className="flex gap-2">
+                  {["all", "online", "offline"].map((type) => (
+                    <button
+                      key={type}
+                      onClick={() => setFilter(type as any)}
+                      className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                        filter === type
+                          ? "bg-primary text-white"
+                          : "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {type.charAt(0).toUpperCase() + type.slice(1)}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  onClick={() => setIsMatchModalOpen(true)}
+                  className="px-3 py-1 rounded-md text-xs font-medium bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition-colors"
+                >
+                  Match Friends
+                </button>
               </div>
+
+              {showMatchedMessage && (
+                <div className="mb-2 text-sm font-semibold text-green-600 text-center animate-bounce">
+                  🎉 Matched!
+                </div>
+              )}
+
               <div className="space-y-2 overflow-y-auto">
-                {filteredFriends.map(friend => (
+                {filteredFriends.map((friend) => (
                   <FriendCard
                     key={friend.id}
                     friend={friend}
@@ -185,6 +164,7 @@ const FriendsPage: React.FC = () => {
               <FriendDetailsPanel friend={chatTargetFriend} />
             </div>
           </div>
+
           <AnimatePresence>
             {overlayFriend && (
               <FriendInfoOverlay
@@ -195,6 +175,72 @@ const FriendsPage: React.FC = () => {
             )}
           </AnimatePresence>
         </div>
+
+        {isMatchModalOpen && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+            <div className="bg-white dark:bg-card p-6 rounded-xl shadow-xl max-w-md w-full">
+              <h2 className="text-lg font-semibold mb-4">
+                Select a friend to match
+              </h2>
+              <div className="space-y-3 max-h-60 overflow-y-auto mb-4">
+                {randomPool
+                  .filter((f) => !friends.find((fr) => fr.id === f.id))
+                  .map((friend) => (
+                    <div
+                      key={friend.id}
+                      onClick={() => setSelectedToAdd(friend)}
+                      className={`cursor-pointer border rounded-md p-3 transition ${
+                        selectedToAdd?.id === friend.id
+                          ? "border-primary bg-muted"
+                          : "border-border"
+                      }`}
+                    >
+                      <div className="font-medium">{friend.username}</div>
+                      <div className="text-xs text-muted-foreground">
+                        Courses: {friend.commonCourses.join(", ")}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        Prefers{" "}
+                        {friend.personalityProfile.in_person
+                          ? "In-Person"
+                          : "Virtual"}
+                        ,{" "}
+                        {
+                          ["", "Morning", "Afternoon", "Evening"][
+                            friend.personalityProfile.preferred_time
+                          ]
+                        }
+                      </div>
+                    </div>
+                  ))}
+              </div>
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={() => setIsMatchModalOpen(false)}
+                  className="px-3 py-1 text-sm rounded-md bg-muted text-muted-foreground"
+                >
+                  Cancel
+                </button>
+                <button
+                  disabled={!selectedToAdd}
+                  onClick={() => {
+                    if (selectedToAdd) {
+                      setFriends((prev) => [...prev, selectedToAdd]);
+                      setChatTargetFriendId(selectedToAdd.id);
+                      setSelectedToAdd(null);
+                      setIsMatchModalOpen(false);
+                      setShowMatchedMessage(true);
+                      setTimeout(() => setShowMatchedMessage(false), 2000);
+                    }
+                  }}
+                  className="px-3 py-1 text-sm rounded-md bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50"
+                >
+                  Add Friend
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

@@ -14,7 +14,13 @@ import axios from "axios";
 
 // Remove unused theme/tab types if local state is removed
 // type Theme = "light" | "dark" | "clean";
-type ActiveTab = "Profile" | "Personalization" | "Notifications" | "Account" | "Privacy" | "Personality";
+type ActiveTab =
+  | "Profile"
+  | "Personalization"
+  | "Notifications"
+  | "Account"
+  | "Privacy"
+  | "Personality";
 
 // Simple Toggle Switch Component (can be moved to a separate file)
 interface ToggleSwitchProps {
@@ -35,17 +41,23 @@ interface UserData {
   };
 }
 
-const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ label, enabled, onChange }) => (
+const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
+  label,
+  enabled,
+  onChange,
+}) => (
   <div className="flex items-center justify-between p-3 bg-card rounded-md shadow-sm border border-border">
     <label className="text-sm font-medium text-card-foreground">{label}</label>
     <button
       onClick={() => onChange(!enabled)}
-      className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary ${enabled ? 'bg-primary' : 'bg-muted'
-        }`}
+      className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary ${
+        enabled ? "bg-primary" : "bg-muted"
+      }`}
     >
       <span
-        className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform duration-200 ease-in-out ${enabled ? 'translate-x-6' : 'translate-x-1'
-          }`}
+        className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform duration-200 ease-in-out ${
+          enabled ? "translate-x-6" : "translate-x-1"
+        }`}
       />
     </button>
   </div>
@@ -58,8 +70,8 @@ const Settings = () => {
   const token = localStorage.getItem("token");
   // Local state for form inputs, initialized from context
   const [formData, setFormData] = useState({
-    username: user?.username || '',
-    email: user?.email || '',
+    username: user?.username || "",
+    email: user?.email || "",
     // Add firstName, lastName if needed for editing
   });
 
@@ -71,17 +83,23 @@ const Settings = () => {
   });
 
   // Local state for Personality form inputs, initialized from context or defaults
-  const [personalityForm, setPersonalityForm] = useState<PersonalityData>(() => {
-    return personalityData || {
-      introversionExtroversion: 50,
-      preferredTime: null,
-      interactionType: null,
-      preferredSpace: null,
-    };
-  });
+  const [personalityForm, setPersonalityForm] = useState<PersonalityData>(
+    () => {
+      return (
+        personalityData || {
+          introversionExtroversion: 50,
+          preferredTime: null,
+          interactionType: null,
+          preferredSpace: null,
+        }
+      );
+    }
+  );
 
   // Local state for image preview
-  const [profilePreview, setProfilePreview] = useState<string | null>(user?.profileImageUrl || null);
+  const [profilePreview, setProfilePreview] = useState<string | null>(
+    user?.profileImageUrl || null
+  );
 
   // Update local form state if user context changes (e.g., after login)
   useEffect(() => {
@@ -153,7 +171,7 @@ const Settings = () => {
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handlePersonalityInputChange = (
@@ -163,11 +181,14 @@ const Settings = () => {
     let processedValue: string | number | null = value;
 
     // Convert slider value to number
-    if (name === 'introversionExtroversion') {
+    if (name === "introversionExtroversion") {
       processedValue = parseInt(value, 10);
     }
     // Handle null selection from dropdown
-    if ((name === 'preferredTime' || name === 'interactionType') && value === "") {
+    if (
+      (name === "preferredTime" || name === "interactionType") &&
+      value === ""
+    ) {
       processedValue = null;
     }
 
@@ -177,7 +198,7 @@ const Settings = () => {
         newState.preferredSpace = null;
       }
       // Ensure preferredSpace is null initially if interactionType is not 'In Person'
-      if (newState.interactionType !== 'In Person') {
+      if (newState.interactionType !== "In Person") {
         newState.preferredSpace = null;
       }
 
@@ -189,7 +210,7 @@ const Settings = () => {
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const { name, value } = event.target;
-    setPersonalityForm(prev => ({ ...prev, [name]: value }));
+    setPersonalityForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSavePersonality = async () => {
@@ -214,12 +235,10 @@ const Settings = () => {
 
       if (personalityForm.preferredSpace === "Public") {
         preferredSpace = 1;
-      }
-      else {
+      } else {
         preferredSpace = 0;
       }
-    }
-    else {
+    } else {
       interactionType = 0;
       preferredSpace = 0;
     }
@@ -237,7 +256,8 @@ const Settings = () => {
       "private_space": preferredSpace,
     };
 
-    await axios.post('http://localhost:6005/set', preferencesSend)
+    await axios
+      .post("http://localhost:6005/set", preferencesSend)
       .then((response) => {
         // console.log(response);
       })
@@ -247,7 +267,7 @@ const Settings = () => {
   };
 
   const handlePrivacyToggle = (key: keyof typeof privacySettings) => {
-    setPrivacySettings(prev => ({ ...prev, [key]: !prev[key] }));
+    setPrivacySettings((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   const handleSavePrivacySettings = () => {
@@ -295,12 +315,23 @@ const Settings = () => {
   };
 
   const handleDeleteAccount = () => {
-    if (window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+    if (
+      window.confirm(
+        "Are you sure you want to delete your account? This action cannot be undone."
+      )
+    ) {
       console.log("Account deletion requested.");
     }
   };
 
-  const tabs: ActiveTab[] = ["Profile", "Personalization", "Notifications", "Account", "Privacy", "Personality"];
+  const tabs: ActiveTab[] = [
+    "Profile",
+    "Personalization",
+    "Notifications",
+    "Account",
+    "Privacy",
+    "Personality",
+  ];
 
   const renderContent = () => {
     // Restore original content structure
@@ -309,27 +340,54 @@ const Settings = () => {
         // Restore original Profile placeholder content
         return (
           <div>
-            <h2 className="text-xl font-semibold mb-4 text-emphasis">Profile Settings</h2>
+            <h2 className="text-xl font-semibold mb-4 text-emphasis">
+              Profile Settings
+            </h2>
             {/* <ProfileSettings handleProfileUpload={handleProfileUpload} /> */}
-            <p className="text-muted-foreground italic text-sm">Profile Settings component missing. Implement in /settings_pages/ProfileSettings.tsx</p>
+            <p className="text-muted-foreground italic text-sm">
+              Profile Settings component missing. Implement in
+              /settings_pages/ProfileSettings.tsx
+            </p>
             {/* Placeholder Content */}
             <div className="space-y-6 mt-4">
               <div className="flex items-center space-x-4">
                 {profilePreview ? (
-                  <img src={profilePreview} alt="Profile Preview" className="w-20 h-20 rounded-full object-cover border-2 border-border" />
+                  <img
+                    src={profilePreview}
+                    alt="Profile Preview"
+                    className="w-20 h-20 rounded-full object-cover border-2 border-border"
+                  />
                 ) : (
                   <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
                     <span className="text-xs">No Image</span>
                   </div>
                 )}
                 <div>
-                  <label htmlFor="profilePicInput" className="cursor-pointer text-sm font-medium text-primary hover:underline">Upload Profile Picture</label>
-                  <input id="profilePicInput" type="file" accept="image/*" onChange={handleProfileUpload} className="hidden" />
-                  <p className="text-xs text-muted-foreground mt-1">PNG, JPG, GIF up to 5MB</p>
+                  <label
+                    htmlFor="profilePicInput"
+                    className="cursor-pointer text-sm font-medium text-primary hover:underline"
+                  >
+                    Upload Profile Picture
+                  </label>
+                  <input
+                    id="profilePicInput"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleProfileUpload}
+                    className="hidden"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    PNG, JPG, GIF up to 5MB
+                  </p>
                 </div>
               </div>
               <div>
-                <label htmlFor="username" className="block text-sm font-medium text-foreground">Username</label>
+                <label
+                  htmlFor="username"
+                  className="block text-sm font-medium text-foreground"
+                >
+                  Username
+                </label>
                 <input
                   id="username"
                   name="username" // Name matches state key
@@ -341,7 +399,12 @@ const Settings = () => {
                 />
               </div>
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-foreground">Email</label>
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-foreground"
+                >
+                  Email
+                </label>
                 <input
                   id="email"
                   name="email" // Name matches state key
@@ -365,32 +428,41 @@ const Settings = () => {
         // Keep the updated Personalization content
         return (
           <div>
-            <h2 className="text-xl font-semibold mb-4 text-emphasis">Personalization</h2>
+            <h2 className="text-xl font-semibold mb-4 text-emphasis">
+              Personalization
+            </h2>
             <div className="space-y-4 mt-4">
-              <p className="text-sm font-medium text-foreground">Select Theme:</p>
+              <p className="text-sm font-medium text-foreground">
+                Select Theme:
+              </p>
               <div className="flex space-x-4">
-                {(['light', 'dark', 'clean'] as Theme[]).map((themeOption) => (
+                {(["light", "dark", "clean"] as Theme[]).map((themeOption) => (
                   <button
                     key={themeOption}
                     onClick={() => {
                       // Removed console log for clarity now
                       setTheme(themeOption);
                     }}
-                    className={`px-4 py-2 rounded-md border transition duration-300 text-sm font-medium capitalize ${theme === themeOption
-                      ? 'bg-primary text-primary-foreground border-primary/50 ring-2 ring-primary'
-                      : 'bg-secondary text-secondary-foreground hover:bg-accent hover:text-accent-foreground border-border'
-                      }`}
+                    className={`px-4 py-2 rounded-md border transition duration-300 text-sm font-medium capitalize ${
+                      theme === themeOption
+                        ? "bg-primary text-primary-foreground border-primary/50 ring-2 ring-primary"
+                        : "bg-secondary text-secondary-foreground hover:bg-accent hover:text-accent-foreground border-border"
+                    }`}
                   >
-                    {themeOption === 'clean' ? 'Beige' : themeOption}
+                    {themeOption === "clean" ? "Beige" : themeOption}
                   </button>
                 ))}
               </div>
               <div className="mt-4 p-4 bg-card rounded-lg border border-border">
-                <h3 className="font-semibold text-card-foreground mb-2 capitalize">{theme === 'clean' ? 'Beige' : theme} Mode Active</h3>
+                <h3 className="font-semibold text-card-foreground mb-2 capitalize">
+                  {theme === "clean" ? "Beige" : theme} Mode Active
+                </h3>
                 <p className="text-sm text-muted-foreground">
-                  {theme === 'light' && "The default light theme with vibrant accents."}
-                  {theme === 'dark' && "A dark theme designed for low-light environments."}
-                  {theme === 'clean' && "The minimalist beige-core theme."}
+                  {theme === "light" &&
+                    "The default light theme with vibrant accents."}
+                  {theme === "dark" &&
+                    "A dark theme designed for low-light environments."}
+                  {theme === "clean" && "The minimalist beige-core theme."}
                 </p>
               </div>
             </div>
@@ -400,22 +472,57 @@ const Settings = () => {
         // Restore original Notifications placeholder content
         return (
           <div>
-            <h2 className="text-xl font-semibold mb-4 text-foreground">Notifications</h2>
+            <h2 className="text-xl font-semibold mb-4 text-foreground">
+              Notifications
+            </h2>
             {/* <NotificationSettings toggleNotificationSetting={toggleNotificationSetting} /> */}
-            <p className="text-muted-foreground italic text-sm">Notification Settings component missing. Implement in /settings_pages/NotificationSettings.tsx</p>
+            <p className="text-muted-foreground italic text-sm">
+              Notification Settings component missing. Implement in
+              /settings_pages/NotificationSettings.tsx
+            </p>
             {/* Placeholder Content - Using theme variables */}
             <div className="space-y-4 mt-4">
               <div className="flex items-center justify-between p-3 bg-card rounded-md shadow-sm border border-border">
-                <label htmlFor="emailNotifications" className="text-sm font-medium text-card-foreground">Email Notifications</label>
-                <button onClick={() => toggleNotificationSetting('email')} className="px-3 py-1 bg-secondary text-secondary-foreground rounded-md hover:opacity-90 transition duration-300 text-xs font-semibold">Toggle</button>
+                <label
+                  htmlFor="emailNotifications"
+                  className="text-sm font-medium text-card-foreground"
+                >
+                  Email Notifications
+                </label>
+                <button
+                  onClick={() => toggleNotificationSetting("email")}
+                  className="px-3 py-1 bg-secondary text-secondary-foreground rounded-md hover:opacity-90 transition duration-300 text-xs font-semibold"
+                >
+                  Toggle
+                </button>
               </div>
               <div className="flex items-center justify-between p-3 bg-card rounded-md shadow-sm border border-border">
-                <label htmlFor="appAlerts" className="text-sm font-medium text-card-foreground">App Alerts</label>
-                <button onClick={() => toggleNotificationSetting('appAlerts')} className="px-3 py-1 bg-secondary text-secondary-foreground rounded-md hover:opacity-90 transition duration-300 text-xs font-semibold">Toggle</button>
+                <label
+                  htmlFor="appAlerts"
+                  className="text-sm font-medium text-card-foreground"
+                >
+                  App Alerts
+                </label>
+                <button
+                  onClick={() => toggleNotificationSetting("appAlerts")}
+                  className="px-3 py-1 bg-secondary text-secondary-foreground rounded-md hover:opacity-90 transition duration-300 text-xs font-semibold"
+                >
+                  Toggle
+                </button>
               </div>
               <div className="flex items-center justify-between p-3 bg-card rounded-md shadow-sm border border-border">
-                <label htmlFor="marketingEmails" className="text-sm font-medium text-card-foreground">Marketing Emails</label>
-                <button onClick={() => toggleNotificationSetting('marketing')} className="px-3 py-1 bg-secondary text-secondary-foreground rounded-md hover:opacity-90 transition duration-300 text-xs font-semibold">Toggle</button>
+                <label
+                  htmlFor="marketingEmails"
+                  className="text-sm font-medium text-card-foreground"
+                >
+                  Marketing Emails
+                </label>
+                <button
+                  onClick={() => toggleNotificationSetting("marketing")}
+                  className="px-3 py-1 bg-secondary text-secondary-foreground rounded-md hover:opacity-90 transition duration-300 text-xs font-semibold"
+                >
+                  Toggle
+                </button>
               </div>
             </div>
           </div>
@@ -424,23 +531,45 @@ const Settings = () => {
         // Restore original Account placeholder content
         return (
           <div>
-            <h2 className="text-xl font-semibold mb-4 text-foreground">Account</h2>
+            <h2 className="text-xl font-semibold mb-4 text-foreground">
+              Account
+            </h2>
             {/* <AccountSettings /> */}
-            <p className="text-muted-foreground italic text-sm">Account Settings component missing. Implement in /settings_pages/AccountSettings.tsx</p>
+            <p className="text-muted-foreground italic text-sm">
+              Account Settings component missing. Implement in
+              /settings_pages/AccountSettings.tsx
+            </p>
             {/* Placeholder Content - Using theme variables */}
             <div className="space-y-6 mt-4">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Change Password</label>
-                <button className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:opacity-90 transition duration-300 text-sm font-semibold">Change Password</button>
+                <label className="block text-sm font-medium text-foreground mb-1">
+                  Change Password
+                </label>
+                <button className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:opacity-90 transition duration-300 text-sm font-semibold">
+                  Change Password
+                </button>
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Manage Connected Accounts</label>
-                <button className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:opacity-90 transition duration-300 text-sm font-semibold">Manage Accounts</button>
+                <label className="block text-sm font-medium text-foreground mb-1">
+                  Manage Connected Accounts
+                </label>
+                <button className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:opacity-90 transition duration-300 text-sm font-semibold">
+                  Manage Accounts
+                </button>
               </div>
               <div className="border-t border-destructive pt-4 mt-4">
-                <label className="block text-sm font-medium text-destructive">Delete Account</label>
-                <p className="text-xs text-destructive/80 mb-2">Permanently delete your account and all associated data.</p>
-                <button onClick={handleDeleteAccount} className="px-4 py-2 bg-destructive text-destructive-foreground rounded-md hover:opacity-90 transition duration-300 text-sm font-semibold">Delete Account</button>
+                <label className="block text-sm font-medium text-destructive">
+                  Delete Account
+                </label>
+                <p className="text-xs text-destructive/80 mb-2">
+                  Permanently delete your account and all associated data.
+                </p>
+                <button
+                  onClick={handleDeleteAccount}
+                  className="px-4 py-2 bg-destructive text-destructive-foreground rounded-md hover:opacity-90 transition duration-300 text-sm font-semibold"
+                >
+                  Delete Account
+                </button>
               </div>
             </div>
           </div>
@@ -449,29 +578,38 @@ const Settings = () => {
         // Add new Privacy settings content here
         return (
           <div>
-            <h2 className="text-xl font-semibold mb-4 text-foreground">Privacy</h2>
+            <h2 className="text-xl font-semibold mb-4 text-foreground">
+              Privacy
+            </h2>
             {/* <PrivacySettings /> */}
-            <p className="text-muted-foreground italic text-sm mb-6">Privacy settings component missing. Implement in /settings_pages/PrivacySettings.tsx</p>
+            <p className="text-muted-foreground italic text-sm mb-6">
+              Privacy settings component missing. Implement in
+              /settings_pages/PrivacySettings.tsx
+            </p>
 
             {/* --- New Contact Information Sharing Section --- */}
             <div className="space-y-4 border-t border-border pt-6">
-              <h3 className="text-lg font-medium text-emphasis mb-2">Contact Information Sharing</h3>
-              <p className="text-sm text-muted-foreground mb-4">Choose which contact details friends can see or request.</p>
+              <h3 className="text-lg font-medium text-emphasis mb-2">
+                Contact Information Sharing
+              </h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Choose which contact details friends can see or request.
+              </p>
 
               <ToggleSwitch
                 label="Allow friends to see Email"
                 enabled={privacySettings.emailPublic}
-                onChange={() => handlePrivacyToggle('emailPublic')}
+                onChange={() => handlePrivacyToggle("emailPublic")}
               />
               <ToggleSwitch
                 label="Allow friends to see Discord"
                 enabled={privacySettings.discordPublic}
-                onChange={() => handlePrivacyToggle('discordPublic')}
+                onChange={() => handlePrivacyToggle("discordPublic")}
               />
               <ToggleSwitch
                 label="Allow friends to see Social Media Links"
                 enabled={privacySettings.socialMediaPublic}
-                onChange={() => handlePrivacyToggle('socialMediaPublic')}
+                onChange={() => handlePrivacyToggle("socialMediaPublic")}
               />
 
               <div className="mt-6">
@@ -488,26 +626,43 @@ const Settings = () => {
             {/* Placeholder Content - Using theme variables */}
             {/* Keep existing placeholders for now, or remove if replaced by new section */}
             <div className="space-y-4 mt-8 border-t border-border pt-6">
-              <h3 className="text-lg font-medium text-emphasis mb-2">Data Management</h3>
-              <button className="w-full text-left px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:opacity-90 transition duration-300 text-sm font-semibold">Request Data Download</button>
-              <button className="w-full text-left px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:opacity-90 transition duration-300 text-sm font-semibold">View Activity Logs</button>
-              <button className="w-full text-left px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:opacity-90 transition duration-300 text-sm font-semibold">Manage Permissions</button>
+              <h3 className="text-lg font-medium text-emphasis mb-2">
+                Data Management
+              </h3>
+              <button className="w-full text-left px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:opacity-90 transition duration-300 text-sm font-semibold">
+                Request Data Download
+              </button>
+              <button className="w-full text-left px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:opacity-90 transition duration-300 text-sm font-semibold">
+                View Activity Logs
+              </button>
+              <button className="w-full text-left px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:opacity-90 transition duration-300 text-sm font-semibold">
+                Manage Permissions
+              </button>
             </div>
           </div>
         );
       case "Personality":
         return (
           <div>
-            <h2 className="text-xl font-semibold mb-4 text-emphasis">Personality Quiz</h2>
-            <p className="text-sm text-muted-foreground mb-6">Tell us a bit about your preferences to help tailor your experience.</p>
+            <h2 className="text-xl font-semibold mb-4 text-emphasis">
+              Personality Quiz
+            </h2>
+            <p className="text-sm text-muted-foreground mb-6">
+              Tell us a bit about your preferences to help tailor your
+              experience.
+            </p>
 
             <div className="space-y-8">
-
-              {/* 1. Introversion/Extroversion Slider */}
+              {/* 1. Introversion/Extroversion Slider with Floating Number */}
               <div className="space-y-2">
-                <label htmlFor="introversionExtroversion" className="block text-sm font-medium text-foreground">How introverted or extroverted are you?</label>
-                <div className="flex items-center space-x-4">
-                  <span className="text-xs text-muted-foreground">Introverted</span>
+                <label
+                  htmlFor="introversionExtroversion"
+                  className="block text-sm font-medium text-foreground"
+                >
+                  How introverted or extroverted are you?
+                </label>
+
+                <div className="relative w-full">
                   <input
                     id="introversionExtroversion"
                     name="introversionExtroversion"
@@ -518,14 +673,38 @@ const Settings = () => {
                     onChange={handlePersonalityInputChange}
                     className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
                   />
-                  <span className="text-xs text-muted-foreground">Extroverted</span>
+
+                  <div
+                    className="absolute text-xs font-semibold text-emphasis pointer-events-none"
+                    style={{
+                      left: `calc(${
+                        personalityForm.introversionExtroversion
+                      }% - ${
+                        0.15 * personalityForm.introversionExtroversion
+                      }px)`,
+                      top: "1.5rem",
+                      maxWidth: "100%",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {personalityForm.introversionExtroversion}
+                  </div>
                 </div>
-                <div className="text-center text-sm font-semibold text-emphasis">{personalityForm.introversionExtroversion}</div>
+
+                <div className="flex justify-between text-xs text-muted-foreground mt-2">
+                  <span>Introverted</span>
+                  <span>Extroverted</span>
+                </div>
               </div>
 
               {/* 2. Preferred Time Dropdown */}
               <div className="space-y-2">
-                <label htmlFor="preferredTime" className="block text-sm font-medium text-foreground">What is your preferred study time period?</label>
+                <label
+                  htmlFor="preferredTime"
+                  className="block text-sm font-medium text-foreground"
+                >
+                  What is your preferred study time period?
+                </label>
                 <select
                   id="preferredTime"
                   name="preferredTime"
@@ -542,10 +721,15 @@ const Settings = () => {
 
               {/* 3. Interaction Type Radio */}
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-foreground">Preferred Interaction Type?</label>
+                <label className="block text-sm font-medium text-foreground">
+                  Preferred Interaction Type?
+                </label>
                 <div className="flex space-x-4 mt-1">
-                  {(['In Person', 'Virtual'] as const).map(type => (
-                    <label key={type} className="flex items-center space-x-2 cursor-pointer">
+                  {(["In Person", "Virtual"] as const).map((type) => (
+                    <label
+                      key={type}
+                      className="flex items-center space-x-2 cursor-pointer"
+                    >
                       <input
                         type="radio"
                         name="interactionType"
@@ -560,14 +744,18 @@ const Settings = () => {
                 </div>
               </div>
 
-
               {/* 4. Conditional Preferred Space Radio (Only if 'In Person' is selected) */}
-              {personalityForm.interactionType === 'In Person' && (
+              {personalityForm.interactionType === "In Person" && (
                 <div className="space-y-2 pl-4 border-l-2 border-border ml-2">
-                  <label className="block text-sm font-medium text-foreground">Preferred meeting space?</label>
+                  <label className="block text-sm font-medium text-foreground">
+                    Preferred meeting space?
+                  </label>
                   <div className="flex space-x-4 mt-1">
-                    {(['Public', 'Private'] as const).map(space => (
-                      <label key={space} className="flex items-center space-x-2 cursor-pointer">
+                    {(["Public", "Private"] as const).map((space) => (
+                      <label
+                        key={space}
+                        className="flex items-center space-x-2 cursor-pointer"
+                      >
                         <input
                           type="radio"
                           name="preferredSpace"
@@ -576,7 +764,9 @@ const Settings = () => {
                           onChange={handlePersonalityRadioChange}
                           className="form-radio h-4 w-4 text-primary border-border focus:ring-primary/50"
                         />
-                        <span className="text-sm text-foreground">{space} space</span>
+                        <span className="text-sm text-foreground">
+                          {space} space
+                        </span>
                       </label>
                     ))}
                   </div>
@@ -589,22 +779,10 @@ const Settings = () => {
                   onClick={handleSavePersonality}
                   className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:opacity-90 transition duration-300 text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                   // Optionally disable button if !isPersonalityComplete (though user might want to save partially)
-                  disabled={
-                    !(
-                      personalityForm.introversionExtroversion >= 0 &&
-                      personalityForm.preferredTime &&
-                      personalityForm.interactionType &&
-                      (
-                        personalityForm.interactionType !== 'In Person' ||
-                        personalityForm.preferredSpace
-                      )
-                    )
-                  }
                 >
                   Save Personality Preferences
                 </button>
               </div>
-
             </div>
           </div>
         );
@@ -630,11 +808,11 @@ const Settings = () => {
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`w-full text-left px-4 py-2 rounded-md transition duration-300 text-sm font-medium
-                  ${activeTab === tab
-                    ? 'bg-primary text-primary-foreground' // Active tab style using theme vars
-                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' // Inactive tab style using theme vars
-                  }`
-                }
+                  ${
+                    activeTab === tab
+                      ? "bg-primary text-primary-foreground" // Active tab style using theme vars
+                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground" // Inactive tab style using theme vars
+                  }`}
               >
                 {tab}
               </button>
