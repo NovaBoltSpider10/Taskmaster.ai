@@ -461,13 +461,6 @@ const Settings = () => {
             <h2 className="text-xl font-semibold mb-4 text-emphasis">Personality Quiz</h2>
             <p className="text-sm text-muted-foreground mb-6">Tell us a bit about your preferences to help tailor your experience.</p>
 
-            {/* Validation Status */}
-            {!isPersonalityComplete && (
-              <div className="mb-4 p-3 bg-destructive/10 text-destructive border border-destructive/30 rounded-md text-sm">
-                Please complete all questions to enable related features.
-              </div>
-            )}
-
             <div className="space-y-8">
 
               {/* 1. Introversion/Extroversion Slider */}
@@ -556,7 +549,7 @@ const Settings = () => {
                   onClick={handleSavePersonality}
                   className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:opacity-90 transition duration-300 text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                   // Optionally disable button if !isPersonalityComplete (though user might want to save partially)
-                  disabled={!isPersonalityComplete}
+                  // disabled={!isPersonalityComplete}
                 >
                   Save Personality Preferences
                 </button>
