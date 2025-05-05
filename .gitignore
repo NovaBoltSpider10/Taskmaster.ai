@@ -3,5 +3,3 @@ uploads/
 .env
 .venv
 __pycache__/
-/flask_server/__pycache__
-a
