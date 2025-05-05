@@ -1,6 +1,7 @@
 from User import User
 from user_matching import *
 from mongo import *
+from gameify import *
 
 from flask import Flask, jsonify, request, make_response
 from flask_restful import Resource, Api
@@ -79,11 +80,35 @@ class SetPreferences(Resource):
 
 class FinishTask(Resource):
     def post(self):
-        pass
+        users = client['test']['users']
+        userId = request.get_json().get('userId')
+        user = users.find_one({"_id": ObjectId(userId)})
+        
+        user.last_task_date = datetime.now().date() - timedelta(days=1)  # for streak
+
+        tasks = [
+            ("monthly", date.today() + timedelta(days=10)),
+            ("monthly", date.today() + timedelta(days=10)),
+            ("monthly", date.today() + timedelta(days=10)),
+            ("monthly", date.today() + timedelta(days=10)),
+            ("daily", date.today() + timedelta(days=1)),
+            ("daily", date.today() + timedelta(days=1)),
+            ("daily", date.today() + timedelta(days=1))
+        ]
+
+        for i, (task_type, deadline) in enumerate(tasks):
+            print(f"\n--- Task {i+1} ---")
+            ps = PointSystem(user, task_type, deadline)
+            earned = ps.calculate_points()
+            print(f"Earned: {earned}")
+            print(f"Streak: {user.streak}")
+            print(f"Points: {user.points}")
+            print(f"Level: {user.level}")
 
 
 api.add_resource(MatchRequest, "/match")
 api.add_resource(SetPreferences, "/set")
+api.add_resource(FinishTask, "/finish")
 
 if __name__ == "__main__":
     app.run(host="localhost", port=6005, debug=True)

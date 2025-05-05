@@ -15,7 +15,7 @@ class User:
         self.streak = userObject.get("streak") if userObject.get("streak") else 0
         self.last_task_date = userObject.get("lastTaskDate")
         self.group_number = userObject.get("groupNumber") if userObject.get("groupNumber") else 0
-        self.level = userObject.get("level") if userObject.get("level") else 0
+        self.level = userObject.get("level") if userObject.get("level") else 1
 
     def streak_update(self, client: MongoClient):
         db = client['test']
