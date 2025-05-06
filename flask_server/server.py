@@ -1,13 +1,12 @@
 from User import User
 from user_matching import *
 from mongo import *
+from gameify import *
 
 from flask import Flask, jsonify, request, make_response
 from flask_restful import Resource, Api
 from flask_cors import CORS
 from bson.objectid import ObjectId
-
-from gameify import handle_task_completion
 
 app = Flask(__name__)
 CORS(app, resources={r'/*': {'origins': '*'}}, supports_credentials=True)
@@ -20,7 +19,7 @@ class MatchRequest(Resource):
         userId = request.get_json().get('userId')
 
         if group_number := users.find_one({"_id": ObjectId(userId)}).get('groupNumber'):
-            return (jsonify({"group_number": group_number}), 200)
+            return make_response(jsonify({"group_number": group_number}), 200)
 
         match_client = UserMatchClient(users=[User(userObject=u) for u in users.find()])
 
@@ -50,9 +49,9 @@ class MatchRequest(Resource):
                         if u2.userId != ObjectId(userId):
                             matched_usernames.append(u2.name)
 
-                return (jsonify({"users": matched_usernames}), 200)
+                return make_response(jsonify({"users": matched_usernames}), 200)
 
-        return (jsonify({"message": "Error grouping user"}), 404)
+        return make_response(jsonify({"message": "Error grouping user"}), 404)
 
 
 class SetPreferences(Resource):
@@ -78,22 +77,28 @@ class SetPreferences(Resource):
         print (userId)
         return 200
 
+
+class SetPoints(Resource):
+    def get(self):
+        database = client['test']
+        return set_points(database)
+
+
 class CompleteTask(Resource):
     def post(self):
-        data = request.get_json()
+        user_id = request.get_json()['userId']
+        task_id = request.get_json()['taskId']
         try:
-            earned_points = handle_task_completion(data, client)
+            earned_points = handle_task_completion(user_id, task_id, client['test'])
             return make_response(jsonify({"earned_points": round(earned_points)}), 200)
         except Exception as e:
             print("Error in /complete_task:", e)
             return make_response(jsonify({"error": str(e)}), 500)
 
 
-
 api.add_resource(MatchRequest, "/match")
 api.add_resource(SetPreferences, "/set")
-
-# added apis to this class
+api.add_resource(SetPoints, "/set_points")
 api.add_resource(CompleteTask, "/complete_task")
 
 

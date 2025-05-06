@@ -1,7 +1,10 @@
-from datetime import date, datetime, timedelta
 from pymongo.mongo_client import MongoClient
-from User import User
+from pymongo.database import Database
 from bson.objectid import ObjectId
+from datetime import date, datetime, timedelta
+from math import floor
+
+from User import User
 
 
 class PointSystem:
@@ -49,7 +52,7 @@ class PointSystem:
         self.update_streak()
         self._level_up()
 
-        earned_points = base_points * multiplier + round(self.user.streak * 1.4)
+        earned_points = base_points * multiplier + floor(self.user.streak * 1.4)
         self.user.points += earned_points
 
         return earned_points
@@ -57,8 +60,7 @@ class PointSystem:
     def get_points(self):
         return self.user.points
 
-    def update_db(self, client: MongoClient, earned_points, user: User, task_id):
-        db = client['test']
+    def update_db(self, db: Database, earned_points, user: User):
         users = db['users']
 
         query_filter = {'_id': user.userId}
@@ -71,9 +73,6 @@ class PointSystem:
                 "lastTaskDate": datetime.combine(user.last_task_date, datetime.min.time())  # store as full datetime
             }
         }
-
-        # "completed": True, -> task db by task id
-        # "earnedPoints": earned_points, -> task db by task id
 
         users.update_one(query_filter, update_operation)
 
@@ -128,19 +127,50 @@ def test():
         print(f"Level: {user.level}")
 
 
-def handle_task_completion(data, client):
-    user_id = data.get("userId")
-    task_type = data.get("taskType", "daily")
-    deadline_str = data.get("deadline")
-    task_id = data.get("taskId")
+def get_task_data(db: Database):
+    for user in db['users'].find():
+        for class_collection in db['classes'].find({"user": str(user.get("_id"))}):
+            for task in db['tasks'].find({"class": class_collection.get("_id")}):
+                yield (user, task)
 
-    deadline = datetime.strptime(deadline_str, "%Y-%m-%d").date()
 
-    user = User(userId=user_id, client=client)
+def handle_task_completion(user_id: str, task_id: str, db: Database):
+    user = db['users'].find_one({"_id": ObjectId(user_id)})
+    task = db['tasks'].find_one({"_id": ObjectId(task_id)})
+
+    task_type = task.get("taskType")
+    deadline = task.get("deadline")
+    deadline = deadline.date()
+
+    user = User(userObject=user)
     ps = PointSystem(user, task_type, deadline)
     earned = ps.calculate_points()
 
-    ps.update_db(client, earned, user, task_id)
-    user.streak_update(client)
+    db['tasks'].update_one(
+        {"_id": task_id},
+        {"$set": {"completed": True}}
+    )
+    ps.update_db(db, earned, user)
+    user.streak_update(db)
 
     return earned
+
+
+def set_points(db: Database):
+    try:
+        for user, task in get_task_data(db):
+            if not task.get("completed"):
+                user_obj = User(userObject=user)
+                ps = PointSystem(user_obj, task.get("taskType"), task.get("deadline").date())
+                calculated_points = ps.calculate_points()
+                print(calculated_points)
+
+                db['tasks'].update_one(
+                    {"_id": task.get('_id')},
+                    {"$set": {"points": calculated_points }}
+                )
+
+        return 200
+    except Exception as e:
+        print("Error setting points: ", e)
+        return 500

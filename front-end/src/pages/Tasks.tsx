@@ -63,7 +63,10 @@ const Tasks = () => {
       }
 
       try {
-        // 1) Get user ID from /me endpoint
+        // 1) Update task points
+        await axios.get('http://localhost:6005/set_points');
+
+        // 2) Get user ID from /me endpoint
         const userRes = await axios.get<UserData>(
           "http://localhost:3000/user/me", // Use port 3000
           { headers: { "x-auth-token": token } }
@@ -71,7 +74,7 @@ const Tasks = () => {
         const userId = userRes.data._id;
         setUserId(userId);
 
-        // 2) Fetch classes for that user
+        // 3) Fetch classes for that user
         // Assume token needed here too
         const { data: classes } = await axios.get<ClassData[]>(
           `http://localhost:3000/class/user/${userId}`, // Use port 3000 and dynamic userId
@@ -85,7 +88,7 @@ const Tasks = () => {
           return;
         }
 
-        // 3) Fetch tasks for each class in parallel, tagging with className and location
+        // 4) Fetch tasks for each class in parallel, tagging with className and location
         // Assume token needed for fetching tasks
         const taskRequests = classes.map(async (c) => {
           try {
@@ -110,7 +113,7 @@ const Tasks = () => {
         const nestedTasks = await Promise.all(taskRequests);
         const tasksData = nestedTasks.flat(); // Flatten the array of arrays
 
-        // 4) Auto-patch any overdue "pending" tasks
+        // 5) Auto-patch any overdue "pending" tasks
         const now = new Date();
         const patchCalls = tasksData
           .filter((t) => t.status === "pending" && new Date(t.deadline) < now)
@@ -222,9 +225,7 @@ const Tasks = () => {
 
       // XP Logic
       const response = await axios.post("http://localhost:6005/complete_task", {
-        userId,
-        taskType: "daily", // hardcoded fallback
-        deadline: selectedTask.deadline.split("T")[0], // ensure YYYY-MM-DD
+        userId: userId,
         taskId: selectedTask._id,
       });
 
