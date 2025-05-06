@@ -22,6 +22,9 @@ interface UserData {
     inPerson: number;
     privateSpace: number;
     time: number;
+  points?: number;
+  streak?: number;
+  level?: number;
   };
 }
 

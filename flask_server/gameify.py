@@ -70,10 +70,10 @@ class PointSystem:
                 "streak": user.streak,
             },
             "$set": {
-                "lastTaskDate": datetime.combine(user.last_task_date, datetime.min.time())  # store as full datetime
+                "level": user.level,  
+                "lastTaskDate": datetime.combine(user.last_task_date, datetime.min.time())
             }
         }
-
         users.update_one(query_filter, update_operation)
 
     def _level_up(self):

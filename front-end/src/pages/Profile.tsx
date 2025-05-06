@@ -7,20 +7,25 @@ import { useTheme } from "../context/ThemeContext";
 
 const defaultImage = "/user.png";
 
+function getPointsToReachLevel(level: number): number {
+  let total = 0;
+  for (let i = 1; i < level; i++) {
+    total += 100 + 50 * (i - 1);
+  }
+  return total;
+}
+
 const Profile = () => {
-  const { user, setUserProfile, setUserState } = useUser();
+  const { user, setUserState } = useUser();
   const { theme } = useTheme();
 
-  const [profilePic, setProfilePic] = useState<string>(user?.profileImageUrl || defaultImage);
+  const [profilePic, setProfilePic] = useState<string>(
+    user?.profileImageUrl || defaultImage
+  );
 
-  const mockXP = {
-    current: 320,
-    max: 500,
-  };
+  const [xp, setXp] = useState({ current: 0, max: 100, percent: 0 });
+  const [level, setLevel] = useState(1); // ✅ Track level locally
 
-  const xpPercent = Math.min((mockXP.current / mockXP.max) * 100, 100);
-
-  // Fetch user data from DB on load
   useEffect(() => {
     const fetchUserData = async () => {
       const token = localStorage.getItem("token");
@@ -31,10 +36,35 @@ const Profile = () => {
           headers: { "x-auth-token": token },
         });
 
-        setUserState(res.data);
-        if (res.data.profileImageUrl) {
-          setProfilePic(res.data.profileImageUrl);
+        const userData = res.data;
+        setUserState(userData);
+
+        if (userData.profileImageUrl) {
+          setProfilePic(userData.profileImageUrl);
         }
+
+        // Recalculate level from points
+        let calculatedLevel = 1;
+        let tempPoints = userData.points || 0;
+
+        while (tempPoints >= 100 + 50 * (calculatedLevel - 1)) {
+          tempPoints -= 100 + 50 * (calculatedLevel - 1);
+          calculatedLevel++;
+        }
+
+        setLevel(calculatedLevel); // ✅ Update level state
+
+        const currentPoints = userData.points || 0;
+        const totalRequired = 100 + 50 * (calculatedLevel - 1);
+        const pointsThisLevel =
+          currentPoints - getPointsToReachLevel(calculatedLevel);
+        const percent = Math.min((pointsThisLevel / totalRequired) * 100, 100);
+
+        setXp({
+          current: pointsThisLevel,
+          max: totalRequired,
+          percent,
+        });
       } catch (err) {
         console.error("Failed to fetch user data:", err);
       }
@@ -51,8 +81,7 @@ const Profile = () => {
         if (reader.result) {
           const imageDataUrl = reader.result as string;
           setProfilePic(imageDataUrl);
-          setUserProfile({ profileImageUrl: imageDataUrl });
-          // Optional: upload imageDataUrl to backend here
+          setUserState({ profileImageUrl: imageDataUrl });
         }
       };
       reader.readAsDataURL(file);
@@ -68,20 +97,28 @@ const Profile = () => {
       <AnimatedBackground />
 
       <div className="relative z-10 max-w-xl mx-auto bg-card text-card-foreground rounded-2xl p-8 shadow-lg border border-border space-y-8">
-        <h1 className="text-3xl font-bold text-center text-emphasis">Profile</h1>
+        <h1 className="text-3xl font-bold text-center text-emphasis">
+          Profile
+        </h1>
 
         {/* XP Progress Bar */}
+        <h3 className="text-md font-semibold text-center text-emphasis mb-2">
+          Level {level}
+        </h3>
+
         <div>
-          <h2 className="text-lg font-semibold mb-2 text-emphasis">XP Progress</h2>
+          <h2 className="text-lg font-semibold mb-2 text-emphasis">
+            XP Progress
+          </h2>
           <div className="relative w-full h-6 bg-muted rounded-full overflow-hidden">
             <motion.div
               initial={{ width: 0 }}
-              animate={{ width: `${xpPercent}%` }}
+              animate={{ width: `${xp.percent}%` }}
               transition={{ duration: 1 }}
               className="h-full bg-primary"
             />
             <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-primary-foreground">
-              {mockXP.current} / {mockXP.max} XP
+              {xp.current} / {xp.max} XP
             </span>
           </div>
         </div>
@@ -110,7 +147,9 @@ const Profile = () => {
           </label>
 
           <div className="text-center">
-            <h3 className="text-xl font-bold text-emphasis">{user?.userName || "Username"}</h3>
+            <h3 className="text-xl font-bold text-emphasis">
+              {user?.userName || "Username"}
+            </h3>
             <p className="text-sm text-muted-foreground">
               {user?.email || "email@example.com"}
             </p>
@@ -122,7 +161,9 @@ const Profile = () => {
           </div>
 
           <div className="mt-6 p-4 bg-muted/50 rounded-lg w-full">
-            <h3 className="text-sm font-medium text-emphasis mb-2">Current Theme</h3>
+            <h3 className="text-sm font-medium text-emphasis mb-2">
+              Current Theme
+            </h3>
             <div className="flex items-center space-x-2">
               <div className="w-4 h-4 rounded-full bg-primary"></div>
               <span className="text-sm capitalize">
