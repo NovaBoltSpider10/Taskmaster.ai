@@ -108,7 +108,7 @@ const Profile = () => {
 
         <div>
           <h2 className="text-lg font-semibold mb-2 text-emphasis">
-            XP Progress
+            Points Progress
           </h2>
           <div className="relative w-full h-6 bg-muted rounded-full overflow-hidden">
             <motion.div
@@ -117,8 +117,8 @@ const Profile = () => {
               transition={{ duration: 1 }}
               className="h-full bg-primary"
             />
-            <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-primary-foreground">
-              {xp.current} / {xp.max} XP
+            <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-black dark:text-white">
+              {xp.current} / {xp.max} Points
             </span>
           </div>
         </div>
