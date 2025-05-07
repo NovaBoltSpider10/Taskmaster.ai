@@ -2,7 +2,7 @@ from pymongo.mongo_client import MongoClient
 from pymongo.database import Database
 from datetime import datetime
 from bson.objectid import ObjectId
-
+from dateutil.parser import parse
 
 class User:
     def __init__(self, userId: str = "", client: MongoClient = None, userObject: dict = None):
@@ -14,12 +14,16 @@ class User:
         self.name = userObject.get("userName") or ""
         self.points = userObject.get("points", 0) or 0
         self.streak = userObject.get("streak", 0) or 0
-        self.last_task_date = userObject.get("lastTaskDate") or ""
+        self.last_task_date = userObject.get("lastTaskDate")
 
         # Ensure last_task_date is always a datetime.date object
-        if isinstance(self.last_task_date, datetime):
+        if isinstance(self.last_task_date, str):
+            self.last_task_date = parse(self.last_task_date).date()
+        elif isinstance(self.last_task_date, datetime):
             self.last_task_date = self.last_task_date.date()
-
+        else:
+            self.last_task_date = None
+        
         self.group_number = userObject.get("groupNumber", 0) or 0
         self.level = userObject.get("level", 1) or 0
 

@@ -3,6 +3,7 @@ from pymongo.database import Database
 from bson.objectid import ObjectId
 from datetime import date, datetime, timedelta
 from math import floor
+from dateutil.parser import parse
 
 from User import User
 
@@ -27,6 +28,7 @@ class PointSystem:
         self.user.last_task_date = today
 
     def calculate_points(self):
+        
         base_points = 0
 
         if self.task_type in self.point_dict:
@@ -35,7 +37,12 @@ class PointSystem:
             print(f"Unknown task type: {self.task_type}")
             return 0
 
-        self.completion_time = date.today()
+        self.completion_time = datetime.now().date()
+
+        print(">> DEBUG: type(self.deadline) =", type(self.deadline))
+        print(">> DEBUG: type(self.completion_time) =", type(self.completion_time))
+        print(">> DEBUG: self.deadline =", self.deadline)
+        print(">> DEBUG: self.completion_time =", self.completion_time)
 
         early = (self.deadline - self.completion_time).days
         multiplier = 1.0
@@ -139,8 +146,17 @@ def handle_task_completion(user_id: str, task_id: str, db: Database):
     task = db['tasks'].find_one({"_id": ObjectId(task_id)})
 
     task_type = task.get("taskType")
-    deadline = task.get("deadline")
-    deadline = deadline.date()
+
+    deadline_raw = task.get("deadline")
+
+    if isinstance(deadline_raw, str):
+        deadline = parse(deadline_raw).date()
+    elif isinstance(deadline_raw, datetime):
+        deadline = deadline_raw.date()
+    elif isinstance(deadline_raw, date):
+        deadline = deadline_raw
+    else:
+        raise ValueError("Invalid deadline format")
 
     user = User(userObject=user)
     ps = PointSystem(user, task_type, deadline)
